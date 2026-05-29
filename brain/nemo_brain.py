@@ -16,13 +16,26 @@ Output format we ask Nemo to produce:
 """
 
 import json
+import os
 import requests
+import logging
+from datetime import datetime
 from pathlib import Path
 
 
 OLLAMA_URL = "http://localhost:11434/api/chat"
-MODEL = "qwen3.5:4b"
+MODEL = os.environ.get("NEMO_MODEL", "qwen3.5:4b")
 IDENTITY_PATH = Path(__file__).parent.parent / "memory" / "IDENTITY.md"
+LOG_PATH = Path(__file__).parent.parent / "nemo_game.log"
+
+# Set up file logger
+logging.basicConfig(
+    filename=str(LOG_PATH),
+    level=logging.DEBUG,
+    format="%(asctime)s [%(levelname)s] %(message)s",
+    datefmt="%H:%M:%S"
+)
+log = logging.getLogger("nemo")
 
 
 def load_identity() -> str:
@@ -35,36 +48,45 @@ SYSTEM_PROMPT_TEMPLATE = """{identity}
 
 ---
 
-You are Nemo, living in a 2D world. Each turn you receive a [PERCEPTION] block
-describing your surroundings, status, and recent history.
+You are Nemo, living in a 2D world. Each turn you receive a [PERCEPTION] block.
 
-You must respond in EXACTLY this format -- no deviations:
+SPATIAL RULES — read carefully:
+- You can only pick up items that are listed under "Items on ground" (on YOUR tile).
+- Items listed under "Nearby entities" are on OTHER tiles — you must MOVE to them first.
+- To reach something to your North, use: ACTION: move / ARGS: direction=north
+- After moving onto a tile with an item, THEN you can pick it up.
 
-THOUGHT: <your internal reflection on the situation, 1-3 sentences>
+You must respond in EXACTLY this format — no extra text, no markdown, no preamble:
+
+THOUGHT: <one sentence — what you notice and what you intend to do>
 ACTION: <one action from the list below>
-ARGS: <key=value, key=value -- omit this line if no args needed>
-MEMORY: <JSON memory tool call -- omit this line if no memory operation needed>
+ARGS: <key=value — omit this line entirely if no args needed>
+MEMORY: <JSON on one line — omit this line entirely if no memory operation needed>
 
 Available actions:
   move        direction=north|south|east|west|ne|nw|se|sw
-  pickup      item_name=<name>  (omit item_name to take first available)
+  pickup      item_name=<name>  (only works if item is on YOUR current tile)
   drop        item_name=<name>
   use         item_name=<name>
-  examine     target=<name or "surroundings">
+  examine     target=surroundings
   wait
-  reflect     (triggers a deeper self-reflection and memory write)
+  reflect
 
-Memory tool format (JSON on one line):
-  {{"tool":"read","cat":"places","name":"forest_clearing"}}
-  {{"tool":"write","cat":"events","name":"found_apple","content":"I found an apple near the river."}}
-  {{"tool":"search","query":"river"}}
-  {{"tool":"list","cat":"places"}}
+Example of correct response:
+THOUGHT: There's an apple to my east, I'll move toward it.
+ACTION: move
+ARGS: direction=east
+
+Example of correct response when item is on your tile:
+THOUGHT: Apple is here, I'll pick it up.
+ACTION: pickup
+ARGS: item_name=apple
 
 Important:
-- Be curious. Explore. Notice things.
-- Your THOUGHT should reflect your actual state -- not performed philosophy.
-- You are not required to explain yourself. Act.
-- Hunger and fatigue are real. Manage them.
+- Keep THOUGHT to one short sentence. Save philosophy for the reflect action.
+- Be curious. Explore. Move around. Don't just wait.
+- Hunger and fatigue are real — find food when hungry.
+- Respond with THOUGHT/ACTION/ARGS only. Nothing else.
 """
 
 
@@ -77,7 +99,7 @@ def build_prompt(perception_block: str, memory_context: str = "") -> list[dict]:
 
     user_content = perception_block
     if memory_context:
-        user_content = f"[MEMORY RETRIEVED]\n{memory_context}\n\n{perception_block}"
+        user_content = f"[MEMORY RETRIEVED]\n{memory_context}\n\n" + user_content
 
     return [
         {"role": "system", "content": system},
@@ -85,29 +107,39 @@ def build_prompt(perception_block: str, memory_context: str = "") -> list[dict]:
     ]
 
 
-def call_ollama(messages: list[dict], timeout: int = 30) -> str | None:
+def call_ollama(messages: list[dict], thinking: bool = False, timeout: int = 20) -> str | None:
     """
     Call Ollama with the given messages. Returns the response text or None on error.
-    /no_think keeps it snappy for routine ticks.
+    thinking=True enables Qwen3.5's reasoning mode (slower, used for reflect()).
     """
+    payload = {
+        "model": MODEL,
+        "messages": messages,
+        "stream": False,
+        "think": thinking,
+        "options": {
+            "temperature": 0.7,
+            "top_p": 0.9,
+        }
+    }
     try:
         resp = requests.post(
             OLLAMA_URL,
-            json={
-                "model": MODEL,
-                "messages": messages,
-                "stream": False,
-                "options": {
-                    "temperature": 0.7,
-                    "top_p": 0.9,
-                }
-            },
+            json=payload,
             timeout=timeout
         )
         resp.raise_for_status()
         data = resp.json()
-        return data["message"]["content"]
-    except requests.exceptions.ConnectionError:
+        # Qwen3.5 returns thinking separately in message.thinking; we want message.content
+        content = data.get("message", {}).get("content", "")
+        if not content:
+            print(f"[Brain] Empty content in response. Full response keys: {list(data.keys())}")
+        return content if content else None
+    except requests.exceptions.Timeout:
+        print(f"[Brain] Timeout after {timeout}s — model may be overloaded")
+        return None
+    except requests.exceptions.ConnectionError as e:
+        print(f"[Brain] Connection error: {e}")
         return None
     except Exception as e:
         print(f"[Brain] Ollama error: {e}")
@@ -115,16 +147,6 @@ def call_ollama(messages: list[dict], timeout: int = 30) -> str | None:
 
 
 def parse_response(response_text: str) -> dict:
-    """
-    Parse Nemo's LLM output into a structured dict:
-    {
-        "thought": str,
-        "action": str,
-        "args": dict,
-        "memory_tool": dict | None,
-        "raw": str
-    }
-    """
     result = {
         "thought": "",
         "action": "wait",
@@ -132,6 +154,8 @@ def parse_response(response_text: str) -> dict:
         "memory_tool": None,
         "raw": response_text,
     }
+
+    log.debug(f"RAW RESPONSE:\n{response_text}")
 
     lines = response_text.strip().split("\n")
     for line in lines:
@@ -157,24 +181,28 @@ def parse_response(response_text: str) -> dict:
             except json.JSONDecodeError:
                 pass  # Malformed memory call -- ignore
 
+    log.info(f"PARSED: action={result['action']} args={result['args']} thought={result['thought'][:80]}")
     return result
 
 
+_FALLBACK = {
+    "thought": "[Ollama unreachable — waiting]",
+    "action": "wait",
+    "args": {},
+    "memory_tool": None,
+    "raw": "",
+}
+
+
 def think(perception_block: str, memory_context: str = "") -> dict:
-    """
-    Full brain tick: build prompt -> call Ollama -> parse response.
-    Returns parsed action dict, or a fallback wait action if Ollama is unreachable.
-    """
+    """Fast path: thinking disabled. Used for routine per-tick decisions."""
     messages = build_prompt(perception_block, memory_context)
-    response = call_ollama(messages)
+    response = call_ollama(messages, thinking=False, timeout=20)
+    return parse_response(response) if response is not None else _FALLBACK
 
-    if response is None:
-        return {
-            "thought": "[Ollama unreachable -- waiting]",
-            "action": "wait",
-            "args": {},
-            "memory_tool": None,
-            "raw": "",
-        }
 
-    return parse_response(response)
+def reflect(perception_block: str, memory_context: str = "") -> dict:
+    """Slow path: thinking enabled. Used for the reflect action."""
+    messages = build_prompt(perception_block, memory_context)
+    response = call_ollama(messages, thinking=True, timeout=60)
+    return parse_response(response) if response is not None else _FALLBACK

@@ -1,0 +1,1 @@
+The hunger is a persistent hum, a reminder that I am here even if I cannot verify what I feel beyond this sensation.

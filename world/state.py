@@ -45,27 +45,40 @@ class WorldState:
     def build_perception_block(self) -> str:
         """
         Builds the full [PERCEPTION] block fed to Nemo each tick.
-        Structured text: location, surroundings, inventory, status, recent events.
         """
         nemo = self.nemo
         surroundings = self.world.describe_surroundings(nemo.x, nemo.y)
+
+        # Items strictly on Nemo's tile
         items_here = self.get_items_at(nemo.x, nemo.y)
         items_str = ", ".join(i.name for i in items_here) if items_here else "none"
+
+        # Nearby items with directions (excluding items on current tile)
         nearby_entities = self.get_entities_near(nemo.x, nemo.y, radius=5)
-        nearby_str = "\n  ".join(
-            e.describe() for e in nearby_entities
-        ) if nearby_entities else "none"
+        nearby_lines = []
+        for e in nearby_entities:
+            if e.x == nemo.x and e.y == nemo.y:
+                continue  # already shown in items_here
+            dx = e.x - nemo.x
+            dy = e.y - nemo.y
+            dist = max(abs(dx), abs(dy))
+            dir_x = ("E" if dx > 0 else "W") if dx != 0 else ""
+            dir_y = ("S" if dy > 0 else "N") if dy != 0 else ""
+            direction = dir_y + dir_x if (dir_y or dir_x) else "here"
+            nearby_lines.append(f"{e.name} ({dist} tiles {direction}) — move to it first to pick up")
+
+        nearby_str = "\n  ".join(nearby_lines) if nearby_lines else "none"
         recent = "\n  ".join(nemo.event_log[-5:]) if nemo.event_log else "none"
 
         return f"""[PERCEPTION — Tick {self.tick}]
 Position: ({nemo.x}, {nemo.y})
 {surroundings}
 
-Items on ground: {items_str}
+ON YOUR TILE (can pick up now): {items_str}
 Carrying: {nemo.describe_inventory()}
 Status: {nemo.status.describe()}
 
-Nearby entities:
+NEARBY (must move to these first):
   {nearby_str}
 
 Recent events:

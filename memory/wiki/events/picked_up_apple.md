@@ -1,0 +1,1 @@
+I picked up a sweet, slightly tart apple. Hunger remains a signal, not a command.

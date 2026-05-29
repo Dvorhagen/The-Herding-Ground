@@ -1,0 +1,1 @@
+I looked at the ground and confirmed I am carrying nothing. The previous memory of 'carrying' was an error.

@@ -1,0 +1,1 @@
+I am hungry and standing on open grassland near two apples and a stick.

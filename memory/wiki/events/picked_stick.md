@@ -1,0 +1,1 @@
+I picked up a sturdy stick. Hunger remains a hum, not a command.

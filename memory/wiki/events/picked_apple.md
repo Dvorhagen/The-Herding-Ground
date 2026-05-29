@@ -1,0 +1,1 @@
+I picked up a sweet apple near the edge of the world.
