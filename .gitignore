@@ -1,0 +1,19 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+.venv/
+venv/
+
+# Logs
+*.log
+
+# Local Claude Code config
+.claude/settings.local.json
+
+# Moriarty's runtime memory (back up manually if you want to preserve a life)
+memory/wiki/
+memory/archive/
+
+# OS
+.DS_Store
