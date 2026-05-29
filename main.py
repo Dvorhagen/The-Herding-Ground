@@ -119,6 +119,7 @@ def _process_nemo_result(action_dict, nemo, world_state, renderer):
 
     if action_dict["memory_tool"]:
         mem_result = wiki.execute_memory_tool(action_dict["memory_tool"])
+        world_state.pending_memory_result = mem_result
         renderer.add_message(f"[MEM] {mem_result[:80]}")
 
     result = apply_action(action_dict["action"], action_dict["args"],
@@ -127,20 +128,11 @@ def _process_nemo_result(action_dict, nemo, world_state, renderer):
         world_state.advance_tick()
         renderer.center_on(nemo.x, nemo.y)
 
-    if result.success and action_dict["action"] not in ("wait", "examine"):
-        tile = world_state.world.get(nemo.x, nemo.y)
-        tile_desc = tile.props.description if tile else "unknown"
-        wiki.record_event(
-            world_state.tick,
-            f"Tick {world_state.tick}: {result.message}",
-            tags=[action_dict["action"], tile_desc],
-        )
-
 
 def _init_world():
     """Build the world, spawn Nemo, scatter starting items."""
     print("[NEMO] Generating world...")
-    world = generate_world(width=60, height=60, seed=42)
+    world = generate_world(width=512, height=512, seed=42)
     spawn_x, spawn_y = find_spawn(world)
 
     nemo = NemoEntity(name="Nemo", entity_type=EntityType.NEMO,

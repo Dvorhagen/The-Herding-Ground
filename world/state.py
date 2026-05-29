@@ -43,8 +43,8 @@ class WorldState:
     nemo: NemoEntity
     entities: list = field(default_factory=list)
     tick: int = 0
-    # Optional text injected by PI into next perception block
-    injected_environment: str = ""
+    injected_environment: str = ""   # PI inject — consumed next tick
+    pending_memory_result: str = ""  # wiki retrieval result — consumed next tick
 
     def add_entity(self, entity: Entity):
         self.entities.append(entity)
@@ -201,7 +201,13 @@ class WorldState:
         inject_block = ""
         if self.injected_environment:
             inject_block = f"\n[ENVIRONMENT]\n{self.injected_environment}\n"
-            self.injected_environment = ""  # consume it
+            self.injected_environment = ""
+
+        # Memory retrieval result from previous tick
+        memory_block = ""
+        if self.pending_memory_result:
+            memory_block = f"\n[MEMORY RETRIEVED]\n{self.pending_memory_result}\n"
+            self.pending_memory_result = ""
 
         return f"""[PERCEPTION — Tick {self.tick}]
 Position: ({nemo.x}, {nemo.y})
@@ -214,6 +220,6 @@ Status: {nemo.status.describe()}
 
 Visible entities:
 {entity_str}
-{inject_block}
+{inject_block}{memory_block}
 Recent events:
   {recent}"""
