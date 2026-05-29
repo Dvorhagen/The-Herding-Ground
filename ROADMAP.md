@@ -85,14 +85,36 @@ PI control not yet implemented.
 - [ ] Death log — record cause, tick count, last thought, for PI review
 
 ### World
+- [ ] **MAP SCALE: 1 tile = 1 meter** (decided — see scale notes below)
+- [ ] Rework procedural generator for 1m scale (large terrain features, wide rivers, dense forests)
+- [ ] Expand default map to 512x512 minimum — 60x60 is a tennis court at 1m scale
+- [ ] Chunk-based expanding map — HIGH PRIORITY at 1m scale
 - [ ] Fix spawn point (currently spawns at map edge x=0)
 - [ ] Config file (world seed, model, tick speed, log level)
 - [ ] Persistent world save/load (map serialization to JSON)
-- [ ] Chunk-based expanding map (generate new chunks as Moriarty explores)
 - [ ] Map editor — PI tool, separate script, paint tiles, place items, save/load
+- [ ] Interior spaces (buildings as actual floorplans — walls, doors, rooms, furniture)
 - [ ] Tileset/pixel graphics support (renderer swap, world engine untouched)
 - [ ] Biome variety (caves, settlements, water crossings)
-- [ ] Day/night cycle
+- [ ] Day/night cycle (affects vision radius dramatically)
+- [ ] Weather system
+
+### Perception & Action Expansion
+- [ ] Extended vision radius (10-15 tiles daylight, 1-2 tiles night)
+- [ ] Distance-graded visual description (immediate / nearby / distance / far)
+- [ ] Light sources (fire, lanterns) extend night vision radius
+- [ ] Sound perception block (water, movement, weather — direction + distance)
+- [ ] Smell perception (food, fire, rain, danger — shorter range than sound)
+- [ ] Proprioception (body state as felt sensation, not just numbers)
+- [ ] Touch/environment (underfoot texture, temperature, weather on skin)
+- [ ] Listen action (spend a tick focusing on sound for more detail)
+- [ ] Investigate/sniff action (focus olfactory attention on area)
+- [ ] Sleep/rest action (deliberate recovery, potential dream state)
+- [ ] Call out action (make noise — attracts or repels entities)
+- [ ] Hide action (reduce own perceptibility to other entities)
+- [ ] Craft action (combine items in inventory)
+- [ ] Examine self action (detailed introspective body + mind state check)
+- [ ] Action instruction framing (roadmapped: phenomenological not API-spec)
 
 ### Moriarty's Mind
 - [ ] Tune thought verbosity (brief routine, expressive on reflect)
@@ -168,7 +190,16 @@ Moriarty may or may not act on it, remember it, or write it to his wiki.
 
 ---
 
-## Architecture Notes
+## Map Scale Notes
+- **1 tile = 1 meter.** Human scale. No rescaling for interiors — a room is a room.
+- At 1m scale, 60x60 is smaller than a tennis court. Need 512x512 minimum, chunked expansion ASAP.
+- Forest = hundreds of tiles across. Moriarty is IN it, not looking AT it.
+- River = 3-8 tiles wide, winding across full map extent.
+- Vision radius 10-15 tiles = natural human sight line (~15 meters in open terrain).
+- 1 tick ≈ a few seconds to a minute of in-world time (TBD — decide with day/night cycle).
+- Day/night cycle length TBD once tick duration decided.
+
+
 - World engine, brain, entities are renderer-agnostic by design
 - New renderer: implement add_message(), center_on(), draw(), get_input(), last_thought
 - New action: add function to entities/actions.py, register in ACTION_REGISTRY
@@ -215,4 +246,4 @@ onto the implementation without being literally true.
 
 ---
 
-*Last updated: session 1 — Moriarty's naming and identity design*
+*Last updated: session 2 — scale decision (1m), perception expansion, body/health design*
