@@ -42,11 +42,11 @@ PHOSPHOR_WHITE = (160, 255, 160)
 TILE_PROPERTIES: dict[TileType, TileProperties] = {
     TileType.GRASS:      TileProperties("Grass",       True,  ".",  PHOSPHOR_MID,   "open grassland"),
     TileType.FOREST:     TileProperties("Forest",      True,  "T",  PHOSPHOR_DIM,   "dense forest"),
-    TileType.WATER:      TileProperties("Water",       False, "~",  (20, 60, 80),   "water -- impassable"),
-    TileType.MOUNTAIN:   TileProperties("Mountain",    False, "^",  (60, 60, 60),   "rocky mountain -- impassable"),
+    TileType.WATER:      TileProperties("Water",       False, "~",  (20, 60, 80),   "open water"),
+    TileType.MOUNTAIN:   TileProperties("Mountain",    False, "^",  (60, 60, 60),   "sheer rock face"),
     TileType.SAND:       TileProperties("Sand",        True,  ":",  (100, 90, 40),  "sandy ground"),
     TileType.CAVE_FLOOR: TileProperties("Cave Floor",  True,  " ",  PHOSPHOR_DIM,   "dark cave floor"),
-    TileType.CAVE_WALL:  TileProperties("Cave Wall",   False, "#",  (40, 40, 40),   "cave wall -- impassable"),
+    TileType.CAVE_WALL:  TileProperties("Cave Wall",   False, "#",  (40, 40, 40),   "solid stone wall"),
     TileType.PATH:       TileProperties("Path",        True,  "+",  PHOSPHOR_BRIGHT,"worn dirt path"),
 }
 
@@ -132,11 +132,11 @@ class WorldMap:
         }
         desc = []
         current = self.get(cx, cy)
-        desc.append(f"Current tile: {current.props.description if current else 'unknown'}")
+        desc.append(f"Underfoot: {current.props.description if current else 'unknown'}")
         for dir_name, (dx, dy) in directions.items():
             tile = self.get(cx + dx, cy + dy)
             if tile:
                 desc.append(f"  {dir_name}: {tile.props.description}")
             else:
-                desc.append(f"  {dir_name}: edge of the world")
+                desc.append(f"  {dir_name}: nothing — the world ends here")
         return "\n".join(desc)
