@@ -212,6 +212,9 @@ def run_pygame(world_state, spawn_x, spawn_y):
                     renderer.tick_delay_idx = tick_delay_idx
                     renderer.tick_delay = TICK_DELAYS[tick_delay_idx]
                     renderer.add_message(f"Speed: {TICK_DELAYS[tick_delay_idx]}s")
+                elif event.key == pygame.K_v:
+                    renderer.show_los = not renderer.show_los
+                    renderer.add_message("LOS overlay ON" if renderer.show_los else "LOS overlay OFF")
                 elif event.key == pygame.K_SPACE:
                     stepped = not stepped
                     renderer.stepped = stepped
@@ -307,6 +310,9 @@ def run_curses(stdscr, world_state, spawn_x, spawn_y):
             renderer.tick_delay_idx = tick_delay_idx
             renderer.tick_delay = TICK_DELAYS[tick_delay_idx]
             renderer.add_message(f"Speed: {TICK_DELAYS[tick_delay_idx]}s")
+        elif key == ord("v"):
+            renderer.show_los = not renderer.show_los
+            renderer.add_message("LOS overlay ON" if renderer.show_los else "LOS overlay OFF")
         elif key == ord(" "):
             stepped = not stepped
             renderer.stepped = stepped

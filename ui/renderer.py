@@ -54,6 +54,11 @@ class Renderer:
         self.tick_delay_idx = 3   # set by main.py
         self.tick_delay = 1.0
         self.stepped = False
+        self.show_los = False
+
+        # Reusable dark overlay for occluded tiles
+        self._fog = pygame.Surface((TILE_SIZE, TILE_SIZE), pygame.SRCALPHA)
+        self._fog.fill((0, 0, 0, 180))
 
         # Scanline surface for CRT effect
         self._scanlines = self._make_scanlines()
@@ -102,11 +107,11 @@ class Renderer:
                     continue
                 color = tile.props.color
                 sx, sy = tx * TILE_SIZE, ty * TILE_SIZE
-                # Draw tile background
                 pygame.draw.rect(self.screen, color, (sx, sy, TILE_SIZE, TILE_SIZE))
-                # Draw tile symbol
                 sym = self.font_sm.render(tile.props.symbol, True, self._darken(color, 0.5))
                 self.screen.blit(sym, (sx + 3, sy + 2))
+                if self.show_los and (wx, wy) not in world_state.visible_tiles:
+                    self.screen.blit(self._fog, (sx, sy))
 
     def _draw_entities(self, world_state):
         # Items

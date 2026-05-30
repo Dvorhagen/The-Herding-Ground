@@ -57,6 +57,7 @@ class CursesRenderer:
         self.tick_delay_idx = 3   # set by main.py
         self.tick_delay = 1.0
         self.stepped = False
+        self.show_los = False
 
         self._setup_curses()
 
@@ -123,9 +124,11 @@ class CursesRenderer:
                               curses.color_pair(PAIR_NEMO) | curses.A_BOLD)
                     continue
 
+                occluded = self.show_los and (wx, wy) not in world_state.visible_tiles
+
                 # Check for items at this position
                 items_here = world_state.get_items_at(wx, wy)
-                if items_here:
+                if items_here and not occluded:
                     self._put(row, col, items_here[0].symbol,
                               curses.color_pair(PAIR_ITEM))
                     continue
@@ -133,6 +136,9 @@ class CursesRenderer:
                 tile = world.get(wx, wy)
                 if tile is None:
                     self._put(row, col, " ", curses.color_pair(PAIR_DIM))
+                elif occluded:
+                    self._put(row, col, tile.props.symbol,
+                              curses.color_pair(PAIR_DIM) | curses.A_DIM)
                 else:
                     pair = TILE_COLORS.get(tile.tile_type, PAIR_NORMAL)
                     attr = curses.color_pair(pair)
@@ -222,7 +228,7 @@ class CursesRenderer:
                 break
 
     def _draw_bottom_bar(self, row, w):
-        bar = " TAB:mode  arrows/wasd:move  p:pickup  e:examine  [:faster  ]:slower  SPC:step  q:quit "
+        bar = " TAB:mode  arrows/wasd:move  p:pickup  e:examine  [:faster  ]:slower  SPC:step  v:LOS  q:quit "
         bar = bar[:w - 1].ljust(w - 1)
         try:
             self.stdscr.addstr(row, 0, bar,

@@ -92,6 +92,7 @@ class WorldState:
     tick: int = 0
     injected_environment: str = ""   # PI inject — consumed next tick
     pending_memory_result: str = ""  # wiki retrieval result — consumed next tick
+    visible_tiles: set = field(default_factory=set)  # updated each tick by _build_vision_block
 
     def add_entity(self, entity: Entity):
         self.entities.append(entity)
@@ -132,8 +133,9 @@ class WorldState:
         nemo = self.nemo
         cx, cy = nemo.x, nemo.y
 
-        # Precompute visible set once — shared by all three tiers
+        # Precompute visible set once — shared by all three tiers, exposed for renderers
         visible = _compute_visible(self.world, cx, cy)
+        self.visible_tiles = visible
 
         # --- Immediate: current position ---
         current = self._describe_tile_at(cx, cy)
