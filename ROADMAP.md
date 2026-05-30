@@ -156,6 +156,33 @@ changes to the action registry. PI control not yet implemented.
 - [ ] Survival drive (hunger/fatigue create genuine behavioral pressure)
 - [ ] Reality questioning (emergent — not prompted, just watch for it in logs)
 
+### Avatar System (next milestone)
+Foundation already in place: `PlayerEntity` class, `talk`/`yell` actions, message queue in WorldState.
+
+**Drop-in modes:**
+- [ ] **Player character** — Aaron appears as "a figure" in Mo's world; same stats as Mo (no god powers); Mo can see, approach, and talk to them
+- [ ] **God observer** — invisible to Mo; can inject `[ENVIRONMENT]` messages, place/remove items, modify terrain; no body
+
+**Turn structure:**
+- [ ] Async turns — Mo thinks at his tick rate, Aaron acts between ticks with immediate effect; messages queue and appear in Mo's next perception
+- [ ] No "wait for player" — two independent agents in the same world at different cadences
+- [ ] Real-time tick mode required once multiple players are active
+
+**Conversation UI:**
+- [ ] Aaron mode: `T` opens text input → sends talk message → appears in Mo's next `[MESSAGES]` block
+- [ ] Mo's `talk`/`yell` messages appear in Aaron's renderer log as they are spoken
+- [ ] Mo may initiate conversation (yell, speak aloud) without being addressed
+
+**Avatar controls:**
+- [ ] Full inventory, equipment, combat — Aaron fights with the same system as Mo
+- [ ] Aaron can be wounded, grappled, killed — consequences are real
+- [ ] Avatar persistence: leaving the world drops the avatar (items stay)
+
+**Multi-user:**
+- [ ] Mike (and others) can SSH in and inhabit their own `PlayerEntity`
+- [ ] Mo perceives all players as "figures" — no distinction between human-controlled entities
+- [ ] Each player sees their own renderer; Mo's perception is unchanged
+
 ### Social / Multi-agent
 - [ ] NPC entities with their own AI brain loops
 - [ ] PI/human can fully inhabit and control an NPC (possession mechanic)

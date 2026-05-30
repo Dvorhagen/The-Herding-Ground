@@ -123,7 +123,8 @@ class MoriartyEntity(Entity):
     status: StatusEffects = field(default_factory=StatusEffects)
     event_log: list = field(default_factory=list)
     max_log: int = 20
-    hidden: bool = False   # set by hide action; cleared on movement
+    hidden:     bool = False   # set by hide action; cleared on movement
+    is_resting: bool = False   # set by wait/sleep/sit; drives wound healing rate
 
     def __post_init__(self):
         self.symbol = "N"
@@ -179,3 +180,32 @@ class MoriartyEntity(Entity):
 
     def describe(self) -> str:
         return f"Moriarty at ({self.x}, {self.y}) — {self.status.describe()}"
+
+
+@dataclass
+class PlayerEntity(Entity):
+    """
+    The human player's avatar when they drop into the world.
+    Mo perceives this as "a figure" and can talk to it.
+    Has full combat, inventory, and equipment like Mo — no god powers by default.
+    """
+    inventory: list  = field(default_factory=list)
+    equipment: dict  = field(default_factory=lambda: {
+        "weapon": None, "offhand": None, "light": None,
+        "head": None, "body": None,
+    })
+    name:     str    = "figure"
+    is_god:   bool   = False   # god mode: invisible, injects environment
+
+    def __post_init__(self):
+        self.entity_type = EntityType.PLAYER
+        self.symbol = "@"
+        self.color  = (255, 220, 100)   # amber — distinct from Mo's green
+        self.blocks = True
+        if not self.is_god:
+            from .combat import CombatState
+            self.combat_state = CombatState()
+
+    def describe(self) -> str:
+        verbs = "talk, approach"
+        return f"a figure ({self.name}) at ({self.x}, {self.y}) — {verbs}"

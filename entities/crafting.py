@@ -7,7 +7,8 @@ To add a recipe: add an entry to RECIPES. inputs is a dict of
 """
 
 from .items import (
-    make_stone_knife, make_spear, make_club, make_torch, make_rope
+    make_stone_knife, make_spear, make_club, make_torch, make_rope,
+    make_bandage,
 )
 
 
@@ -36,6 +37,11 @@ RECIPES: dict[str, dict] = {
         "description": "Twisted reed cordage — enables spear crafting",
         "inputs": {"reed": 3},
         "output": make_rope,
+    },
+    "bandage": {
+        "description": "Bark-strip wound dressing — stops bleeding when applied",
+        "inputs": {"bark strip": 2},
+        "output": make_bandage,
     },
 }
 

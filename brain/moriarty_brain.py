@@ -82,11 +82,15 @@ Available actions:
   unequip      slot=weapon|light|...
   craft        recipe=<name>          (omit to list options)
   attack       target=<name> part=<head|torso|arm|leg>  (part optional)
-  grapple      target=<name>          (must be adjacent — locks both in place)
-  break grapple                       (strength contest to escape)
-  dodge                               (defensive stance — next hit harder to land)
-  flee combat                         (disengage if mobile enough)
-  [object verbs shown nearby: warm, sit, open, take, forage, pick, climb, hide, chop, harvest, ...]
+  grapple      target=<name>          (adjacent only)
+  break grapple
+  dodge
+  flee combat
+  treat                               (apply bandage from inventory to worst wound)
+  apply herb                          (apply healing herb — clears infection, boosts healing)
+  talk         target=<name> message=<text>   (speak to nearby entity)
+  yell         message=<text>         (heard by all within 10 tiles)
+  [object verbs shown nearby: warm, sit, open, take, forage, pick, climb, hide, chop, harvest, strip bark, ...]
 
 [BODY STATUS] appears in perception when you're wounded. It shows injuries by body
 part, pain level, blood loss, shock, and mobility. Wounds are real — a broken leg

@@ -371,7 +371,8 @@ def populate_natural_objects(world_state, seed: int = None):
     """
     from .objects import (make_boulder, make_bush, make_fallen_log,
                           make_wild_mushroom, make_flower_patch,
-                          make_tree, make_hollow_tree, make_reed_bed)
+                          make_tree, make_hollow_tree, make_reed_bed,
+                          make_herb_patch)
 
     rng = random.Random(seed)
     world = world_state.world
@@ -438,6 +439,9 @@ def populate_natural_objects(world_state, seed: int = None):
 
     # Reed beds — adjacent to water
     _scatter(make_reed_bed, wet,                    35, min_spacing=6, extra=near_water)
+
+    # Herb patches — forest clearings and grassland
+    _scatter(make_herb_patch, forest | {TileType.GRASS}, 40, min_spacing=10)
 
     # Loose stones as ground items near rocky areas
     from ..entities.items import make_stone, make_flint

@@ -39,7 +39,8 @@ def action_move(actor, args: dict, world_state) -> ActionResult:
     if blocking_objects:
         return ActionResult(False, f"Can't move {direction} — {blocking_objects[0].name} is in the way.", world_changed=False)
     if actor.move(dx, dy, world_state.world):
-        actor.hidden = False   # movement breaks concealment
+        actor.hidden = False      # movement breaks concealment
+        actor.is_resting = False  # movement interrupts rest
         tile = world_state.world.get(actor.x, actor.y)
         tile_desc = tile.props.description if tile else "unknown ground"
         msg = f"Moved {direction}. Underfoot: {tile_desc}."
@@ -96,8 +97,10 @@ def action_use(actor, args: dict, world_state) -> ActionResult:
     if not item.usable:
         return ActionResult(False, f"You can't use the {item.name} that way.", world_changed=False)
     msg = item.on_use(actor, world_state)
-    if hasattr(item, 'item_type') and item.item_type.name == 'FOOD':
-        actor.inventory.remove(item)
+    if (hasattr(item, 'item_type') and item.item_type.name == 'FOOD') \
+            or getattr(item, 'consumed_on_use', False):
+        if item in actor.inventory:
+            actor.inventory.remove(item)
     return ActionResult(True, msg)
 
 
@@ -130,7 +133,8 @@ def action_examine(actor, args: dict, world_state) -> ActionResult:
 
 def action_wait(actor, args: dict, world_state) -> ActionResult:
     """Do nothing for one tick."""
-    return ActionResult(True, "You wait and observe.", world_changed=False)
+    actor.is_resting = True
+    return ActionResult(True, "You wait and observe.", world_changed=False, data={"resting": True})
 
 
 def action_sleep(actor, args: dict, world_state) -> ActionResult:
@@ -141,6 +145,7 @@ def action_sleep(actor, args: dict, world_state) -> ActionResult:
     actor.status.fatigue = max(0, actor.status.fatigue - 60)
     actor.status.hunger = max(0, actor.status.hunger - 5)  # sleeping burns a little
     actor.status.mood = "rested"
+    actor.is_resting = True
     msg = f"You sleep. Deeply, without knowing how long. Fatigue eases by {recovered}."
     near_campfire = any(
         hasattr(o, 'lit') and o.lit
@@ -248,6 +253,38 @@ def action_dig(actor, args: dict, world_state) -> ActionResult:
         actor.inventory.append(stone)
         return ActionResult(True, "You dig into the earth and turn up a smooth stone. You pocket it.")
     return ActionResult(True, "You dig into the earth — soil and roots, nothing else. Your hands are dirty.")
+
+
+def action_treat(actor, args: dict, world_state) -> ActionResult:
+    """Apply a bandage from inventory to the worst unbound wound."""
+    bandage = next(
+        (i for i in actor.inventory if i.name.lower() == "bandage"), None
+    )
+    if not bandage:
+        bark = sum(1 for i in actor.inventory if i.name.lower() == "bark strip")
+        hint = f" You have {bark} bark strip{'s' if bark != 1 else ''} — craft 2 into a bandage." if bark >= 2 else ""
+        return ActionResult(False, f"You have no bandages.{hint}", world_changed=False)
+    if not actor.combat_state.any_wounds:
+        return ActionResult(False, "You have no wounds to treat.", world_changed=False)
+    msg = actor.combat_state.apply_bandage_to_worst()
+    actor.inventory.remove(bandage)
+    actor.is_resting = True
+    return ActionResult(True, msg)
+
+
+def action_apply_herb(actor, args: dict, world_state) -> ActionResult:
+    """Apply a healing herb from inventory to treat infection or boost healing."""
+    herb = next(
+        (i for i in actor.inventory if "herb" in i.name.lower()), None
+    )
+    if not herb:
+        return ActionResult(False, "You have no healing herbs.", world_changed=False)
+    if not actor.combat_state.any_wounds:
+        return ActionResult(False, "You have no wounds to treat.", world_changed=False)
+    msg = actor.combat_state.apply_herb_to_worst()
+    actor.inventory.remove(herb)
+    actor.is_resting = True
+    return ActionResult(True, msg)
 
 
 def action_equip(actor, args: dict, world_state) -> ActionResult:
@@ -388,6 +425,53 @@ def action_flee_combat(actor, args: dict, world_state) -> ActionResult:
     return ActionResult(success, msg, world_changed=success)
 
 
+def action_talk(actor, args: dict, world_state) -> ActionResult:
+    """Speak to a nearby entity. args: {target: str, message: str}"""
+    message = args.get("message", args.get("msg", "")).strip()
+    target_name = (args.get("target") or "").lower().strip()
+    if not message:
+        return ActionResult(False, "Say what? Include message=<text> in args.", world_changed=False)
+
+    # Find target entity
+    nearby = world_state.get_entities_near(actor.x, actor.y, radius=8)
+    target = None
+    if target_name:
+        target = next((e for e in nearby if target_name in e.name.lower()
+                       and e.id != actor.id), None)
+
+    if target:
+        world_state.pending_messages.append({
+            "from_name": actor.name,
+            "to_id":     target.id,
+            "message":   message,
+            "tick":      world_state.tick,
+        })
+        return ActionResult(True, f'You say to the {target.name}: "{message}"', world_changed=False)
+    else:
+        # Speak aloud — nearby entities may hear (broadcast within 5 tiles)
+        world_state.pending_messages.append({
+            "from_name": actor.name,
+            "to_id":     "broadcast",
+            "message":   message,
+            "tick":      world_state.tick,
+        })
+        return ActionResult(True, f'You say: "{message}"', world_changed=False)
+
+
+def action_yell(actor, args: dict, world_state) -> ActionResult:
+    """Shout loudly — all entities within 10 tiles hear it next tick."""
+    message = args.get("message", args.get("msg", "")).strip()
+    if not message:
+        return ActionResult(False, "Yell what?", world_changed=False)
+    world_state.pending_messages.append({
+        "from_name": actor.name,
+        "to_id":     "broadcast",
+        "message":   f"[SHOUT] {message}",
+        "tick":      world_state.tick,
+    })
+    return ActionResult(True, f'You yell: "{message}"', world_changed=False)
+
+
 def action_reflect(actor, args: dict, world_state) -> ActionResult:
     """
     Special action: Moriarty pauses to reflect on its state.
@@ -417,6 +501,11 @@ ACTION_REGISTRY = {
     "throw":    action_throw,
     "hurl":     action_throw,
     "dig":      action_dig,
+    "treat":      action_treat,
+    "bandage":    action_treat,
+    "dress wound": action_treat,
+    "apply herb": action_apply_herb,
+    "use herb":   action_apply_herb,
     "equip":    action_equip,
     "wear":     action_equip,
     "wield":    action_equip,
@@ -436,6 +525,13 @@ ACTION_REGISTRY = {
     "parry":         action_dodge,
     "flee combat":   action_flee_combat,
     "disengage":     action_flee_combat,
+    "talk":          action_talk,
+    "say":           action_talk,
+    "speak":         action_talk,
+    "tell":          action_talk,
+    "yell":          action_yell,
+    "shout":         action_yell,
+    "call out":      action_yell,
     "reflect":       action_reflect,
 }
 

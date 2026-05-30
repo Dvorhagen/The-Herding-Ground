@@ -105,7 +105,8 @@ class WorldState:
     tick: int = 0
     injected_environment: str = ""   # PI inject — consumed next tick
     pending_memory_result: str = ""  # wiki retrieval result — consumed next tick
-    visible_tiles: set = field(default_factory=set)  # updated each tick by _build_vision_block
+    pending_messages: list = field(default_factory=list)  # [{from_name, to_id, message, tick}]
+    visible_tiles: set = field(default_factory=set)
 
     def add_entity(self, entity: Entity):
         self.entities.append(entity)
@@ -144,8 +145,17 @@ class WorldState:
     def advance_tick(self):
         self.tick += 1
         self.moriarty.status.tick()
-        # Tick combat state (bleeding, shock, grapple counter-attacks)
-        self.moriarty.combat_state.tick(self)
+        # Determine environmental healing bonuses
+        near_fire = any(
+            getattr(o, 'lit', False)
+            for o in self.get_objects_near(self.moriarty.x, self.moriarty.y, radius=3)
+            if hasattr(o, 'lit')
+        )
+        # Tick combat state (bleeding, infection, healing, shock, grapple)
+        self.moriarty.combat_state.tick(
+            resting=self.moriarty.is_resting,
+            warm=near_fire,
+        )
         if self.moriarty.combat_state.pending_grapple_msg:
             self.moriarty.log_event(self.moriarty.combat_state.pending_grapple_msg)
             self.moriarty.combat_state.pending_grapple_msg = ""
@@ -318,6 +328,17 @@ class WorldState:
             for cat, n in sorted(mem_by_cat.items())
         ) if mem_by_cat else "  (empty)"
 
+        # Incoming messages addressed to Moriarty or broadcast
+        msg_lines = []
+        remaining = []
+        for m in self.pending_messages:
+            if m["to_id"] in (moriarty.id, "broadcast"):
+                msg_lines.append(f'  {m["from_name"]}: "{m["message"]}"')
+            else:
+                remaining.append(m)
+        self.pending_messages = remaining
+        message_block = f"\n[MESSAGES]\n" + "\n".join(msg_lines) + "\n" if msg_lines else ""
+
         # PI inject
         inject_block = ""
         if self.injected_environment:
@@ -356,6 +377,6 @@ World objects (interact by using the verb as your action):
 
 Memory index:
 {mem_index}
-{inject_block}{memory_block}
+{message_block}{inject_block}{memory_block}
 Recent events:
   {recent}"""

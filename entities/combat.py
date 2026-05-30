@@ -90,21 +90,96 @@ WOUND_LABELS: dict[WoundSeverity, tuple[str, str]] = {
 }
 
 
+# Ticks of rest+bandage needed to improve one severity tier
+HEAL_TICKS: dict[WoundSeverity, int] = {
+    WoundSeverity.BRUISE:     15,
+    WoundSeverity.CUT:        35,
+    WoundSeverity.DEEP_WOUND: 70,
+    WoundSeverity.FRACTURE:   140,
+    WoundSeverity.CRITICAL:   280,
+}
+
+# Severity downgrade chain
+_PREV_SEV: dict[WoundSeverity, WoundSeverity | None] = {
+    WoundSeverity.CRITICAL:   WoundSeverity.FRACTURE,
+    WoundSeverity.FRACTURE:   WoundSeverity.DEEP_WOUND,
+    WoundSeverity.DEEP_WOUND: WoundSeverity.CUT,
+    WoundSeverity.CUT:        WoundSeverity.BRUISE,
+    WoundSeverity.BRUISE:     None,
+}
+
+# Infection chance per tick once unbandaged age > INFECTION_THRESHOLD
+INFECTION_THRESHOLD = 20
+INFECTION_CHANCE    = 0.04   # 4%/tick → ~50% by tick 35
+
+
 @dataclass
 class Wound:
-    part: BodyPart
-    severity: WoundSeverity
-    age: int = 0
+    part:         BodyPart
+    severity:     WoundSeverity
+    age:          int   = 0
+    bandaged:     bool  = False
+    infected:     bool  = False
+    herb_ticks:   int   = 0     # remaining ticks of herb boost
+    heal_progress: int  = 0     # ticks accumulated toward next tier
 
-    def bleed_rate(self) -> int:
-        return BLEED_RATE[self.severity]
+    def effective_bleed_rate(self) -> int:
+        base = BLEED_RATE[self.severity]
+        if self.bandaged:
+            return 1 if self.infected else 0   # infection seeps through bandage
+        if self.infected:
+            return int(base * 1.5)
+        return base
 
     def pain(self) -> float:
-        return PAIN_BASE[self.severity] * PAIN_MULT[self.part]
+        p = PAIN_BASE[self.severity] * PAIN_MULT[self.part]
+        return p * 1.5 if self.infected else p
+
+    def tick_infection(self):
+        """Check whether this wound becomes infected (called each game tick)."""
+        if self.bandaged or self.infected:
+            return
+        if self.severity.value < WoundSeverity.CUT.value:
+            return
+        if self.age > INFECTION_THRESHOLD and random.random() < INFECTION_CHANCE:
+            self.infected = True
+
+    def tick_heal(self, resting: bool, warm: bool) -> str:
+        """Advance wound recovery. Returns 'removed'|'improved'|'unchanged'."""
+        if self.infected:
+            return "unchanged"           # must treat infection first
+        if self.severity.value >= WoundSeverity.CUT.value and not self.bandaged:
+            return "unchanged"           # CUT+ won't close without bandage
+        if not resting and self.severity != WoundSeverity.BRUISE:
+            return "unchanged"           # non-bruise needs rest
+
+        rate = 1
+        if resting and warm:
+            rate = 2
+        if self.herb_ticks > 0:
+            rate *= 2
+            self.herb_ticks -= 1
+
+        self.heal_progress += rate
+        threshold = HEAL_TICKS[self.severity]
+        if self.heal_progress >= threshold:
+            self.heal_progress = 0
+            next_sev = _PREV_SEV[self.severity]
+            if next_sev is None:
+                return "removed"
+            self.severity = next_sev
+            return "improved"
+        return "unchanged"
 
     def describe(self) -> str:
         label, detail = WOUND_LABELS[self.severity]
-        return f"{label} — {detail}"
+        tags = []
+        if self.bandaged:
+            tags.append("bandaged")
+        if self.infected:
+            tags.append("INFECTED")
+        tag_str = f" [{', '.join(tags)}]" if tags else ""
+        return f"{label}{tag_str} — {detail}"
 
 
 # ── Stat blocks ───────────────────────────────────────────────────────────────
@@ -167,7 +242,7 @@ class CombatState:
         return min(100, int(sum(w.pain() for w in self.wounds)))
 
     def total_bleed_rate(self) -> int:
-        return sum(w.bleed_rate() for w in self.wounds)
+        return sum(w.effective_bleed_rate() for w in self.wounds)
 
     def mobility(self) -> int:
         """0-100. Leg wounds reduce this. 0 = can't move."""
@@ -206,17 +281,79 @@ class CombatState:
     def any_wounds(self) -> bool:
         return bool(self.wounds)
 
+    # --- Treatment ---
+
+    def apply_bandage_to_worst(self) -> str:
+        """Apply one bandage. Targets worst bleeding wound first, else any wound."""
+        bleeding = sorted(
+            [w for w in self.wounds if not w.bandaged and w.effective_bleed_rate() > 0],
+            key=lambda w: w.severity.value, reverse=True,
+        )
+        target = bleeding[0] if bleeding else next(
+            (w for w in sorted(self.wounds, key=lambda w: w.severity.value, reverse=True)
+             if not w.bandaged), None
+        )
+        if not target:
+            return "All wounds are already bandaged."
+        target.bandaged = True
+        if target.effective_bleed_rate() == 0:
+            return f"You bind your {target.part.value}. The bleeding stops."
+        return f"You bind the wound on your {target.part.value} — bleeding slows."
+
+    def apply_herb_to_worst(self) -> str:
+        """Apply one healing herb. Prioritises infected wounds."""
+        infected = [w for w in self.wounds if w.infected]
+        if infected:
+            w = max(infected, key=lambda w: w.severity.value)
+            w.infected = False
+            w.herb_ticks = 15
+            return (
+                f"You press the herb against the infected {w.part.value}. "
+                f"The foul smell fades. Healing can begin now."
+            )
+        candidates = sorted(
+            [w for w in self.wounds if w.herb_ticks == 0],
+            key=lambda w: w.severity.value, reverse=True,
+        )
+        if not candidates:
+            return "Nothing needs herbal treatment right now."
+        w = candidates[0]
+        w.herb_ticks = 15
+        return (
+            f"You press the herb against your {w.part.value}. "
+            f"It will help the tissue close faster over the next few minutes."
+        )
+
     # --- Tick update ---
 
-    def tick(self, world_state=None):
-        """Called each game tick. Apply bleeding, update shock, age wounds."""
+    def tick(self, resting: bool = False, warm: bool = False):
+        """Called each game tick. Apply bleeding, infection, healing, shock."""
+        # Bleeding
         bleed = self.total_bleed_rate()
         self.blood_loss = min(100, self.blood_loss + bleed)
+
+        # Infection checks
+        for w in self.wounds:
+            w.tick_infection()
+
+        # Wound healing
+        to_remove = []
+        for w in self.wounds:
+            result = w.tick_heal(resting=resting, warm=warm)
+            if result == "removed":
+                to_remove.append(w)
+        for w in to_remove:
+            self.wounds.remove(w)
+
+        # Shock = f(pain, blood_loss)
         pain = self.total_pain()
         self.shock = min(100, int(pain * 0.3 + self.blood_loss * 0.4))
+
+        # Age wounds
         for w in self.wounds:
             w.age += 1
-        self.dodge_stance = False  # cleared each tick
+
+        self.dodge_stance = False
 
         # Grappled animal attacks each tick
         if self.grappled_with and self.grappled_with.alive:
@@ -276,6 +413,15 @@ class CombatState:
             lines.append(f"  Grip:       {'weapon may slip' if grip < 40 else 'weakened'}")
         if self.grappled_with:
             lines.append(f"  GRAPPLED:   locked with {self.grappled_with.name} — can't move or flee")
+        infected = [w for w in self.wounds if w.infected]
+        if infected:
+            parts = ", ".join(w.part.value for w in infected)
+            lines.append(f"  INFECTION:  {parts} — apply healing herb to treat")
+        unbandaged_bleeders = [w for w in self.wounds
+                               if not w.bandaged and w.effective_bleed_rate() > 0]
+        if unbandaged_bleeders:
+            parts = ", ".join(w.part.value for w in unbandaged_bleeders)
+            lines.append(f"  BLEEDING:   {parts} — bandage to stop blood loss")
         if not self.is_conscious():
             lines.append("  ** UNCONSCIOUS **")
         return "\n".join(lines)

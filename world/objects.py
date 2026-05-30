@@ -411,6 +411,17 @@ class Tree(WorldObject):
                 return ActionResult(True,
                     "You find a nest, but it's empty save for a few loose feathers.")
 
+        def strip_bark(actor, args, ws):
+            from ..entities.items import make_bark_strip
+            bark1 = make_bark_strip(actor.x, actor.y)
+            bark2 = make_bark_strip(actor.x, actor.y)
+            actor.inventory.append(bark1)
+            actor.inventory.append(bark2)
+            actor.status.fatigue = min(100, actor.status.fatigue + 3)
+            return ActionResult(True,
+                "You peel two long strips of inner bark from the tree. "
+                "Good for bandages — craft them at 2 strips per dressing.")
+
         result = {
             "examine": lambda a, args, ws: ActionResult(True,
                 f"{self.name}: {self.description}." +
@@ -419,8 +430,9 @@ class Tree(WorldObject):
             "shelter": lambda a, args, ws: ActionResult(True,
                 "You press against the trunk. The canopy closes overhead.",
                 world_changed=False),
-            "climb":         climb_tree,
+            "climb":      climb_tree,
             "look for nest": look_for_nest,
+            "strip bark": strip_bark,
         }
         return result
 
@@ -512,6 +524,42 @@ def make_fallen_log(x: int, y: int) -> FallenLog:
 def make_bush(x: int, y: int) -> Bush:
     return Bush(name="bush", x=x, y=y)
 
+@dataclass
+class HerbPatch(WorldObject):
+    harvested: bool = False
+
+    def __post_init__(self):
+        self.symbol = "h"
+        self.color = (60, 160, 80)
+        self.blocks = False
+        self.description = "a low cluster of broad-leafed medicinal herbs"
+
+    def interactions(self) -> dict:
+        from ..entities.actions import ActionResult
+        from ..entities.items import make_healing_herb_item
+
+        def pick_herbs(actor, args, ws):
+            if self.harvested:
+                return ActionResult(False,
+                    "The herbs are already stripped — wait for regrowth.", world_changed=False)
+            self.harvested = True
+            self.color = (40, 100, 50)
+            self.description = "a stripped herb patch, stalks bent and bare"
+            herb = make_healing_herb_item(actor.x, actor.y)
+            actor.inventory.append(herb)
+            return ActionResult(True,
+                "You gather a handful of healing herbs, careful to take whole leaves.")
+
+        return {
+            "examine": lambda a, args, ws: ActionResult(True,
+                f"{self.name}: {self.description}." +
+                (" The leaves look ready to harvest." if not self.harvested else ""),
+                world_changed=False),
+            "pick":    pick_herbs,
+            "harvest": pick_herbs,
+        }
+
+
 def make_wild_mushroom(x: int, y: int) -> WildMushroom:
     return WildMushroom(name="mushrooms", x=x, y=y)
 
@@ -528,3 +576,6 @@ def make_hollow_tree(x: int, y: int) -> HollowTree:
 
 def make_reed_bed(x: int, y: int) -> ReedBed:
     return ReedBed(name="reed bed", x=x, y=y)
+
+def make_herb_patch(x: int, y: int) -> HerbPatch:
+    return HerbPatch(name="herb patch", x=x, y=y)

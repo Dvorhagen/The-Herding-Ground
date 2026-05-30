@@ -30,6 +30,7 @@ class Item(Entity):
     slot: str = ""          # "weapon", "offhand", "light", "head", "body"
     damage: int = 0         # weapon damage
     light_radius: int = 0   # tiles of extra vision when equipped
+    consumed_on_use: bool = False   # non-food items that are used up
 
     def __post_init__(self):
         self.entity_type = EntityType.ITEM
@@ -225,6 +226,43 @@ def make_club(x: int, y: int) -> ToolItem:
 
 
 # --- Light sources (equippable) ---
+
+def make_bark_strip(x: int, y: int) -> Item:
+    return Item(
+        name="bark strip", x=x, y=y,
+        item_type=ItemType.MATERIAL,
+        description="a strip of dry inner bark, fibrous and absorbent",
+        weight=0.1, symbol="-", color=(110, 80, 40)
+    )
+
+
+def make_bandage(x: int, y: int) -> Item:
+    item = Item(
+        name="bandage", x=x, y=y,
+        item_type=ItemType.MATERIAL,
+        description="strips of bark bound together — rough but effective",
+        weight=0.1, usable=True, consumed_on_use=True,
+        symbol="+", color=(180, 160, 120)
+    )
+    def _use(user, world):
+        return user.combat_state.apply_bandage_to_worst()
+    item.on_use = _use
+    return item
+
+
+def make_healing_herb_item(x: int, y: int) -> Item:
+    item = Item(
+        name="healing herb", x=x, y=y,
+        item_type=ItemType.MATERIAL,
+        description="a cluster of medicinal leaves — antiseptic, promotes healing",
+        weight=0.05, usable=True, consumed_on_use=True,
+        symbol="'", color=(80, 180, 80)
+    )
+    def _use(user, world):
+        return user.combat_state.apply_herb_to_worst()
+    item.on_use = _use
+    return item
+
 
 def make_torch(x: int, y: int) -> ToolItem:
     item = ToolItem(
