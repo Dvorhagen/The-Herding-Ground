@@ -50,6 +50,7 @@ class CursesRenderer:
     def __init__(self, stdscr):
         self.stdscr = stdscr
         self.last_thought = ""
+        self.reasoning_stream = ""   # live CoT tokens; set by main.py callback
         self.messages = []
         self.max_messages = 50
         self.view_x = 0
@@ -69,7 +70,7 @@ class CursesRenderer:
             "  SPACE      step mode on/off",
             "  .          advance one step",
             "  v          LOS overlay",
-            "  r          reasoning mode",
+            "  `          cycle prompt style",
             "  ?          this help",
             "  q          quit",
             "  " + "─" * 27,
@@ -146,6 +147,13 @@ class CursesRenderer:
 
                 occluded = self.show_los and (wx, wy) not in world_state.visible_tiles
 
+                # World objects take display priority over items
+                objects_here = world_state.get_objects_at(wx, wy)
+                if objects_here and not occluded:
+                    self._put(row, col, objects_here[0].symbol,
+                              curses.color_pair(PAIR_ITEM) | curses.A_BOLD)
+                    continue
+
                 # Check for items at this position
                 items_here = world_state.get_items_at(wx, wy)
                 if items_here and not occluded:
@@ -215,18 +223,31 @@ class CursesRenderer:
         self._put(row, px, "─" * (panel_w - 1), curses.color_pair(PAIR_DIM))
         row += 1
 
-        # Thought
-        self._put(row, px, "THOUGHT:",
-                  curses.color_pair(PAIR_DIM))
-        row += 1
-        if self.last_thought:
-            wrapped = textwrap.wrap(self.last_thought, panel_w - 2)
-            for line in wrapped[:3]:  # max 3 lines
+        # Thought / live reasoning stream
+        if self.reasoning_stream:
+            self._put(row, px, "REASONING:",
+                      curses.color_pair(PAIR_DIM) | curses.A_DIM)
+            row += 1
+            tail = self.reasoning_stream[-200:]
+            if len(self.reasoning_stream) > 200:
+                tail = tail[tail.find(" ") + 1:]
+            wrapped = textwrap.wrap(tail, panel_w - 2)
+            for line in wrapped[-4:]:   # show last 4 lines of reasoning
                 self._panel_text(row, px, panel_w, line,
-                                 curses.color_pair(PAIR_HIGHLIGHT))
+                                 curses.color_pair(PAIR_DIM))
                 row += 1
         else:
+            self._put(row, px, "THOUGHT:",
+                      curses.color_pair(PAIR_DIM))
             row += 1
+            if self.last_thought:
+                wrapped = textwrap.wrap(self.last_thought, panel_w - 2)
+                for line in wrapped[:3]:  # max 3 lines
+                    self._panel_text(row, px, panel_w, line,
+                                     curses.color_pair(PAIR_HIGHLIGHT))
+                    row += 1
+            else:
+                row += 1
 
         self._put(row, px, "─" * (panel_w - 1), curses.color_pair(PAIR_DIM))
         row += 1

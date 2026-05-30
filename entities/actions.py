@@ -34,7 +34,10 @@ def action_move(actor, args: dict, world_state) -> ActionResult:
     if direction not in DIRECTIONS:
         return ActionResult(False, f"Unknown direction: '{direction}'. Valid: {list(DIRECTIONS.keys())}")
     dx, dy = DIRECTIONS[direction]
-    old_x, old_y = actor.x, actor.y
+    nx, ny = actor.x + dx, actor.y + dy
+    blocking_objects = [o for o in world_state.get_objects_at(nx, ny) if o.blocks]
+    if blocking_objects:
+        return ActionResult(False, f"Can't move {direction} — {blocking_objects[0].name} is in the way.", world_changed=False)
     if actor.move(dx, dy, world_state.world):
         tile = world_state.world.get(actor.x, actor.y)
         tile_desc = tile.props.description if tile else "unknown ground"
@@ -44,7 +47,7 @@ def action_move(actor, args: dict, world_state) -> ActionResult:
             msg += f" You see here: {', '.join(i.name for i in items_here)}."
         return ActionResult(True, msg)
     else:
-        tile = world_state.world.get(actor.x + dx, actor.y + dy)
+        tile = world_state.world.get(nx, ny)
         obstacle = tile.props.description if tile else "the edge of the world"
         return ActionResult(False, f"Can't move {direction} — blocked by {obstacle}.", world_changed=False)
 
@@ -104,11 +107,19 @@ def action_examine(actor, args: dict, world_state) -> ActionResult:
         desc = world_state.world.describe_surroundings(actor.x, actor.y)
         entities_nearby = world_state.get_entities_near(actor.x, actor.y, radius=3)
         entity_desc = "\n".join(e.describe() for e in entities_nearby if e.id != actor.id)
-        full = f"{desc}"
+        objects_nearby = world_state.get_objects_near(actor.x, actor.y, radius=3)
+        object_desc = "\n".join(o.describe() for o in objects_nearby)
+        full = desc
         if entity_desc:
             full += f"\nNearby entities:\n{entity_desc}"
+        if object_desc:
+            full += f"\nWorld objects:\n{object_desc}"
         return ActionResult(True, full, world_changed=False)
-    # Try to find named entity nearby
+    # Try world objects first, then entities
+    nearby_objects = world_state.get_objects_near(actor.x, actor.y, radius=5)
+    found_obj = next((o for o in nearby_objects if target in o.name.lower()), None)
+    if found_obj:
+        return ActionResult(True, found_obj.describe(), world_changed=False)
     nearby = world_state.get_entities_near(actor.x, actor.y, radius=5)
     found = next((e for e in nearby if target in e.name.lower()), None)
     if found:
@@ -136,7 +147,8 @@ ACTION_REGISTRY = {
     "walk":    action_move,     # alias
     "pickup":  action_pickup,
     "pick up": action_pickup,
-    "take":    action_pickup,   # alias
+    # "take" is intentionally absent — it resolves dynamically against world objects
+    # (e.g. chest.take). Use "pickup" or "pick up" for items on the ground.
     "drop":    action_drop,
     "use":     action_use,
     "eat":     action_use,      # alias (item_name required)
@@ -149,9 +161,37 @@ ACTION_REGISTRY = {
 
 
 def resolve_action(action_name: str, args: dict, actor, world_state) -> ActionResult:
-    """Look up and execute an action by name."""
+    """Look up and execute an action by name.
+
+    First checks the fixed ACTION_REGISTRY. If not found, searches nearby world
+    objects and entities for one whose interactions() dict exposes that verb.
+    """
     key = action_name.lower().strip()
     handler = ACTION_REGISTRY.get(key)
-    if handler is None:
-        return ActionResult(False, f"Unknown action: '{action_name}'. Available: {list(ACTION_REGISTRY.keys())}", world_changed=False)
-    return handler(actor, args, world_state)
+    if handler is not None:
+        return handler(actor, args, world_state)
+
+    # Dynamic fallback: find a world object or entity that supports this verb.
+    target_name = (args.get("target") or args.get("item_name") or "").lower()
+
+    nearby_objects = world_state.get_objects_near(actor.x, actor.y, radius=2)
+    for obj in nearby_objects:
+        if target_name and target_name not in obj.name.lower():
+            continue
+        obj_interactions = obj.interactions()
+        if key in obj_interactions:
+            return obj_interactions[key](actor, args, world_state)
+
+    nearby_entities = world_state.get_entities_near(actor.x, actor.y, radius=2)
+    for entity in nearby_entities:
+        if entity.id == actor.id:
+            continue
+        if target_name and target_name not in entity.name.lower():
+            continue
+        if hasattr(entity, "interactions"):
+            entity_interactions = entity.interactions()
+            if key in entity_interactions:
+                return entity_interactions[key](actor, args, world_state)
+
+    available = list(ACTION_REGISTRY.keys()) + ["(object verbs: open, warm, take, ..."]
+    return ActionResult(False, f"Unknown action: '{action_name}'. Core actions: {list(ACTION_REGISTRY.keys())}", world_changed=False)

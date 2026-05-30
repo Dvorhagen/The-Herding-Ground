@@ -48,8 +48,9 @@ class Renderer:
         self.messages: list[str] = []
         self.max_messages = 20
 
-        # Moriarty's last thought
+        # Moriarty's last thought and live reasoning stream
         self.last_thought = ""
+        self.reasoning_stream = ""   # live CoT tokens; set by main.py callback
 
         self.tick_delay_idx = 3   # set by main.py
         self.tick_delay = 1.0
@@ -69,7 +70,7 @@ class Renderer:
             "  SPACE      step mode on/off",
             "  .          advance one step",
             "  v          LOS overlay",
-            "  r          reasoning mode",
+            "  `          cycle prompt style",
             "  ?          this help",
             "  q          quit",
             "  ─────────────────────────",
@@ -148,7 +149,14 @@ class Renderer:
                     self.screen.blit(self._fog, (sx, sy))
 
     def _draw_entities(self, world_state):
-        # Items
+        # World objects (drawn first so entities/Moriarty appear on top)
+        for obj in world_state.world_objects:
+            sx, sy = self.world_to_screen(obj.x, obj.y)
+            if 0 <= sx < VIEWPORT_W * TILE_SIZE and 0 <= sy < VIEWPORT_H * TILE_SIZE:
+                sym = self.font_md.render(obj.symbol, True, obj.color)
+                self.screen.blit(sym, (sx + 2, sy + 1))
+
+        # Items / entities
         for entity in world_state.entities:
             sx, sy = self.world_to_screen(entity.x, entity.y)
             if 0 <= sx < VIEWPORT_W * TILE_SIZE and 0 <= sy < VIEWPORT_H * TILE_SIZE:
@@ -211,12 +219,22 @@ class Renderer:
         pygame.draw.line(self.screen, COLOR_BORDER, (px + 8, y), (px + PANEL_W - 8, y), 1)
         y += 8
 
-        # Thought
-        thought_label = self.font_sm.render("THOUGHT:", True, COLOR_TEXT_DIM)
-        self.screen.blit(thought_label, (px + 10, y))
-        y += 16
-        if self.last_thought:
-            y = self._wrapped_text(self.last_thought, px + 10, y, PANEL_W - 20, COLOR_HIGHLIGHT)
+        # Thought / live reasoning stream
+        if self.reasoning_stream:
+            label = self.font_sm.render("REASONING:", True, (80, 160, 80))
+            self.screen.blit(label, (px + 10, y))
+            y += 16
+            # Show the tail of the stream — last ~300 chars, trimmed to a word boundary
+            tail = self.reasoning_stream[-300:]
+            if len(self.reasoning_stream) > 300:
+                tail = "…" + tail[tail.find(" ") + 1:]
+            y = self._wrapped_text(tail, px + 10, y, PANEL_W - 20, (60, 130, 60))
+        else:
+            thought_label = self.font_sm.render("THOUGHT:", True, COLOR_TEXT_DIM)
+            self.screen.blit(thought_label, (px + 10, y))
+            y += 16
+            if self.last_thought:
+                y = self._wrapped_text(self.last_thought, px + 10, y, PANEL_W - 20, COLOR_HIGHLIGHT)
         y += 8
 
         # Divider

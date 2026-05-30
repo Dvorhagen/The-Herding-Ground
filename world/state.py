@@ -37,11 +37,12 @@ def _dist(dx: int, dy: int) -> float:
     return (dx*dx + dy*dy) ** 0.5
 
 
-def _ray_opacity(world, x0: int, y0: int, x1: int, y1: int) -> float:
+def _ray_opacity(world, x0: int, y0: int, x1: int, y1: int, object_opacity: dict = None) -> float:
     """
     Walk a ray from (x0,y0) to (x1,y1), accumulating the opacity of each
     unique intermediate tile (endpoints excluded). Returns total opacity;
     >= 1.0 means the target is fully occluded.
+    object_opacity: optional dict mapping (x, y) -> extra opacity from world objects.
     """
     dx = x1 - x0
     dy = y1 - y0
@@ -62,15 +63,26 @@ def _ray_opacity(world, x0: int, y0: int, x1: int, y1: int) -> float:
             tile = world.get(x, y)
             if tile:
                 opacity += tile.props.opacity
-                if opacity >= 1.0:
-                    return opacity
+            if object_opacity:
+                opacity += object_opacity.get((x, y), 0.0)
+            if opacity >= 1.0:
+                return opacity
     return opacity
 
 
-def _compute_visible(world, cx: int, cy: int) -> set:
+def _build_object_opacity(world_objects) -> dict:
+    """Build a (x, y) -> total_opacity map from world objects."""
+    result = {}
+    for obj in world_objects:
+        if obj.opacity > 0.0:
+            result[(obj.x, obj.y)] = result.get((obj.x, obj.y), 0.0) + obj.opacity
+    return result
+
+
+def _compute_visible(world, cx: int, cy: int, object_opacity: dict = None) -> set:
     """
     Return the set of (x, y) positions visible from (cx, cy) within
-    VISION_DISTANT, accounting for tile opacity.
+    VISION_DISTANT, accounting for tile and world object opacity.
     """
     visible = {(cx, cy)}
     for dy in range(-VISION_DISTANT, VISION_DISTANT + 1):
@@ -79,7 +91,7 @@ def _compute_visible(world, cx: int, cy: int) -> set:
                 continue
             if _dist(dx, dy) > VISION_DISTANT:
                 continue
-            if _ray_opacity(world, cx, cy, cx + dx, cy + dy) < 1.0:
+            if _ray_opacity(world, cx, cy, cx + dx, cy + dy, object_opacity) < 1.0:
                 visible.add((cx + dx, cy + dy))
     return visible
 
@@ -89,6 +101,7 @@ class WorldState:
     world: WorldMap
     moriarty: MoriartyEntity
     entities: list = field(default_factory=list)
+    world_objects: list = field(default_factory=list)
     tick: int = 0
     injected_environment: str = ""   # PI inject — consumed next tick
     pending_memory_result: str = ""  # wiki retrieval result — consumed next tick
@@ -100,6 +113,19 @@ class WorldState:
     def remove_entity(self, entity: Entity):
         if entity in self.entities:
             self.entities.remove(entity)
+
+    def add_object(self, obj):
+        self.world_objects.append(obj)
+
+    def remove_object(self, obj):
+        if obj in self.world_objects:
+            self.world_objects.remove(obj)
+
+    def get_objects_at(self, x: int, y: int) -> list:
+        return [o for o in self.world_objects if o.x == x and o.y == y]
+
+    def get_objects_near(self, x: int, y: int, radius: int = 5) -> list:
+        return [o for o in self.world_objects if _dist(o.x - x, o.y - y) <= radius]
 
     def get_items_at(self, x: int, y: int) -> list:
         from ..entities.items import Item
@@ -134,7 +160,8 @@ class WorldState:
         cx, cy = moriarty.x, moriarty.y
 
         # Precompute visible set once — shared by all three tiers, exposed for renderers
-        visible = _compute_visible(self.world, cx, cy)
+        obj_opacity = _build_object_opacity(self.world_objects)
+        visible = _compute_visible(self.world, cx, cy, obj_opacity)
         self.visible_tiles = visible
 
         # --- Immediate: current position ---
@@ -251,6 +278,19 @@ class WorldState:
             )
 
         entity_str = "\n".join(entity_lines) if entity_lines else "  none visible"
+
+        # World objects within interaction range
+        nearby_objects = self.get_objects_near(moriarty.x, moriarty.y, radius=VISION_CLOSE)
+        object_lines = []
+        for o in nearby_objects:
+            dx, dy = o.x - moriarty.x, o.y - moriarty.y
+            d = int(_dist(dx, dy))
+            direction = _direction_name(dx, dy)
+            verbs = list(o.interactions().keys())
+            verb_str = f" — {', '.join(verbs)}" if verbs else ""
+            object_lines.append(f"  {o.name} ({d}m {direction}){verb_str}")
+        object_str = "\n".join(object_lines) if object_lines else "  none nearby"
+
         recent = "\n  ".join(moriarty.event_log[-5:]) if moriarty.event_log else "none"
 
         # PI inject
@@ -275,6 +315,9 @@ Status: {moriarty.status.describe()}
 
 Visible entities:
 {entity_str}
+
+World objects (interact by using the verb as your action):
+{object_str}
 {inject_block}{memory_block}
 Recent events:
   {recent}"""
