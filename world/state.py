@@ -189,8 +189,8 @@ class WorldState:
             direction = _direction_name(dx, dy)
             entity_lines.append(
                 f"  {e.name} ({d}m {direction})"
-                + (" — on your tile, can pick up" if d == 0 else
-                   " — move to it first to pick up"
+                + (" — right here, can pick up" if d == 0 else
+                   " — move there to pick up"
                    if hasattr(e, 'item_type') else "")
             )
 
@@ -210,11 +210,10 @@ class WorldState:
             self.pending_memory_result = ""
 
         return f"""[PERCEPTION — Tick {self.tick}]
-Position: ({nemo.x}, {nemo.y})
 
 {vision}
 
-ON YOUR TILE (pick up immediately): {items_str}
+HERE (pick up immediately): {items_str}
 Carrying: {nemo.describe_inventory()}
 Status: {nemo.status.describe()}
 

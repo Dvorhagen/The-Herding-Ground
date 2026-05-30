@@ -38,16 +38,15 @@ def action_move(actor, args: dict, world_state) -> ActionResult:
     if actor.move(dx, dy, world_state.world):
         tile = world_state.world.get(actor.x, actor.y)
         tile_desc = tile.props.description if tile else "unknown ground"
-        msg = f"Moved {direction} to ({actor.x}, {actor.y}). Underfoot: {tile_desc}."
-        # Pick up items on tile automatically? For now, just report them.
+        msg = f"Moved {direction}. Underfoot: {tile_desc}."
         items_here = world_state.get_items_at(actor.x, actor.y)
         if items_here:
-            msg += f" You see: {', '.join(i.name for i in items_here)}."
+            msg += f" You see here: {', '.join(i.name for i in items_here)}."
         return ActionResult(True, msg)
     else:
         tile = world_state.world.get(actor.x + dx, actor.y + dy)
         obstacle = tile.props.description if tile else "the edge of the world"
-        return ActionResult(False, f"Can't move {direction} -- blocked by {obstacle}.", world_changed=False)
+        return ActionResult(False, f"Can't move {direction} — blocked by {obstacle}.", world_changed=False)
 
 
 def action_pickup(actor, args: dict, world_state) -> ActionResult:
