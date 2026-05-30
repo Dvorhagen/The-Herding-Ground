@@ -11,7 +11,7 @@ import uuid
 
 
 class EntityType(Enum):
-    NEMO    = auto()
+    MORIARTY = auto()
     PLAYER  = auto()    # Aaron, when he drops in
     NPC     = auto()
     ITEM    = auto()
@@ -77,7 +77,7 @@ FATIGUE_RATE = 6
 
 @dataclass
 class StatusEffects:
-    """Nemo's current physiological/psychological state."""
+    """Moriarty's current physiological/psychological state."""
     hunger: int = 50        # 0=starving, 100=full
     fatigue: int = 0        # 0=rested, 100=exhausted
     mood: str = "curious"   # freeform string -- LLM sets this
@@ -109,9 +109,9 @@ class StatusEffects:
 
 
 @dataclass
-class NemoEntity(Entity):
+class MoriartyEntity(Entity):
     """
-    Nemo -- the primary AI-controlled character.
+    Moriarty -- the primary AI-controlled character.
     Extends Entity with inventory and status.
     """
     inventory: list = field(default_factory=list)
@@ -136,4 +136,4 @@ class NemoEntity(Entity):
         return ", ".join(item.name for item in self.inventory)
 
     def describe(self) -> str:
-        return f"Nemo at ({self.x}, {self.y}) — {self.status.describe()}"
+        return f"Moriarty at ({self.x}, {self.y}) — {self.status.describe()}"

@@ -17,7 +17,7 @@ PI control not yet implemented.
 ## ✅ Done
 
 - [x] Procedural world generation (tiles, terrain, river, forests, paths)
-- [x] Entity system (base Entity, NemoEntity, Item subclasses)
+- [x] Entity system (base Entity, MoriartyEntity, Item subclasses)
 - [x] Action registry (move, pickup, drop, use, examine, wait, reflect)
 - [x] Ollama brain integration (qwen3.5:4b, think/reflect split)
 - [x] Structured output parsing (THOUGHT/ACTION/ARGS/MEMORY)
@@ -35,7 +35,7 @@ PI control not yet implemented.
 ## 🔄 In Progress
 
 - [ ] PI console UI (see spec below)
-- [ ] Rename Nemo -> Moriarty throughout codebase
+- [ ] Rename Moriarty -> Moriarty throughout codebase
 
 ---
 
@@ -54,7 +54,7 @@ PI control not yet implemented.
 - [ ] Thought history — scrollable log of Moriarty's recent THOUGHTs
 
 ### Identity & World Grounding
-- [ ] Rename throughout: Nemo -> Moriarty
+- [ ] Rename throughout: Moriarty -> Moriarty
 - [ ] Rewrite IDENTITY.md: bio-synthetic hybrid framing (see notes below)
 - [ ] Moriarty has no knowledge he's in a simulation — world IS reality to him
 - [ ] World lore/cosmology baked into identity (named places, sense of history)

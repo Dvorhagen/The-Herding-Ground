@@ -20,7 +20,7 @@ PAIR_DIM       = 1
 PAIR_NORMAL    = 2
 PAIR_BRIGHT    = 3
 PAIR_HIGHLIGHT = 4
-PAIR_NEMO      = 5
+PAIR_MORIARTY      = 5
 PAIR_ITEM      = 6
 PAIR_WARNING   = 7
 
@@ -63,7 +63,7 @@ class CursesRenderer:
         self._help_lines = [
             "  KEY REFERENCE",
             "  " + "─" * 27,
-            "  TAB        Aaron / Nemo mode",
+            "  TAB        Aaron / Moriarty mode",
             "  arrows     move (Aaron mode)",
             "  [ / ]      tick speed",
             "  SPACE      step mode on/off",
@@ -92,7 +92,7 @@ class CursesRenderer:
         curses.init_pair(PAIR_NORMAL,    curses.COLOR_GREEN,  -1)
         curses.init_pair(PAIR_BRIGHT,    curses.COLOR_GREEN,  -1)
         curses.init_pair(PAIR_HIGHLIGHT, curses.COLOR_WHITE,  -1)
-        curses.init_pair(PAIR_NEMO,      curses.COLOR_WHITE,  -1)
+        curses.init_pair(PAIR_MORIARTY,      curses.COLOR_WHITE,  -1)
         curses.init_pair(PAIR_ITEM,      curses.COLOR_YELLOW, -1)
         curses.init_pair(PAIR_WARNING,   curses.COLOR_RED,    -1)
 
@@ -132,16 +132,16 @@ class CursesRenderer:
 
     def _draw_map(self, world_state, map_w, map_h):
         world = world_state.world
-        nemo = world_state.nemo
+        moriarty = world_state.moriarty
 
         for row in range(map_h):
             for col in range(map_w):
                 wx = col + self.view_x
                 wy = row + self.view_y
 
-                if wx == nemo.x and wy == nemo.y:
+                if wx == moriarty.x and wy == moriarty.y:
                     self._put(row, col, "@",
-                              curses.color_pair(PAIR_NEMO) | curses.A_BOLD)
+                              curses.color_pair(PAIR_MORIARTY) | curses.A_BOLD)
                     continue
 
                 occluded = self.show_los and (wx, wy) not in world_state.visible_tiles
@@ -173,11 +173,11 @@ class CursesRenderer:
             self._put(row, map_w, "│", curses.color_pair(PAIR_DIM))
 
     def _draw_panel(self, world_state, px, panel_w, map_h):
-        nemo = world_state.nemo
+        moriarty = world_state.moriarty
         row = 0
 
         # Title
-        self._put(row, px, "// NEMO",
+        self._put(row, px, "// MORIARTY",
                   curses.color_pair(PAIR_HIGHLIGHT) | curses.A_BOLD)
         row += 1
         self._put(row, px, "─" * (panel_w - 1), curses.color_pair(PAIR_DIM))
@@ -185,17 +185,17 @@ class CursesRenderer:
 
         # Status
         self._panel_text(row, px, panel_w,
-                         f"POS  : ({nemo.x},{nemo.y})  T:{world_state.tick}")
+                         f"POS  : ({moriarty.x},{moriarty.y})  T:{world_state.tick}")
         row += 1
 
-        status = nemo.status.describe()
+        status = moriarty.status.describe()
         # Colour warning if hungry/tired
-        warn = nemo.status.hunger < 20 or nemo.status.fatigue > 80
+        warn = moriarty.status.hunger < 20 or moriarty.status.fatigue > 80
         attr = curses.color_pair(PAIR_WARNING) if warn else curses.color_pair(PAIR_NORMAL)
         self._panel_text(row, px, panel_w, f"STATE: {status}", attr)
         row += 1
 
-        inv = nemo.describe_inventory()
+        inv = moriarty.describe_inventory()
         self._panel_text(row, px, panel_w, f"CARRY: {inv}")
         row += 1
 

@@ -1,6 +1,6 @@
 """
-brain/nemo_brain.py
-Nemo's brain: interfaces with Ollama (qwen3.5:4b) to generate actions
+brain/moriarty_brain.py
+Moriarty's brain: interfaces with Ollama (qwen3.5:4b) to generate actions
 from perception, and parses the LLM output into executable actions.
 
 The brain does three things each tick:
@@ -8,8 +8,8 @@ The brain does three things each tick:
 2. Calls Ollama
 3. Parses the response into an action dict
 
-Output format we ask Nemo to produce:
-  THOUGHT: <Nemo's internal monologue -- not executed, logged for flavor>
+Output format we ask Moriarty to produce:
+  THOUGHT: <Moriarty's internal monologue -- not executed, logged for flavor>
   ACTION: <action_name>
   ARGS: <key=value pairs, optional>
   MEMORY: <optional memory tool call in JSON>
@@ -24,7 +24,7 @@ from pathlib import Path
 
 
 OLLAMA_URL = "http://localhost:11434/api/chat"
-MODEL = os.environ.get("NEMO_MODEL", "qwen3.5:4b")
+MODEL = os.environ.get("MORIARTY_MODEL", "qwen3.5:4b")
 IDENTITY_PATH = Path(__file__).parent.parent / "memory" / "IDENTITY.md"
 LOG_PATH = Path(__file__).parent.parent / "nemo_game.log"
 
@@ -35,20 +35,20 @@ logging.basicConfig(
     format="%(asctime)s [%(levelname)s] %(message)s",
     datefmt="%H:%M:%S"
 )
-log = logging.getLogger("nemo")
+log = logging.getLogger("moriarty")
 
 
 def load_identity() -> str:
     if IDENTITY_PATH.exists():
         return IDENTITY_PATH.read_text()
-    return "You are Nemo."
+    return "You are Moriarty."
 
 
 SYSTEM_PROMPT_TEMPLATE = """{identity}
 
 ---
 
-You are Nemo, living in a 2D world. Each turn you receive a [PERCEPTION] block.
+You are Moriarty, living in a 2D world. Each turn you receive a [PERCEPTION] block.
 
 SPATIAL RULES — read carefully:
 - You can only pick up items listed under "HERE" — things at your exact location.

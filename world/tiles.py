@@ -27,7 +27,7 @@ class TileProperties:
     passable: bool
     symbol: str          # ASCII fallback / text description
     color: tuple         # RGB for pygame rendering (phosphor green palette)
-    description: str     # What Nemo perceives
+    description: str     # What Moriarty perceives
     opacity: float = 0.0 # 0.0 = transparent, 0.5 = semi-opaque, 1.0 = fully opaque
 
 
@@ -98,7 +98,7 @@ class WorldMap:
     def get_perception_grid(self, cx: int, cy: int, radius: int = 3) -> str:
         """
         Returns a text description of the tiles visible from (cx, cy)
-        within the given radius. This is what gets fed to Nemo's context.
+        within the given radius. This is what gets fed to Moriarty's context.
         Cardinal directions are labeled.
         """
         lines = []
@@ -107,7 +107,7 @@ class WorldMap:
             for dx in range(-radius, radius + 1):
                 x, y = cx + dx, cy + dy
                 if dx == 0 and dy == 0:
-                    row.append("@")  # Nemo's position
+                    row.append("@")  # Moriarty's position
                 else:
                     tile = self.get(x, y)
                     if tile is None:
@@ -119,7 +119,7 @@ class WorldMap:
 
     def describe_surroundings(self, cx: int, cy: int) -> str:
         """
-        Returns a structured text perception block for Nemo's prompt.
+        Returns a structured text perception block for Moriarty's prompt.
         """
         directions = {
             "North": (0, -1),

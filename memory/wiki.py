@@ -1,14 +1,14 @@
 """
 memory/wiki.py
-Nemo's Memory Palace -- a wiki-style persistent memory store.
+Moriarty's Memory Palace -- a wiki-style persistent memory store.
 Each memory is a markdown file in the wiki directory.
-Nemo can read and write pages as a tool call.
+Moriarty can read and write pages as a tool call.
 
 Pages are organized by category:
-  - places/     : locations Nemo has been
+  - places/     : locations Moriarty has been
   - entities/   : creatures, people, things encountered
   - events/     : significant things that happened
-  - self/       : Nemo's self-model (updated via reflection)
+  - self/       : Moriarty's self-model (updated via reflection)
 
 This keeps the RAG context cheap: retrieve only what's relevant,
 not the whole memory.
@@ -116,13 +116,13 @@ def record_event(tick: int, description: str, tags: list[str] = None):
 
 
 def get_self_model() -> str:
-    """Read Nemo's current self-model page."""
+    """Read Moriarty's current self-model page."""
     content = read_page("self", "current")
     if content:
         return content
     # Initialize with stub
-    default = """# Nemo — Self Model
-*This page is updated by Nemo through reflection.*
+    default = """# Moriarty — Self Model
+*This page is updated by Moriarty through reflection.*
 
 ## What I know about myself so far
 I am new. I am beginning.
@@ -138,12 +138,12 @@ I am new. I am beginning.
 
 
 def update_self_model(new_content: str):
-    """Replace Nemo's self-model with updated content."""
+    """Replace Moriarty's self-model with updated content."""
     write_page("self", "current", new_content)
 
 
-# --- Tool interface for Nemo's brain ---
-# These functions are called when Nemo's LLM output includes a MEMORY_TOOL block
+# --- Tool interface for Moriarty's brain ---
+# These functions are called when Moriarty's LLM output includes a MEMORY_TOOL block
 
 MEMORY_TOOLS = {
     "read":   lambda cat, name, **_: read_page(cat, name) or f"No page found: {cat}/{name}",
@@ -155,7 +155,7 @@ MEMORY_TOOLS = {
 
 def execute_memory_tool(tool_call: dict) -> str:
     """
-    Execute a memory tool call from Nemo's output.
+    Execute a memory tool call from Moriarty's output.
     tool_call: {"tool": "read"|"write"|"list"|"search", ...args}
     Returns the result as a string.
     """

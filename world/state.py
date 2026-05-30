@@ -13,7 +13,7 @@ Vision is distance-graded at 1m scale:
 from dataclasses import dataclass, field
 from typing import Optional
 from .tiles import WorldMap, TileType
-from ..entities.base import Entity, NemoEntity
+from ..entities.base import Entity, MoriartyEntity
 
 # Vision radii (in tiles = meters at 1m scale)
 VISION_CLOSE   = 3
@@ -87,7 +87,7 @@ def _compute_visible(world, cx: int, cy: int) -> set:
 @dataclass
 class WorldState:
     world: WorldMap
-    nemo: NemoEntity
+    moriarty: MoriartyEntity
     entities: list = field(default_factory=list)
     tick: int = 0
     injected_environment: str = ""   # PI inject — consumed next tick
@@ -117,7 +117,7 @@ class WorldState:
 
     def advance_tick(self):
         self.tick += 1
-        self.nemo.status.tick()
+        self.moriarty.status.tick()
 
     def _describe_tile_at(self, x: int, y: int) -> str:
         tile = self.world.get(x, y)
@@ -130,8 +130,8 @@ class WorldState:
         Build distance-graded vision description.
         At 1m scale, 15 tiles = 15 meters — a natural human sight line in open terrain.
         """
-        nemo = self.nemo
-        cx, cy = nemo.x, nemo.y
+        moriarty = self.moriarty
+        cx, cy = moriarty.x, moriarty.y
 
         # Precompute visible set once — shared by all three tiers, exposed for renderers
         visible = _compute_visible(self.world, cx, cy)
@@ -224,23 +224,23 @@ class WorldState:
         return "\n".join(lines)
 
     def build_perception_block(self) -> str:
-        nemo = self.nemo
+        moriarty = self.moriarty
 
         vision = self._build_vision_block()
 
         # Items on current tile
-        items_here = self.get_items_at(nemo.x, nemo.y)
+        items_here = self.get_items_at(moriarty.x, moriarty.y)
         items_str = (", ".join(i.name for i in items_here)
                      if items_here else "none")
 
         # Visible entities (within close range)
-        visible_entities = self.get_entities_near(nemo.x, nemo.y,
+        visible_entities = self.get_entities_near(moriarty.x, moriarty.y,
                                                    radius=VISION_CLOSE)
         entity_lines = []
         for e in visible_entities:
-            if e.x == nemo.x and e.y == nemo.y:
+            if e.x == moriarty.x and e.y == moriarty.y:
                 continue
-            dx, dy = e.x - nemo.x, e.y - nemo.y
+            dx, dy = e.x - moriarty.x, e.y - moriarty.y
             d = int(_dist(dx, dy))
             direction = _direction_name(dx, dy)
             entity_lines.append(
@@ -251,7 +251,7 @@ class WorldState:
             )
 
         entity_str = "\n".join(entity_lines) if entity_lines else "  none visible"
-        recent = "\n  ".join(nemo.event_log[-5:]) if nemo.event_log else "none"
+        recent = "\n  ".join(moriarty.event_log[-5:]) if moriarty.event_log else "none"
 
         # PI inject
         inject_block = ""
@@ -270,8 +270,8 @@ class WorldState:
 {vision}
 
 HERE (pick up immediately): {items_str}
-Carrying: {nemo.describe_inventory()}
-Status: {nemo.status.describe()}
+Carrying: {moriarty.describe_inventory()}
+Status: {moriarty.status.describe()}
 
 Visible entities:
 {entity_str}

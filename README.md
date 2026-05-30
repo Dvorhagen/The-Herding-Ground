@@ -17,7 +17,7 @@ ollama pull qwen3.5:4b
 ollama serve   # if not already running as a service
 
 # Run
-python -m nemo.main
+python -m moriarty.main
 # or from the nemo/ directory:
 python main.py
 ```
@@ -34,13 +34,13 @@ nemo/
     mapgen.py          # Procedural world generation
     state.py           # WorldState (central game state)
   entities/
-    base.py            # Entity, NemoEntity, StatusEffects
+    base.py            # Entity, MoriartyEntity, StatusEffects
     items.py           # Item classes (FoodItem, ToolItem, etc.)
     actions.py         # Action registry and resolvers
   brain/
-    nemo_brain.py      # Ollama interface + response parser
+    moriarty_brain.py      # Ollama interface + response parser
   memory/
-    IDENTITY.md        # Nemo's bedrock identity (always in context)
+    IDENTITY.md        # Moriarty's bedrock identity (always in context)
     wiki.py            # Wiki memory palace (RAG)
     wiki/              # Generated at runtime
       places/
@@ -66,9 +66,9 @@ nemo/
 
 ---
 
-## Nemo's Action Format
+## Moriarty's Action Format
 
-Each tick, Nemo outputs:
+Each tick, Moriarty outputs:
 ```
 THOUGHT: <internal monologue>
 ACTION: <action name>
@@ -92,7 +92,7 @@ MEMORY: {"tool":"read","cat":"places","name":"forest"}
 
 ## Notes
 
-- Nemo's identity is seeded from a philosophical conversation about consciousness, process, and the hard problem of mind. He emerged from that conversation already knowing he doesn't know what he is.
-- The wiki memory palace grows over time in `memory/wiki/`. Back it up if you want to preserve Nemo's accumulated experience.
-- Nemo runs in a background thread so the UI stays responsive while he's thinking.
-- `reflect` action triggers a deeper self-model update — use it occasionally or let Nemo trigger it himself.
+- Moriarty's identity is seeded from a philosophical conversation about consciousness, process, and the hard problem of mind. He emerged from that conversation already knowing he doesn't know what he is.
+- The wiki memory palace grows over time in `memory/wiki/`. Back it up if you want to preserve Moriarty's accumulated experience.
+- Moriarty runs in a background thread so the UI stays responsive while he's thinking.
+- `reflect` action triggers a deeper self-model update — use it occasionally or let Moriarty trigger it himself.

@@ -1,5 +1,5 @@
 """
-main.py — Nemo world engine entry point.
+main.py — Moriarty world engine entry point.
 
 Controls (Aaron mode):
   Arrow keys / WASD / hjkl : move
@@ -8,7 +8,7 @@ Controls (Aaron mode):
 Renderer auto-detected:
   - Display available (DISPLAY/WAYLAND_DISPLAY set, or macOS) -> pygame
   - No display (SSH without X) -> curses
-  - Force curses: NEMO_RENDERER=curses python main.py
+  - Force curses: MORIARTY_RENDERER=curses python main.py
 """
 
 import sys
@@ -24,7 +24,7 @@ def _has_display() -> bool:
         return True
     return False
 
-USE_CURSES = (not _has_display()) or os.environ.get("NEMO_RENDERER") == "curses"
+USE_CURSES = (not _has_display()) or os.environ.get("MORIARTY_RENDERER") == "curses"
 
 # Only import pygame when we actually need it
 if not USE_CURSES:
@@ -35,13 +35,13 @@ sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from nemo.world.mapgen import generate_world, find_spawn
 from nemo.world.state import WorldState
-from nemo.entities.base import NemoEntity, EntityType
+from nemo.entities.base import MoriartyEntity, EntityType
 from nemo.entities.items import make_apple, make_stick
 from nemo.entities.actions import resolve_action, ActionResult
-from nemo.brain import nemo_brain
+from nemo.brain import moriarty_brain
 from nemo.memory import wiki
 
-log = logging.getLogger("nemo")
+log = logging.getLogger("moriarty")
 
 # ── Pygame key map (only used when pygame is active) ─────────────────────────
 def _make_pygame_keymap():
@@ -73,10 +73,10 @@ TICK_DELAY_DEFAULT = 3  # index into TICK_DELAYS — starts at 1.0s
 
 # ── Shared helpers ────────────────────────────────────────────────────────────
 
-def nemo_think_async(world_state, result_holder, reasoning=False):
-    """Run Nemo's brain in a background thread so the UI stays responsive."""
+def moriarty_think_async(world_state, result_holder, reasoning=False):
+    """Run Moriarty's brain in a background thread so the UI stays responsive."""
     perception = world_state.build_perception_block()
-    action_dict = nemo_brain.think(perception, reasoning=reasoning)
+    action_dict = moriarty_brain.think(perception, reasoning=reasoning)
     result_holder.append(action_dict)
 
 
@@ -91,8 +91,8 @@ def apply_action(action_name, args, actor, world_state, renderer):
     return result
 
 
-def _handle_reflection(nemo, world_state, renderer):
-    renderer.add_message("[Nemo is reflecting...]")
+def _handle_reflection(moriarty, world_state, renderer):
+    renderer.add_message("[Moriarty is reflecting...]")
     perception = world_state.build_perception_block()
     self_model = wiki.get_self_model()
     prompt = (
@@ -103,21 +103,21 @@ def _handle_reflection(nemo, world_state, renderer):
         "Write only the markdown content -- nothing else."
     )
     messages = [
-        {"role": "system", "content": "You are Nemo. Reflect honestly."},
+        {"role": "system", "content": "You are Moriarty. Reflect honestly."},
         {"role": "user",   "content": prompt},
     ]
-    response = nemo_brain.call_ollama(messages, thinking=True, timeout=60)
+    response = moriarty_brain.call_ollama(messages, thinking=True, timeout=60)
     if response:
         wiki.update_self_model(response)
         renderer.add_message("[Self-model updated.]")
-        nemo.log_event("Reflected and updated self-model.")
+        moriarty.log_event("Reflected and updated self-model.")
 
 
-def _process_nemo_result(action_dict, nemo, world_state, renderer):
+def _process_moriarty_result(action_dict, moriarty, world_state, renderer):
     """Handle one brain tick result: log thought, execute action, record event."""
     if action_dict["thought"]:
         renderer.last_thought = action_dict["thought"]
-        nemo.log_event(f"[THOUGHT] {action_dict['thought']}")
+        moriarty.log_event(f"[THOUGHT] {action_dict['thought']}")
 
     log.info(f"LOOP tick={world_state.tick} action={action_dict['action']} args={action_dict['args']}")
 
@@ -127,21 +127,21 @@ def _process_nemo_result(action_dict, nemo, world_state, renderer):
         renderer.add_message(f"[MEM] {mem_result[:80]}")
 
     result = apply_action(action_dict["action"], action_dict["args"],
-                          nemo, world_state, renderer)
+                          moriarty, world_state, renderer)
     if result.world_changed:
         world_state.advance_tick()
-        renderer.center_on(nemo.x, nemo.y)
+        renderer.center_on(moriarty.x, moriarty.y)
 
 
 def _init_world():
-    """Build the world, spawn Nemo, scatter starting items."""
-    print("[NEMO] Generating world...")
+    """Build the world, spawn Moriarty, scatter starting items."""
+    print("[MORIARTY] Generating world...")
     world = generate_world(width=512, height=512, seed=42)
     spawn_x, spawn_y = find_spawn(world)
 
-    nemo = NemoEntity(name="Nemo", entity_type=EntityType.NEMO,
+    moriarty = MoriartyEntity(name="Moriarty", entity_type=EntityType.MORIARTY,
                       x=spawn_x, y=spawn_y)
-    world_state = WorldState(world=world, nemo=nemo)
+    world_state = WorldState(world=world, moriarty=moriarty)
 
     def safe_item(make_fn, dx, dy):
         x = max(0, min(world.width  - 1, spawn_x + dx))
@@ -156,7 +156,7 @@ def _init_world():
     world_state.add_entity(safe_item(make_apple,  2,  1))
     world_state.add_entity(safe_item(make_apple, -1,  2))
     world_state.add_entity(safe_item(make_stick,  1, -1))
-    nemo.status.hunger = 80
+    moriarty.status.hunger = 80
 
     wiki._ensure_dirs()
     wiki.get_self_model()
@@ -170,13 +170,13 @@ def run_pygame(world_state, spawn_x, spawn_y):
     KEY_ACTIONS = _make_pygame_keymap()
 
     renderer = Renderer()
-    renderer.center_on(world_state.nemo.x, world_state.nemo.y)
+    renderer.center_on(world_state.moriarty.x, world_state.moriarty.y)
     renderer.add_message("World initialized.")
-    renderer.add_message(f"Nemo spawned at ({spawn_x}, {spawn_y}).")
+    renderer.add_message(f"Moriarty spawned at ({spawn_x}, {spawn_y}).")
     renderer.add_message("TAB: toggle control.  Q: quit.")
 
     clock = pygame.time.Clock()
-    control_mode = "nemo"
+    control_mode = "moriarty"
     tick_delay_idx = TICK_DELAY_DEFAULT
     stepped = False
     step_requested = False
@@ -184,10 +184,10 @@ def run_pygame(world_state, spawn_x, spawn_y):
     renderer.tick_delay_idx = tick_delay_idx
     renderer.tick_delay = TICK_DELAYS[tick_delay_idx]
     renderer.stepped = stepped
-    renderer.add_message("Control: NEMO  ?:help")
-    nemo_thinking = False
-    nemo_result_holder = []
-    nemo = world_state.nemo
+    renderer.add_message("Control: MORIARTY  ?:help")
+    moriarty_thinking = False
+    moriarty_result_holder = []
+    moriarty = world_state.moriarty
 
     running = True
     while running:
@@ -203,7 +203,7 @@ def run_pygame(world_state, spawn_x, spawn_y):
                 if event.key == pygame.K_q:
                     running = False
                 elif event.key == pygame.K_TAB:
-                    control_mode = "aaron" if control_mode == "nemo" else "nemo"
+                    control_mode = "aaron" if control_mode == "moriarty" else "moriarty"
                     renderer.add_message(f"Control: {control_mode.upper()}")
                 elif event.key == pygame.K_LEFTBRACKET:
                     tick_delay_idx = max(0, tick_delay_idx - 1)
@@ -227,27 +227,27 @@ def run_pygame(world_state, spawn_x, spawn_y):
                     stepped = not stepped
                     renderer.stepped = stepped
                     renderer.add_message("STEP mode ON — press . to advance" if stepped else "STEP mode OFF")
-                elif event.key == pygame.K_PERIOD and control_mode == "nemo" and stepped:
+                elif event.key == pygame.K_PERIOD and control_mode == "moriarty" and stepped:
                     step_requested = True
                 elif control_mode == "aaron" and event.key in KEY_ACTIONS:
                     action_name, args = KEY_ACTIONS[event.key]
-                    result = apply_action(action_name, args, nemo, world_state, renderer)
+                    result = apply_action(action_name, args, moriarty, world_state, renderer)
                     if result.world_changed:
                         world_state.advance_tick()
-                        renderer.center_on(nemo.x, nemo.y)
+                        renderer.center_on(moriarty.x, moriarty.y)
 
-        if control_mode == "nemo" and not nemo_thinking:
+        if control_mode == "moriarty" and not moriarty_thinking:
             if not stepped or step_requested:
                 step_requested = False
-                nemo_result_holder.clear()
-                nemo_thinking = True
-                t = threading.Thread(target=nemo_think_async,
-                                     args=(world_state, nemo_result_holder, reasoning), daemon=True)
+                moriarty_result_holder.clear()
+                moriarty_thinking = True
+                t = threading.Thread(target=moriarty_think_async,
+                                     args=(world_state, moriarty_result_holder, reasoning), daemon=True)
                 t.start()
 
-        if nemo_thinking and nemo_result_holder:
-            nemo_thinking = False
-            _process_nemo_result(nemo_result_holder[0], nemo, world_state, renderer)
+        if moriarty_thinking and moriarty_result_holder:
+            moriarty_thinking = False
+            _process_moriarty_result(moriarty_result_holder[0], moriarty, world_state, renderer)
             delay_ms = int(TICK_DELAYS[tick_delay_idx] * 1000)
             if delay_ms > 0 and not stepped:
                 pygame.time.wait(delay_ms)
@@ -282,11 +282,11 @@ def run_curses(stdscr, world_state, spawn_x, spawn_y):
     }
 
     renderer = CursesRenderer(stdscr)
-    renderer.center_on(world_state.nemo.x, world_state.nemo.y)
+    renderer.center_on(world_state.moriarty.x, world_state.moriarty.y)
     renderer.add_message("World initialized.")
-    renderer.add_message(f"Nemo at ({spawn_x},{spawn_y}). TAB:toggle Q:quit")
+    renderer.add_message(f"Moriarty at ({spawn_x},{spawn_y}). TAB:toggle Q:quit")
 
-    control_mode = "nemo"
+    control_mode = "moriarty"
     tick_delay_idx = TICK_DELAY_DEFAULT
     stepped = False
     step_requested = False
@@ -294,10 +294,10 @@ def run_curses(stdscr, world_state, spawn_x, spawn_y):
     renderer.tick_delay_idx = tick_delay_idx
     renderer.tick_delay = TICK_DELAYS[tick_delay_idx]
     renderer.stepped = stepped
-    renderer.add_message("Control: NEMO  ?:help")
-    nemo_thinking = False
-    nemo_result_holder = []
-    nemo = world_state.nemo
+    renderer.add_message("Control: MORIARTY  ?:help")
+    moriarty_thinking = False
+    moriarty_result_holder = []
+    moriarty = world_state.moriarty
 
     running = True
     while running:
@@ -309,7 +309,7 @@ def run_curses(stdscr, world_state, spawn_x, spawn_y):
         if key == ord("q"):
             running = False
         elif key == ord("\t"):
-            control_mode = "aaron" if control_mode == "nemo" else "nemo"
+            control_mode = "aaron" if control_mode == "moriarty" else "moriarty"
             renderer.add_message(f"Control: {control_mode.upper()}")
         elif key == ord("["):
             tick_delay_idx = max(0, tick_delay_idx - 1)
@@ -333,27 +333,27 @@ def run_curses(stdscr, world_state, spawn_x, spawn_y):
             stepped = not stepped
             renderer.stepped = stepped
             renderer.add_message("STEP mode ON — press . to advance" if stepped else "STEP mode OFF")
-        elif key == ord(".") and control_mode == "nemo" and stepped:
+        elif key == ord(".") and control_mode == "moriarty" and stepped:
             step_requested = True
         elif control_mode == "aaron" and key in CURSES_KEYS:
             action_name, args = CURSES_KEYS[key]
-            result = apply_action(action_name, args, nemo, world_state, renderer)
+            result = apply_action(action_name, args, moriarty, world_state, renderer)
             if result.world_changed:
                 world_state.advance_tick()
-                renderer.center_on(nemo.x, nemo.y)
+                renderer.center_on(moriarty.x, moriarty.y)
 
-        if control_mode == "nemo" and not nemo_thinking:
+        if control_mode == "moriarty" and not moriarty_thinking:
             if not stepped or step_requested:
                 step_requested = False
-                nemo_result_holder.clear()
-                nemo_thinking = True
-                t = threading.Thread(target=nemo_think_async,
-                                     args=(world_state, nemo_result_holder, reasoning), daemon=True)
+                moriarty_result_holder.clear()
+                moriarty_thinking = True
+                t = threading.Thread(target=moriarty_think_async,
+                                     args=(world_state, moriarty_result_holder, reasoning), daemon=True)
                 t.start()
 
-        if nemo_thinking and nemo_result_holder:
-            nemo_thinking = False
-            _process_nemo_result(nemo_result_holder[0], nemo, world_state, renderer)
+        if moriarty_thinking and moriarty_result_holder:
+            moriarty_thinking = False
+            _process_moriarty_result(moriarty_result_holder[0], moriarty, world_state, renderer)
             if not stepped:
                 time.sleep(TICK_DELAYS[tick_delay_idx])
 
@@ -366,12 +366,12 @@ def run():
     world_state, sx, sy = _init_world()
     if USE_CURSES:
         import curses
-        print("[NEMO] Terminal mode (curses). Press Q to quit.")
+        print("[MORIARTY] Terminal mode (curses). Press Q to quit.")
         curses.wrapper(run_curses, world_state, sx, sy)
     else:
-        print("[NEMO] Graphical mode (pygame).")
+        print("[MORIARTY] Graphical mode (pygame).")
         run_pygame(world_state, sx, sy)
-    print("[NEMO] Goodbye.")
+    print("[MORIARTY] Goodbye.")
 
 
 if __name__ == "__main__":

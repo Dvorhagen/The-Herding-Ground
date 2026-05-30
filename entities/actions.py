@@ -3,7 +3,7 @@ entities/actions.py
 The action system. All entity actions are defined here as functions
 that take (actor, world_state) and return an ActionResult.
 
-Nemo's brain outputs an action name + optional args.
+Moriarty's brain outputs an action name + optional args.
 The action resolver looks up the function here and executes it.
 
 To add new actions: define a function, add it to ACTION_REGISTRY.
@@ -19,7 +19,7 @@ class ActionResult:
     """
     The result of executing an action.
     success: did it work?
-    message: what happened (fed back into Nemo's context)
+    message: what happened (fed back into Moriarty's context)
     world_changed: does the renderer need to redraw?
     """
     success: bool
@@ -123,7 +123,7 @@ def action_wait(actor, args: dict, world_state) -> ActionResult:
 
 def action_reflect(actor, args: dict, world_state) -> ActionResult:
     """
-    Special action: Nemo pauses to reflect on its state.
+    Special action: Moriarty pauses to reflect on its state.
     This will trigger a memory-write check.
     """
     return ActionResult(True, "REFLECT", world_changed=False, data={"trigger_reflection": True})

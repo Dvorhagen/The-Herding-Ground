@@ -7,14 +7,14 @@ parser can handle the output.
 
 Usage:
   python test_brain.py
-  NEMO_MODEL=qwen3.5:4b python test_brain.py   # override model
+  MORIARTY_MODEL=qwen3.5:4b python test_brain.py   # override model
 """
 
 import sys
 import os
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-from nemo.brain import nemo_brain
+from nemo.brain import moriarty_brain
 
 FAKE_PERCEPTION = """[PERCEPTION — Tick 1]
 Position: (20, 20)
@@ -36,8 +36,8 @@ Recent events:
 
 
 def test():
-    print(f"Model : {nemo_brain.MODEL}")
-    print(f"URL   : {nemo_brain.OLLAMA_URL}")
+    print(f"Model : {moriarty_brain.MODEL}")
+    print(f"URL   : {moriarty_brain.OLLAMA_URL}")
     print()
 
     # 1. Check Ollama is reachable
@@ -49,9 +49,9 @@ def test():
         print(f"   OK — Ollama running. Available models:")
         for m in models:
             print(f"     {m}")
-        if not any(nemo_brain.MODEL in m for m in models):
-            print(f"\n   WARNING: '{nemo_brain.MODEL}' not found in available models.")
-            print(f"   Run: ollama pull {nemo_brain.MODEL}")
+        if not any(moriarty_brain.MODEL in m for m in models):
+            print(f"\n   WARNING: '{moriarty_brain.MODEL}' not found in available models.")
+            print(f"   Run: ollama pull {moriarty_brain.MODEL}")
             sys.exit(1)
     except Exception as e:
         print(f"   FAILED — can't reach Ollama: {e}")
@@ -61,8 +61,8 @@ def test():
     print()
 
     # 2. Send a real perception block and get a response
-    print("2. Sending test perception to Nemo's brain...")
-    result = nemo_brain.think(FAKE_PERCEPTION)
+    print("2. Sending test perception to Moriarty's brain...")
+    result = moriarty_brain.think(FAKE_PERCEPTION)
     print(f"   Raw response:\n{'='*50}")
     print(result["raw"])
     print('='*50)
@@ -76,7 +76,7 @@ def test():
     print(f"   MEMORY  : {result['memory_tool']}")
 
     if result["action"] == "wait" and not result["thought"]:
-        print("\n   WARNING: Nemo defaulted to wait with no thought.")
+        print("\n   WARNING: Moriarty defaulted to wait with no thought.")
         print("   The model may not be following the output format.")
         print("   Check the raw response above.")
     else:

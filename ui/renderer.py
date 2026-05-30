@@ -23,7 +23,7 @@ COLOR_BORDER     = PHOSPHOR_MID
 COLOR_TEXT       = PHOSPHOR_BRIGHT
 COLOR_TEXT_DIM   = PHOSPHOR_DIM
 COLOR_HIGHLIGHT  = PHOSPHOR_GLOW
-COLOR_NEMO       = (120, 255, 120)
+COLOR_MORIARTY       = (120, 255, 120)
 COLOR_PLAYER     = (255, 255, 100)
 
 FONT_PATH = None   # Use pygame default monospace
@@ -48,7 +48,7 @@ class Renderer:
         self.messages: list[str] = []
         self.max_messages = 20
 
-        # Nemo's last thought
+        # Moriarty's last thought
         self.last_thought = ""
 
         self.tick_delay_idx = 3   # set by main.py
@@ -63,7 +63,7 @@ class Renderer:
         self._help_lines = [
             "  KEY REFERENCE",
             "  ─────────────────────────",
-            "  TAB        Aaron / Nemo mode",
+            "  TAB        Aaron / Moriarty mode",
             "  arrows     move (Aaron mode)",
             "  [ / ]      tick speed",
             "  SPACE      step mode on/off",
@@ -155,13 +155,13 @@ class Renderer:
                 sym = self.font_md.render(entity.symbol, True, entity.color)
                 self.screen.blit(sym, (sx + 2, sy + 1))
 
-        # Nemo
-        nemo = world_state.nemo
-        sx, sy = self.world_to_screen(nemo.x, nemo.y)
+        # Moriarty
+        moriarty = world_state.moriarty
+        sx, sy = self.world_to_screen(moriarty.x, moriarty.y)
         if 0 <= sx < VIEWPORT_W * TILE_SIZE and 0 <= sy < VIEWPORT_H * TILE_SIZE:
             # Glow effect: slightly larger rect behind N
             pygame.draw.rect(self.screen, (30, 80, 30), (sx, sy, TILE_SIZE, TILE_SIZE))
-            sym = self.font_md.render("@", True, COLOR_NEMO)
+            sym = self.font_md.render("@", True, COLOR_MORIARTY)
             self.screen.blit(sym, (sx + 2, sy + 1))
 
     def _draw_panel(self, world_state):
@@ -172,7 +172,7 @@ class Renderer:
 
         y = 8
         # Title
-        title = self.font_lg.render("// NEMO", True, COLOR_HIGHLIGHT)
+        title = self.font_lg.render("// MORIARTY", True, COLOR_HIGHLIGHT)
         self.screen.blit(title, (px + 10, y))
         y += 28
 
@@ -181,16 +181,16 @@ class Renderer:
         y += 8
 
         # Status
-        nemo = world_state.nemo
-        self._text(f"POS  : ({nemo.x}, {nemo.y})", px + 10, y)
+        moriarty = world_state.moriarty
+        self._text(f"POS  : ({moriarty.x}, {moriarty.y})", px + 10, y)
         y += 18
         self._text(f"TICK : {world_state.tick}", px + 10, y)
         y += 18
-        self._text(f"STATE: {nemo.status.describe()}", px + 10, y, max_width=PANEL_W - 20)
+        self._text(f"STATE: {moriarty.status.describe()}", px + 10, y, max_width=PANEL_W - 20)
         y += 18
 
         # Inventory
-        inv = nemo.describe_inventory()
+        inv = moriarty.describe_inventory()
         self._text(f"CARRY: {inv}", px + 10, y, max_width=PANEL_W - 20)
         y += 20
 
