@@ -58,6 +58,23 @@ class CursesRenderer:
         self.tick_delay = 1.0
         self.stepped = False
         self.show_los = False
+        self.show_help = False
+
+        self._help_lines = [
+            "  KEY REFERENCE",
+            "  " + "─" * 27,
+            "  TAB        Aaron / Nemo mode",
+            "  arrows     move (Aaron mode)",
+            "  [ / ]      tick speed",
+            "  SPACE      step mode on/off",
+            "  .          advance one step",
+            "  v          LOS overlay",
+            "  r          reasoning mode",
+            "  ?          this help",
+            "  q          quit",
+            "  " + "─" * 27,
+            "  any key to close",
+        ]
 
         self._setup_curses()
 
@@ -104,6 +121,9 @@ class CursesRenderer:
         self._draw_divider(map_w, map_h)
         self._draw_panel(world_state, map_w + 1, panel_w, map_h)
         self._draw_bottom_bar(h - 1, w)
+
+        if self.show_help:
+            self._draw_help()
 
         try:
             self.stdscr.refresh()
@@ -235,6 +255,17 @@ class CursesRenderer:
                                curses.color_pair(PAIR_DIM) | curses.A_REVERSE)
         except curses.error:
             pass
+
+    def _draw_help(self):
+        h, w = self.stdscr.getmaxyx()
+        box_h = len(self._help_lines) + 2
+        box_w = 33
+        by = max(0, (h - box_h) // 2)
+        bx = max(0, (w - box_w) // 2)
+        for i, line in enumerate(self._help_lines):
+            attr = (curses.color_pair(PAIR_HIGHLIGHT) | curses.A_BOLD
+                    if i == 0 else curses.color_pair(PAIR_NORMAL))
+            self._put(by + 1 + i, bx, line[:box_w - 1], attr)
 
     def get_input(self):
         """Non-blocking input. Returns curses key constant or None."""

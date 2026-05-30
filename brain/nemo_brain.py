@@ -194,15 +194,15 @@ _FALLBACK = {
 }
 
 
-def think(perception_block: str, memory_context: str = "") -> dict:
-    """Fast path: thinking disabled. Used for routine per-tick decisions."""
+def think(perception_block: str, memory_context: str = "", reasoning: bool = False) -> dict:
+    """Per-tick decision. reasoning=True enables Qwen3.5 chain-of-thought (slower)."""
     messages = build_prompt(perception_block, memory_context)
-    response = call_ollama(messages, thinking=False, timeout=20)
+    response = call_ollama(messages, thinking=reasoning, timeout=60 if reasoning else 20)
     return parse_response(response) if response is not None else _FALLBACK
 
 
 def reflect(perception_block: str, memory_context: str = "") -> dict:
-    """Slow path: thinking enabled. Used for the reflect action."""
+    """Deep reflection — always uses reasoning mode."""
     messages = build_prompt(perception_block, memory_context)
     response = call_ollama(messages, thinking=True, timeout=60)
     return parse_response(response) if response is not None else _FALLBACK

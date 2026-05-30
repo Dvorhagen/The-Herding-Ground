@@ -69,17 +69,27 @@ DIRECTIONS = {
 }
 
 
+# How many ticks between each hunger/fatigue increment.
+# At ~1 tick/sec, HUNGER_RATE=10 means ~16 min from full to starving.
+HUNGER_RATE  = 10
+FATIGUE_RATE = 6
+
+
 @dataclass
 class StatusEffects:
     """Nemo's current physiological/psychological state."""
     hunger: int = 50        # 0=starving, 100=full
     fatigue: int = 0        # 0=rested, 100=exhausted
     mood: str = "curious"   # freeform string -- LLM sets this
+    _tick_n: int = field(default=0, repr=False, compare=False)
 
     def tick(self):
         """Advance one game tick."""
-        self.hunger = max(0, self.hunger - 1)
-        self.fatigue = min(100, self.fatigue + 1)
+        self._tick_n += 1
+        if self._tick_n % HUNGER_RATE == 0:
+            self.hunger = max(0, self.hunger - 1)
+        if self._tick_n % FATIGUE_RATE == 0:
+            self.fatigue = min(100, self.fatigue + 1)
 
     def describe(self) -> str:
         hunger_desc = (

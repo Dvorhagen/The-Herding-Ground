@@ -73,10 +73,10 @@ TICK_DELAY_DEFAULT = 3  # index into TICK_DELAYS — starts at 1.0s
 
 # ── Shared helpers ────────────────────────────────────────────────────────────
 
-def nemo_think_async(world_state, result_holder):
+def nemo_think_async(world_state, result_holder, reasoning=False):
     """Run Nemo's brain in a background thread so the UI stays responsive."""
     perception = world_state.build_perception_block()
-    action_dict = nemo_brain.think(perception)
+    action_dict = nemo_brain.think(perception, reasoning=reasoning)
     result_holder.append(action_dict)
 
 
@@ -180,11 +180,11 @@ def run_pygame(world_state, spawn_x, spawn_y):
     tick_delay_idx = TICK_DELAY_DEFAULT
     stepped = False
     step_requested = False
+    reasoning = False
     renderer.tick_delay_idx = tick_delay_idx
     renderer.tick_delay = TICK_DELAYS[tick_delay_idx]
     renderer.stepped = stepped
-    renderer.add_message("Control: NEMO")
-    renderer.add_message(f"Speed: {TICK_DELAYS[tick_delay_idx]}s  [ faster  ] slower  SPC:step")
+    renderer.add_message("Control: NEMO  ?:help")
     nemo_thinking = False
     nemo_result_holder = []
     nemo = world_state.nemo
@@ -197,6 +197,9 @@ def run_pygame(world_state, spawn_x, spawn_y):
             if event.type == pygame.QUIT:
                 running = False
             elif event.type == pygame.KEYDOWN:
+                if renderer.show_help:
+                    renderer.show_help = False
+                    continue
                 if event.key == pygame.K_q:
                     running = False
                 elif event.key == pygame.K_TAB:
@@ -215,6 +218,11 @@ def run_pygame(world_state, spawn_x, spawn_y):
                 elif event.key == pygame.K_v:
                     renderer.show_los = not renderer.show_los
                     renderer.add_message("LOS overlay ON" if renderer.show_los else "LOS overlay OFF")
+                elif event.key == pygame.K_r:
+                    reasoning = not reasoning
+                    renderer.add_message(f"Reasoning: {'ON (slower)' if reasoning else 'OFF'}")
+                elif event.key in (pygame.K_SLASH, pygame.K_QUESTION):
+                    renderer.show_help = not renderer.show_help
                 elif event.key == pygame.K_SPACE:
                     stepped = not stepped
                     renderer.stepped = stepped
@@ -234,9 +242,8 @@ def run_pygame(world_state, spawn_x, spawn_y):
                 nemo_result_holder.clear()
                 nemo_thinking = True
                 t = threading.Thread(target=nemo_think_async,
-                                     args=(world_state, nemo_result_holder), daemon=True)
+                                     args=(world_state, nemo_result_holder, reasoning), daemon=True)
                 t.start()
-                renderer.add_message("Nemo is thinking...")
 
         if nemo_thinking and nemo_result_holder:
             nemo_thinking = False
@@ -283,10 +290,11 @@ def run_curses(stdscr, world_state, spawn_x, spawn_y):
     tick_delay_idx = TICK_DELAY_DEFAULT
     stepped = False
     step_requested = False
+    reasoning = False
     renderer.tick_delay_idx = tick_delay_idx
     renderer.tick_delay = TICK_DELAYS[tick_delay_idx]
     renderer.stepped = stepped
-    renderer.add_message(f"Speed: {TICK_DELAYS[tick_delay_idx]}s  [:faster  ]:slower  SPC:step")
+    renderer.add_message("Control: NEMO  ?:help")
     nemo_thinking = False
     nemo_result_holder = []
     nemo = world_state.nemo
@@ -295,6 +303,9 @@ def run_curses(stdscr, world_state, spawn_x, spawn_y):
     while running:
         key = renderer.get_input()
 
+        if renderer.show_help and key != -1:
+            renderer.show_help = False
+            continue
         if key == ord("q"):
             running = False
         elif key == ord("\t"):
@@ -313,6 +324,11 @@ def run_curses(stdscr, world_state, spawn_x, spawn_y):
         elif key == ord("v"):
             renderer.show_los = not renderer.show_los
             renderer.add_message("LOS overlay ON" if renderer.show_los else "LOS overlay OFF")
+        elif key == ord("r"):
+            reasoning = not reasoning
+            renderer.add_message(f"Reasoning: {'ON (slower)' if reasoning else 'OFF'}")
+        elif key == ord("?"):
+            renderer.show_help = not renderer.show_help
         elif key == ord(" "):
             stepped = not stepped
             renderer.stepped = stepped
@@ -332,9 +348,8 @@ def run_curses(stdscr, world_state, spawn_x, spawn_y):
                 nemo_result_holder.clear()
                 nemo_thinking = True
                 t = threading.Thread(target=nemo_think_async,
-                                     args=(world_state, nemo_result_holder), daemon=True)
+                                     args=(world_state, nemo_result_holder, reasoning), daemon=True)
                 t.start()
-                renderer.add_message("Nemo is thinking...")
 
         if nemo_thinking and nemo_result_holder:
             nemo_thinking = False

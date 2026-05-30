@@ -55,10 +55,26 @@ class Renderer:
         self.tick_delay = 1.0
         self.stepped = False
         self.show_los = False
+        self.show_help = False
 
-        # Reusable dark overlay for occluded tiles
         self._fog = pygame.Surface((TILE_SIZE, TILE_SIZE), pygame.SRCALPHA)
         self._fog.fill((0, 0, 0, 180))
+
+        self._help_lines = [
+            "  KEY REFERENCE",
+            "  ─────────────────────────",
+            "  TAB        Aaron / Nemo mode",
+            "  arrows     move (Aaron mode)",
+            "  [ / ]      tick speed",
+            "  SPACE      step mode on/off",
+            "  .          advance one step",
+            "  v          LOS overlay",
+            "  r          reasoning mode",
+            "  ?          this help",
+            "  q          quit",
+            "  ─────────────────────────",
+            "  any key to close",
+        ]
 
         # Scanline surface for CRT effect
         self._scanlines = self._make_scanlines()
@@ -95,7 +111,25 @@ class Renderer:
         self._draw_entities(world_state)
         self._draw_panel(world_state)
         self.screen.blit(self._scanlines, (0, 0))
+        if self.show_help:
+            self._draw_help()
         pygame.display.flip()
+
+    def _draw_help(self):
+        lh = 18
+        pad = 16
+        box_w = 320
+        box_h = len(self._help_lines) * lh + pad * 2
+        bx = (SCREEN_W - box_w) // 2
+        by = (SCREEN_H - box_h) // 2
+        overlay = pygame.Surface((box_w, box_h), pygame.SRCALPHA)
+        overlay.fill((10, 20, 10, 230))
+        self.screen.blit(overlay, (bx, by))
+        pygame.draw.rect(self.screen, COLOR_BORDER, (bx, by, box_w, box_h), 1)
+        for i, line in enumerate(self._help_lines):
+            color = COLOR_HIGHLIGHT if i == 0 else COLOR_TEXT
+            surf = self.font_sm.render(line, True, color)
+            self.screen.blit(surf, (bx + pad, by + pad + i * lh))
 
     def _draw_map(self, world_state):
         world = world_state.world
