@@ -28,6 +28,7 @@ class TileProperties:
     symbol: str          # ASCII fallback / text description
     color: tuple         # RGB for pygame rendering (phosphor green palette)
     description: str     # What Nemo perceives
+    opacity: float = 0.0 # 0.0 = transparent, 0.5 = semi-opaque, 1.0 = fully opaque
 
 
 # Phosphor green palette -- all colors are shades of green on near-black
@@ -40,14 +41,14 @@ PHOSPHOR_GLOW  = (100, 220, 100)
 PHOSPHOR_WHITE = (160, 255, 160)
 
 TILE_PROPERTIES: dict[TileType, TileProperties] = {
-    TileType.GRASS:      TileProperties("Grass",       True,  ".",  PHOSPHOR_MID,   "open grassland"),
-    TileType.FOREST:     TileProperties("Forest",      True,  "T",  PHOSPHOR_DIM,   "dense forest"),
-    TileType.WATER:      TileProperties("Water",       False, "~",  (20, 60, 80),   "open water"),
-    TileType.MOUNTAIN:   TileProperties("Mountain",    False, "^",  (60, 60, 60),   "sheer rock face"),
-    TileType.SAND:       TileProperties("Sand",        True,  ":",  (100, 90, 40),  "sandy ground"),
-    TileType.CAVE_FLOOR: TileProperties("Cave Floor",  True,  " ",  PHOSPHOR_DIM,   "dark cave floor"),
-    TileType.CAVE_WALL:  TileProperties("Cave Wall",   False, "#",  (40, 40, 40),   "solid stone wall"),
-    TileType.PATH:       TileProperties("Path",        True,  "+",  PHOSPHOR_BRIGHT,"worn dirt path"),
+    TileType.GRASS:      TileProperties("Grass",       True,  ".",  PHOSPHOR_MID,    "open grassland",  opacity=0.0),
+    TileType.FOREST:     TileProperties("Forest",      True,  "T",  PHOSPHOR_DIM,    "dense forest",    opacity=0.5),
+    TileType.WATER:      TileProperties("Water",       False, "~",  (20, 60, 80),    "open water",      opacity=0.0),
+    TileType.MOUNTAIN:   TileProperties("Mountain",    False, "^",  (60, 60, 60),    "sheer rock face", opacity=1.0),
+    TileType.SAND:       TileProperties("Sand",        True,  ":",  (100, 90, 40),   "sandy ground",    opacity=0.0),
+    TileType.CAVE_FLOOR: TileProperties("Cave Floor",  True,  " ",  PHOSPHOR_DIM,    "dark cave floor", opacity=0.0),
+    TileType.CAVE_WALL:  TileProperties("Cave Wall",   False, "#",  (40, 40, 40),    "solid stone wall",opacity=1.0),
+    TileType.PATH:       TileProperties("Path",        True,  "+",  PHOSPHOR_BRIGHT, "worn dirt path",  opacity=0.0),
 }
 
 

@@ -86,7 +86,9 @@ def generate_world(width: int = 512, height: int = 512, seed: int = None) -> Wor
     num_ridges = random.randint(1, 2)
     for _ in range(num_ridges):
         # Start point on an edge-ish area
-        mx = random.randint(3 * width // 4, width - 30)
+        mx_lo = 3 * width // 4
+        mx_hi = max(mx_lo, width - 30)
+        mx = random.randint(mx_lo, mx_hi)
         my = random.randint(height // 6, height // 3)
         ridge_len = random.randint(80, 200)
         ridge_width = random.randint(3, 8)

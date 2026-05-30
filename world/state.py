@@ -37,6 +37,53 @@ def _dist(dx: int, dy: int) -> float:
     return (dx*dx + dy*dy) ** 0.5
 
 
+def _ray_opacity(world, x0: int, y0: int, x1: int, y1: int) -> float:
+    """
+    Walk a ray from (x0,y0) to (x1,y1), accumulating the opacity of each
+    unique intermediate tile (endpoints excluded). Returns total opacity;
+    >= 1.0 means the target is fully occluded.
+    """
+    dx = x1 - x0
+    dy = y1 - y0
+    steps = max(abs(dx), abs(dy)) * 4  # quarter-tile precision
+    if steps == 0:
+        return 0.0
+
+    visited = set()
+    opacity = 0.0
+    for i in range(1, steps):
+        t = i / steps
+        x = int(x0 + dx * t + 0.5)
+        y = int(y0 + dy * t + 0.5)
+        if (x, y) == (x1, y1):
+            break
+        if (x, y) != (x0, y0) and (x, y) not in visited:
+            visited.add((x, y))
+            tile = world.get(x, y)
+            if tile:
+                opacity += tile.props.opacity
+                if opacity >= 1.0:
+                    return opacity
+    return opacity
+
+
+def _compute_visible(world, cx: int, cy: int) -> set:
+    """
+    Return the set of (x, y) positions visible from (cx, cy) within
+    VISION_DISTANT, accounting for tile opacity.
+    """
+    visible = {(cx, cy)}
+    for dy in range(-VISION_DISTANT, VISION_DISTANT + 1):
+        for dx in range(-VISION_DISTANT, VISION_DISTANT + 1):
+            if dx == 0 and dy == 0:
+                continue
+            if _dist(dx, dy) > VISION_DISTANT:
+                continue
+            if _ray_opacity(world, cx, cy, cx + dx, cy + dy) < 1.0:
+                visible.add((cx + dx, cy + dy))
+    return visible
+
+
 @dataclass
 class WorldState:
     world: WorldMap
@@ -85,11 +132,14 @@ class WorldState:
         nemo = self.nemo
         cx, cy = nemo.x, nemo.y
 
-        # --- Immediate: current tile ---
+        # Precompute visible set once — shared by all three tiers
+        visible = _compute_visible(self.world, cx, cy)
+
+        # --- Immediate: current position ---
         current = self._describe_tile_at(cx, cy)
 
-        # --- Close (1-3m): group by direction, show dominant tile type ---
-        close_by = {}  # direction -> tile description
+        # --- Close (1-3m): group by direction, show dominant terrain ---
+        close_by = {}
         for dy in range(-VISION_CLOSE, VISION_CLOSE + 1):
             for dx in range(-VISION_CLOSE, VISION_CLOSE + 1):
                 if dx == 0 and dy == 0:
@@ -97,11 +147,12 @@ class WorldState:
                 d = _dist(dx, dy)
                 if d > VISION_CLOSE:
                     continue
+                if (cx + dx, cy + dy) not in visible:
+                    continue
                 tile = self.world.get(cx + dx, cy + dy)
                 if tile is None:
                     continue
                 direction = _direction_name(dx, dy)
-                # Closest tile wins for each direction
                 if direction not in close_by:
                     close_by[direction] = (d, tile.props.description)
                 elif d < close_by[direction][0]:
@@ -110,12 +161,14 @@ class WorldState:
         close_lines = [f"  {dir}: {desc}"
                        for dir, (_, desc) in sorted(close_by.items())]
 
-        # --- Nearby (4-8m): group by tile type ---
+        # --- Nearby (4-8m): group by terrain type ---
         nearby_types = {}
         for dy in range(-VISION_NEARBY, VISION_NEARBY + 1):
             for dx in range(-VISION_NEARBY, VISION_NEARBY + 1):
                 d = _dist(dx, dy)
                 if d <= VISION_CLOSE or d > VISION_NEARBY:
+                    continue
+                if (cx + dx, cy + dy) not in visible:
                     continue
                 tile = self.world.get(cx + dx, cy + dy)
                 if tile is None:
@@ -128,7 +181,6 @@ class WorldState:
 
         nearby_lines = []
         for tname, dirs in sorted(nearby_types.items()):
-            # Simplify direction list
             dir_str = ", ".join(sorted(dirs)[:3])
             nearby_lines.append(f"  {tname} to the {dir_str}")
 
@@ -138,6 +190,8 @@ class WorldState:
             for dx in range(-VISION_DISTANT, VISION_DISTANT + 1):
                 d = _dist(dx, dy)
                 if d <= VISION_NEARBY or d > VISION_DISTANT:
+                    continue
+                if (cx + dx, cy + dy) not in visible:
                     continue
                 tile = self.world.get(cx + dx, cy + dy)
                 if tile is None:
