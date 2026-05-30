@@ -293,6 +293,18 @@ class WorldState:
 
         recent = "\n  ".join(moriarty.event_log[-5:]) if moriarty.event_log else "none"
 
+        # Memory index — brief summary of what's stored so Mo knows what to read
+        from ..memory import wiki as _wiki
+        mem_pages = _wiki.list_pages()
+        mem_by_cat = {}
+        for p in mem_pages:
+            cat = p.split("/")[0]
+            mem_by_cat[cat] = mem_by_cat.get(cat, 0) + 1
+        mem_index = "  " + "  ".join(
+            f"{cat}: {n} page{'s' if n != 1 else ''}"
+            for cat, n in sorted(mem_by_cat.items())
+        ) if mem_by_cat else "  (empty)"
+
         # PI inject
         inject_block = ""
         if self.injected_environment:
@@ -305,19 +317,24 @@ class WorldState:
             memory_block = f"\n[MEMORY RETRIEVED]\n{self.pending_memory_result}\n"
             self.pending_memory_result = ""
 
+        hidden_str = "  (you are hidden)" if moriarty.hidden else ""
+
         return f"""[PERCEPTION — Tick {self.tick}]
 
 {vision}
 
 HERE (pick up immediately): {items_str}
 Carrying: {moriarty.describe_inventory()}
-Status: {moriarty.status.describe()}
+Status: {moriarty.status.describe()}{hidden_str}
 
 Visible entities:
 {entity_str}
 
 World objects (interact by using the verb as your action):
 {object_str}
+
+Memory index:
+{mem_index}
 {inject_block}{memory_block}
 Recent events:
   {recent}"""

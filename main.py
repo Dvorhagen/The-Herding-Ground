@@ -91,6 +91,8 @@ def apply_action(action_name, args, actor, world_state, renderer):
     log.info(f"GAME action={action_name} args={args} ok={result.success} | {result.message[:80]}")
     if result.data and result.data.get("trigger_reflection"):
         _handle_reflection(actor, world_state, renderer)
+    if result.data and result.data.get("trigger_sleep"):
+        renderer.add_message("[Moriarty sleeps... dreams stir]")
     return result
 
 

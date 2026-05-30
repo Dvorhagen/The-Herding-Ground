@@ -71,9 +71,19 @@ class Campfire(WorldObject):
             self.description = "a crackling campfire"
             return ActionResult(True, "You light the campfire. It crackles to life.")
 
+        def sit_by_fire(actor, args, ws):
+            if not self.lit:
+                return ActionResult(False, "The fire is out — there's nothing warm to sit by.",
+                                    world_changed=False)
+            actor.status.fatigue = max(0, actor.status.fatigue - 12)
+            actor.status.mood = "calm"
+            return ActionResult(True,
+                "You sit close to the fire. The heat soaks in and the world quiets down.")
+
         result = {
             "examine": lambda a, args, ws: ActionResult(True, self.describe(), world_changed=False),
             "warm":    warm,
+            "sit":     sit_by_fire,
         }
         if self.lit:
             result["extinguish"] = extinguish
@@ -149,13 +159,52 @@ class Boulder(WorldObject):
 
     def interactions(self) -> dict:
         from ..entities.actions import ActionResult
+
+        def climb(actor, args, ws):
+            actor.status.fatigue = min(100, actor.status.fatigue + 3)
+            # Build a brief elevated view description
+            from ..world.state import _dist, _direction_name
+            from ..world.tiles import TileType
+            terrain_seen = {}
+            for dy in range(-20, 21):
+                for dx in range(-20, 21):
+                    if _dist(dx, dy) > 20:
+                        continue
+                    tile = ws.world.get(actor.x + dx, actor.y + dy)
+                    if tile:
+                        t = tile.tile_type.name
+                        d = _direction_name(dx, dy)
+                        terrain_seen.setdefault(t, set()).add(d)
+            lines = []
+            for t, dirs in sorted(terrain_seen.items()):
+                lines.append(f"  {t.lower()}: {', '.join(sorted(dirs)[:3])}")
+            view = "\n".join(lines[:8])
+            return ActionResult(True,
+                f"You scramble up the boulder and stand on top.\nFrom here you can see:\n{view}",
+                world_changed=False)
+
+        def hide(actor, args, ws):
+            actor.hidden = True
+            return ActionResult(True,
+                "You press yourself against the boulder. Anyone passing may not see you.",
+                world_changed=False)
+
+        def sit(actor, args, ws):
+            actor.status.fatigue = max(0, actor.status.fatigue - 3)
+            return ActionResult(True,
+                "You sit against the boulder. The stone is cold and hard but the rest is welcome.",
+                world_changed=False)
+
         return {
             "examine": lambda a, args, ws: ActionResult(
                 True, f"{self.name}: {self.description}. Solid, immovable, ancient.",
                 world_changed=False),
             "shelter": lambda a, args, ws: ActionResult(
-                True, "You crouch in the shadow of the boulder. The wind drops away.",
+                True, "You crouch in the lee of the boulder. The wind drops away.",
                 world_changed=False),
+            "climb":  climb,
+            "hide":   hide,
+            "sit":    sit,
         }
 
 
@@ -169,16 +218,44 @@ class FallenLog(WorldObject):
 
     def interactions(self) -> dict:
         from ..entities.actions import ActionResult
+
+        def sit(actor, args, ws):
+            actor.status.fatigue = max(0, actor.status.fatigue - 6)
+            return ActionResult(True,
+                "You sit on the log. The bark is rough but the rest is real — fatigue eases.",
+                world_changed=False)
+
+        def chop(actor, args, ws):
+            has_tool = any(i.name.lower() in ("stick", "axe") for i in actor.inventory)
+            if not has_tool:
+                return ActionResult(False,
+                    "You'd need something to chop with — a stick or an axe.",
+                    world_changed=False)
+            from ..entities.items import make_firewood
+            firewood = make_firewood(actor.x, actor.y)
+            actor.inventory.append(firewood)
+            actor.status.fatigue = min(100, actor.status.fatigue + 10)
+            self.description = "a split log, mostly chopped"
+            self.color = (70, 45, 20)
+            return ActionResult(True,
+                "You work at the log with your stick. It splits roughly — not great firewood, but it'll burn.")
+
+        def hide(actor, args, ws):
+            actor.hidden = True
+            return ActionResult(True,
+                "You crouch behind the fallen log. The forest holds you in its shadow.",
+                world_changed=False)
+
         return {
             "examine": lambda a, args, ws: ActionResult(
                 True, f"{self.name}: {self.description}. Bark peeling, soft with rot.",
                 world_changed=False),
-            "sit": lambda a, args, ws: ActionResult(
-                True, "You sit on the log for a moment. The forest is quiet around you.",
-                world_changed=False),
+            "sit":         sit,
             "investigate": lambda a, args, ws: ActionResult(
                 True, "You peer under the log — beetles, damp soil, a smell of deep earth.",
                 world_changed=False),
+            "chop":        chop,
+            "hide":        hide,
         }
 
 

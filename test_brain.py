@@ -14,7 +14,7 @@ import sys
 import os
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-from nemo.brain import moriarty_brain
+from moriarty.brain import moriarty_brain
 
 FAKE_PERCEPTION = """[PERCEPTION — Tick 1]
 Position: (20, 20)

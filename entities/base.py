@@ -116,9 +116,9 @@ class MoriartyEntity(Entity):
     """
     inventory: list = field(default_factory=list)
     status: StatusEffects = field(default_factory=StatusEffects)
-    # Running log of recent events for short-term context (last N events)
     event_log: list = field(default_factory=list)
     max_log: int = 20
+    hidden: bool = False   # set by hide action; cleared on movement
 
     def __post_init__(self):
         self.symbol = "N"

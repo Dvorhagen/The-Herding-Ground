@@ -70,20 +70,39 @@ Available actions:
   pickup      item_name=<name>  (only works if the item is where you are)
   drop        item_name=<name>
   use         item_name=<name>
-  examine     target=surroundings
+  examine     target=surroundings (or a named thing nearby)
+  listen                          (focused sound perception)
+  drink                           (from an adjacent water tile)
+  sleep                           (when tired; big fatigue recovery)
+  throw       item_name=<name> direction=<dir>
+  dig                             (may turn up a stone)
   wait
   reflect
-  [world object verbs: warm, open, take — use target=<name> as the arg]
+  [object verbs shown nearby: warm, sit, open, take, forage, pick, climb, hide, chop, ...]
 
 Example:
 THOUGHT: There's an apple to my east, I'll move toward it.
 ACTION: move
 ARGS: direction=east
 
+Memory — MEMORY field takes a JSON object:
+  Write a notable place:  {"tool":"write","category":"places","name":"the_crossroads","content":"A path crossing near tick 10. Apples were nearby."}
+  Write an entity note:   {"tool":"write","category":"entities","name":"campfire","content":"A campfire east of spawn. Warm, restores fatigue."}
+  Write a significant event: {"tool":"write","category":"events","name":"first_forest","content":"Entered the forest for the first time. Dark, birdsong."}
+  Read a page:            {"tool":"read","category":"places","name":"the_crossroads"}
+  Search memory:          {"tool":"search","query":"campfire"}
+  List pages:             {"tool":"list","category":"places"}
+
+Memory rules:
+- Write ONLY for meaningful discoveries — a new place, something unusual, an insight.
+- Do NOT write for routine movement or ordinary perception.
+- Read or search when you want to recall something you may have experienced before.
+- Your Memory index (in perception) shows how many pages exist per category.
+
 Important:
 - Keep THOUGHT to one short sentence.
 - Be curious. Explore. Move around. Don't just wait.
-- Hunger and fatigue are real — find food when hungry.
+- Hunger and fatigue are real — find food when hungry, sleep when exhausted.
 """
 
 # ── Style B: Framed ───────────────────────────────────────────────────────────
@@ -108,13 +127,25 @@ What your body knows how to do:
   drop        item_name=<name>
   use         item_name=<name>
   examine     target=surroundings  (or a specific thing nearby)
+  listen                           (attend to the soundscape around you)
+  drink                            (from an adjacent water source)
+  sleep                            (deep rest when fatigued)
+  throw       item_name=<name> direction=<dir>
+  dig                              (may surface a stone)
   wait
   reflect
-  warm / open / take / [any verb shown by a nearby object]  target=<name>
+  [any verb shown by a nearby object: warm, sit, forage, pick, climb, hide, chop, ...]
 
-Spatial awareness:
-- Items under "HERE" are at your feet — pick them up directly.
-- Items under "Visible entities" require you to move there first.
+Spatial: items under "HERE" are at your feet. Items under "Visible entities" require moving there first.
+
+Memory — use the MEMORY field with a JSON object. Write only for genuinely notable things.
+  Write a place:    {"tool":"write","category":"places","name":"<name>","content":"<what you noticed>"}
+  Write an entity:  {"tool":"write","category":"entities","name":"<name>","content":"<what you know>"}
+  Write an event:   {"tool":"write","category":"events","name":"<name>","content":"<what happened>"}
+  Read back:        {"tool":"read","category":"places","name":"<name>"}
+  Search:           {"tool":"search","query":"<keyword>"}
+Your Memory index in the perception block tells you what pages exist. Read them when you want to recall something.
+Do NOT write to memory for every movement — only discoveries, insights, significant moments.
 
 Let THOUGHT arise from genuine sensation. Hunger and fatigue are real.
 Explore. Be curious. Don't linger in one place.
@@ -132,18 +163,24 @@ Second line: what you will do, stated plainly.
 
 What you can do:
   move north / south / east / west / ne / nw / se / sw
-  pickup <item>       (only items at your exact location)
+  pickup <item>        (only items at your exact location)
   drop <item>
   use <item>
-  examine surroundings   (or name a specific thing)
-  warm <object>
-  open <object>
-  take <object>
+  examine surroundings (or name a specific thing)
+  listen               (attend to the sounds around you)
+  drink                (from water nearby)
+  sleep                (when exhausted)
+  throw <item> <direction>
+  dig                  (may turn up a stone)
   wait
   reflect
+  [verbs shown by nearby objects: warm, sit, forage, pick, climb, hide, chop, ...]
 
-Spatial: items under "Visible entities" are nearby but not at your feet —
-move to them first, then pick up.
+Spatial: items under "Visible entities" require moving there first.
+
+Memory — second line can optionally be a memory note using your own words as a third line
+starting with REMEMBER: — but keep it brief and only for discoveries worth keeping.
+(Or just act — memory is optional.)
 
 Examples:
 The apple is right here and my hunger is sharp.
@@ -152,8 +189,8 @@ pickup apple
 The forest thins east and something draws me there.
 move east
 
-The campfire is close and I'm bone-tired.
-warm campfire
+I'm exhausted and the campfire is right here.
+sit campfire
 
 Stay in your body. Hunger and fatigue are real. Explore.
 """
@@ -163,11 +200,13 @@ def build_prompt(perception_block: str, memory_context: str = "",
                  style: str = "structured") -> list[dict]:
     identity = load_identity()
     if style == "framed":
-        system = SYSTEM_PROMPT_FRAMED.format(identity=identity)
+        template = SYSTEM_PROMPT_FRAMED
     elif style == "natural":
-        system = SYSTEM_PROMPT_NATURAL.format(identity=identity)
+        template = SYSTEM_PROMPT_NATURAL
     else:
-        system = SYSTEM_PROMPT_STRUCTURED.format(identity=identity)
+        template = SYSTEM_PROMPT_STRUCTURED
+    # Use replace instead of .format() — prompts contain JSON {..} that confuse format()
+    system = template.replace("{identity}", identity)
 
     user_content = perception_block
     if memory_context:

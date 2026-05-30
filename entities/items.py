@@ -115,6 +115,16 @@ def make_mushroom_item(x: int, y: int) -> FoodItem:
         nutrition=12, symbol="m", color=(160, 130, 60)
     )
 
+def make_firewood(x: int, y: int) -> Item:
+    item = Item(
+        name="firewood", x=x, y=y,
+        item_type=ItemType.MATERIAL,
+        description="a rough bundle of split wood, good for burning",
+        weight=1.5,
+        symbol="f", color=(100, 70, 30)
+    )
+    return item
+
 def make_stone(x: int, y: int) -> Item:
     item = Item(
         name="stone", x=x, y=y,
