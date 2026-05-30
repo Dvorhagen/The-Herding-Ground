@@ -15,6 +15,7 @@ import sys
 import os
 import threading
 import logging
+import time as _time
 
 # ── Display auto-detection ────────────────────────────────────────────────────
 def _has_display() -> bool:
@@ -33,13 +34,15 @@ if not USE_CURSES:
 # ── Path setup ────────────────────────────────────────────────────────────────
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-from nemo.world.mapgen import generate_world, find_spawn
-from nemo.world.state import WorldState
-from nemo.entities.base import MoriartyEntity, EntityType
-from nemo.entities.items import make_apple, make_stick
-from nemo.entities.actions import resolve_action, ActionResult
-from nemo.brain import moriarty_brain
-from nemo.memory import wiki
+from moriarty.world.mapgen import generate_world, find_spawn, populate_natural_objects
+from moriarty.world.state import WorldState
+from moriarty.entities.base import MoriartyEntity, EntityType
+from moriarty.entities.items import make_apple, make_stick
+from moriarty.world.objects import make_campfire, make_chest
+from moriarty.entities.actions import resolve_action, ActionResult
+from moriarty.brain import moriarty_brain
+from moriarty.brain.moriarty_brain import PROMPT_STYLES, PROMPT_LABELS
+from moriarty.memory import wiki
 
 log = logging.getLogger("moriarty")
 
@@ -73,10 +76,10 @@ TICK_DELAY_DEFAULT = 3  # index into TICK_DELAYS — starts at 1.0s
 
 # ── Shared helpers ────────────────────────────────────────────────────────────
 
-def moriarty_think_async(world_state, result_holder, reasoning=False):
+def moriarty_think_async(world_state, result_holder, style="structured"):
     """Run Moriarty's brain in a background thread so the UI stays responsive."""
     perception = world_state.build_perception_block()
-    action_dict = moriarty_brain.think(perception, reasoning=reasoning)
+    action_dict = moriarty_brain.think(perception, style=style)
     result_holder.append(action_dict)
 
 
@@ -93,6 +96,16 @@ def apply_action(action_name, args, actor, world_state, renderer):
 
 def _handle_reflection(moriarty, world_state, renderer):
     renderer.add_message("[Moriarty is reflecting...]")
+    renderer.reasoning_stream = ""
+    _buf = []
+    _last = [0.0]
+    def _on_thinking(chunk):
+        _buf.append(chunk)
+        now = _time.monotonic()
+        if now - _last[0] >= 0.4:
+            renderer.reasoning_stream = "".join(_buf)[-600:]
+            _last[0] = now
+
     perception = world_state.build_perception_block()
     self_model = wiki.get_self_model()
     prompt = (
@@ -106,7 +119,8 @@ def _handle_reflection(moriarty, world_state, renderer):
         {"role": "system", "content": "You are Moriarty. Reflect honestly."},
         {"role": "user",   "content": prompt},
     ]
-    response = moriarty_brain.call_ollama(messages, thinking=True, timeout=60)
+    response = moriarty_brain.call_ollama(messages, thinking=True, on_thinking=_on_thinking)
+    renderer.reasoning_stream = ""
     if response:
         wiki.update_self_model(response)
         renderer.add_message("[Self-model updated.]")
@@ -158,6 +172,22 @@ def _init_world():
     world_state.add_entity(safe_item(make_stick,  1, -1))
     moriarty.status.hunger = 80
 
+    # Starter objects near spawn
+    campfire_x = max(0, min(world.width  - 1, spawn_x + 3))
+    campfire_y = max(0, min(world.height - 1, spawn_y))
+    if world.is_passable(campfire_x, campfire_y):
+        world_state.add_object(make_campfire(campfire_x, campfire_y))
+
+    chest_x = max(0, min(world.width  - 1, spawn_x - 2))
+    chest_y = max(0, min(world.height - 1, spawn_y + 1))
+    if world.is_passable(chest_x, chest_y):
+        chest = make_chest(chest_x, chest_y, contents=[make_apple(chest_x, chest_y)])
+        world_state.add_object(chest)
+
+    # Populate the natural world
+    print("[MORIARTY] Populating natural objects...")
+    populate_natural_objects(world_state, seed=42)
+
     wiki._ensure_dirs()
     wiki.get_self_model()
 
@@ -166,7 +196,7 @@ def _init_world():
 # ── Pygame game loop ──────────────────────────────────────────────────────────
 
 def run_pygame(world_state, spawn_x, spawn_y):
-    from nemo.ui.renderer import Renderer
+    from moriarty.ui.renderer import Renderer
     KEY_ACTIONS = _make_pygame_keymap()
 
     renderer = Renderer()
@@ -180,11 +210,11 @@ def run_pygame(world_state, spawn_x, spawn_y):
     tick_delay_idx = TICK_DELAY_DEFAULT
     stepped = False
     step_requested = False
-    reasoning = False
+    prompt_style_idx = 0
     renderer.tick_delay_idx = tick_delay_idx
     renderer.tick_delay = TICK_DELAYS[tick_delay_idx]
     renderer.stepped = stepped
-    renderer.add_message("Control: MORIARTY  ?:help")
+    renderer.add_message(f"Control: MORIARTY  ?:help  Prompt: {PROMPT_LABELS[prompt_style_idx]}")
     moriarty_thinking = False
     moriarty_result_holder = []
     moriarty = world_state.moriarty
@@ -218,9 +248,9 @@ def run_pygame(world_state, spawn_x, spawn_y):
                 elif event.key == pygame.K_v:
                     renderer.show_los = not renderer.show_los
                     renderer.add_message("LOS overlay ON" if renderer.show_los else "LOS overlay OFF")
-                elif event.key == pygame.K_r:
-                    reasoning = not reasoning
-                    renderer.add_message(f"Reasoning: {'ON (slower)' if reasoning else 'OFF'}")
+                elif event.key == pygame.K_BACKQUOTE:
+                    prompt_style_idx = (prompt_style_idx + 1) % len(PROMPT_STYLES)
+                    renderer.add_message(f"Prompt: {PROMPT_LABELS[prompt_style_idx]}")
                 elif event.key in (pygame.K_SLASH, pygame.K_QUESTION):
                     renderer.show_help = not renderer.show_help
                 elif event.key == pygame.K_SPACE:
@@ -242,7 +272,8 @@ def run_pygame(world_state, spawn_x, spawn_y):
                 moriarty_result_holder.clear()
                 moriarty_thinking = True
                 t = threading.Thread(target=moriarty_think_async,
-                                     args=(world_state, moriarty_result_holder, reasoning), daemon=True)
+                                     args=(world_state, moriarty_result_holder,
+                                           PROMPT_STYLES[prompt_style_idx]), daemon=True)
                 t.start()
 
         if moriarty_thinking and moriarty_result_holder:
@@ -261,7 +292,7 @@ def run_pygame(world_state, spawn_x, spawn_y):
 def run_curses(stdscr, world_state, spawn_x, spawn_y):
     import curses
     import time
-    from nemo.ui.curses_renderer import CursesRenderer
+    from moriarty.ui.curses_renderer import CursesRenderer
 
     CURSES_KEYS = {
         curses.KEY_UP:    ("move", {"direction": "north"}),
@@ -290,11 +321,11 @@ def run_curses(stdscr, world_state, spawn_x, spawn_y):
     tick_delay_idx = TICK_DELAY_DEFAULT
     stepped = False
     step_requested = False
-    reasoning = False
+    prompt_style_idx = 0
     renderer.tick_delay_idx = tick_delay_idx
     renderer.tick_delay = TICK_DELAYS[tick_delay_idx]
     renderer.stepped = stepped
-    renderer.add_message("Control: MORIARTY  ?:help")
+    renderer.add_message(f"Control: MORIARTY  ?:help  Prompt: {PROMPT_LABELS[prompt_style_idx]}")
     moriarty_thinking = False
     moriarty_result_holder = []
     moriarty = world_state.moriarty
@@ -324,9 +355,9 @@ def run_curses(stdscr, world_state, spawn_x, spawn_y):
         elif key == ord("v"):
             renderer.show_los = not renderer.show_los
             renderer.add_message("LOS overlay ON" if renderer.show_los else "LOS overlay OFF")
-        elif key == ord("r"):
-            reasoning = not reasoning
-            renderer.add_message(f"Reasoning: {'ON (slower)' if reasoning else 'OFF'}")
+        elif key == ord("`"):
+            prompt_style_idx = (prompt_style_idx + 1) % len(PROMPT_STYLES)
+            renderer.add_message(f"Prompt: {PROMPT_LABELS[prompt_style_idx]}")
         elif key == ord("?"):
             renderer.show_help = not renderer.show_help
         elif key == ord(" "):
@@ -348,7 +379,8 @@ def run_curses(stdscr, world_state, spawn_x, spawn_y):
                 moriarty_result_holder.clear()
                 moriarty_thinking = True
                 t = threading.Thread(target=moriarty_think_async,
-                                     args=(world_state, moriarty_result_holder, reasoning), daemon=True)
+                                     args=(world_state, moriarty_result_holder,
+                                           PROMPT_STYLES[prompt_style_idx]), daemon=True)
                 t.start()
 
         if moriarty_thinking and moriarty_result_holder:

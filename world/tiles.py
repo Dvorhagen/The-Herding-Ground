@@ -19,6 +19,8 @@ class TileType(Enum):
     CAVE_FLOOR = auto()
     CAVE_WALL  = auto()
     PATH       = auto()
+    WETLAND    = auto()
+    ROCKY      = auto()
 
 
 @dataclass
@@ -41,14 +43,16 @@ PHOSPHOR_GLOW  = (100, 220, 100)
 PHOSPHOR_WHITE = (160, 255, 160)
 
 TILE_PROPERTIES: dict[TileType, TileProperties] = {
-    TileType.GRASS:      TileProperties("Grass",       True,  ".",  PHOSPHOR_MID,    "open grassland",  opacity=0.0),
-    TileType.FOREST:     TileProperties("Forest",      True,  "T",  PHOSPHOR_DIM,    "dense forest",    opacity=0.5),
-    TileType.WATER:      TileProperties("Water",       False, "~",  (20, 60, 80),    "open water",      opacity=0.0),
-    TileType.MOUNTAIN:   TileProperties("Mountain",    False, "^",  (60, 60, 60),    "sheer rock face", opacity=1.0),
-    TileType.SAND:       TileProperties("Sand",        True,  ":",  (100, 90, 40),   "sandy ground",    opacity=0.0),
-    TileType.CAVE_FLOOR: TileProperties("Cave Floor",  True,  " ",  PHOSPHOR_DIM,    "dark cave floor", opacity=0.0),
-    TileType.CAVE_WALL:  TileProperties("Cave Wall",   False, "#",  (40, 40, 40),    "solid stone wall",opacity=1.0),
-    TileType.PATH:       TileProperties("Path",        True,  "+",  PHOSPHOR_BRIGHT, "worn dirt path",  opacity=0.0),
+    TileType.GRASS:      TileProperties("Grass",       True,  ".",  PHOSPHOR_MID,    "open grassland",           opacity=0.0),
+    TileType.FOREST:     TileProperties("Forest",      True,  "T",  PHOSPHOR_DIM,    "dense forest",             opacity=0.5),
+    TileType.WATER:      TileProperties("Water",       False, "~",  (20, 60, 80),    "open water",               opacity=0.0),
+    TileType.MOUNTAIN:   TileProperties("Mountain",    False, "^",  (60, 60, 60),    "sheer rock face",          opacity=1.0),
+    TileType.SAND:       TileProperties("Sand",        True,  ":",  (100, 90, 40),   "sandy ground",             opacity=0.0),
+    TileType.CAVE_FLOOR: TileProperties("Cave Floor",  True,  " ",  PHOSPHOR_DIM,    "dark cave floor",          opacity=0.0),
+    TileType.CAVE_WALL:  TileProperties("Cave Wall",   False, "#",  (40, 40, 40),    "solid stone wall",         opacity=1.0),
+    TileType.PATH:       TileProperties("Path",        True,  "+",  PHOSPHOR_BRIGHT, "worn dirt path",           opacity=0.0),
+    TileType.WETLAND:    TileProperties("Wetland",     True,  ";",  (20, 55, 35),    "waterlogged boggy ground", opacity=0.1),
+    TileType.ROCKY:      TileProperties("Rocky",       True,  ",",  (65, 75, 55),    "loose rocky ground",       opacity=0.0),
 }
 
 
