@@ -178,8 +178,13 @@ def run_pygame(world_state, spawn_x, spawn_y):
     clock = pygame.time.Clock()
     control_mode = "nemo"
     tick_delay_idx = TICK_DELAY_DEFAULT
+    stepped = False
+    step_requested = False
+    renderer.tick_delay_idx = tick_delay_idx
+    renderer.tick_delay = TICK_DELAYS[tick_delay_idx]
+    renderer.stepped = stepped
     renderer.add_message("Control: NEMO")
-    renderer.add_message(f"Speed: {TICK_DELAYS[tick_delay_idx]}s delay  [ = faster  ] = slower")
+    renderer.add_message(f"Speed: {TICK_DELAYS[tick_delay_idx]}s  [ faster  ] slower  SPC:step")
     nemo_thinking = False
     nemo_result_holder = []
     nemo = world_state.nemo
@@ -199,10 +204,20 @@ def run_pygame(world_state, spawn_x, spawn_y):
                     renderer.add_message(f"Control: {control_mode.upper()}")
                 elif event.key == pygame.K_LEFTBRACKET:
                     tick_delay_idx = max(0, tick_delay_idx - 1)
-                    renderer.add_message(f"Speed: {TICK_DELAYS[tick_delay_idx]}s delay")
+                    renderer.tick_delay_idx = tick_delay_idx
+                    renderer.tick_delay = TICK_DELAYS[tick_delay_idx]
+                    renderer.add_message(f"Speed: {TICK_DELAYS[tick_delay_idx]}s")
                 elif event.key == pygame.K_RIGHTBRACKET:
                     tick_delay_idx = min(len(TICK_DELAYS) - 1, tick_delay_idx + 1)
-                    renderer.add_message(f"Speed: {TICK_DELAYS[tick_delay_idx]}s delay")
+                    renderer.tick_delay_idx = tick_delay_idx
+                    renderer.tick_delay = TICK_DELAYS[tick_delay_idx]
+                    renderer.add_message(f"Speed: {TICK_DELAYS[tick_delay_idx]}s")
+                elif event.key == pygame.K_SPACE:
+                    stepped = not stepped
+                    renderer.stepped = stepped
+                    renderer.add_message("STEP mode ON — press . to advance" if stepped else "STEP mode OFF")
+                elif event.key == pygame.K_PERIOD and control_mode == "nemo" and stepped:
+                    step_requested = True
                 elif control_mode == "aaron" and event.key in KEY_ACTIONS:
                     action_name, args = KEY_ACTIONS[event.key]
                     result = apply_action(action_name, args, nemo, world_state, renderer)
@@ -211,18 +226,20 @@ def run_pygame(world_state, spawn_x, spawn_y):
                         renderer.center_on(nemo.x, nemo.y)
 
         if control_mode == "nemo" and not nemo_thinking:
-            nemo_result_holder.clear()
-            nemo_thinking = True
-            t = threading.Thread(target=nemo_think_async,
-                                 args=(world_state, nemo_result_holder), daemon=True)
-            t.start()
-            renderer.add_message("Nemo is thinking...")
+            if not stepped or step_requested:
+                step_requested = False
+                nemo_result_holder.clear()
+                nemo_thinking = True
+                t = threading.Thread(target=nemo_think_async,
+                                     args=(world_state, nemo_result_holder), daemon=True)
+                t.start()
+                renderer.add_message("Nemo is thinking...")
 
         if nemo_thinking and nemo_result_holder:
             nemo_thinking = False
             _process_nemo_result(nemo_result_holder[0], nemo, world_state, renderer)
             delay_ms = int(TICK_DELAYS[tick_delay_idx] * 1000)
-            if delay_ms > 0:
+            if delay_ms > 0 and not stepped:
                 pygame.time.wait(delay_ms)
 
         renderer.draw(world_state)
@@ -261,7 +278,12 @@ def run_curses(stdscr, world_state, spawn_x, spawn_y):
 
     control_mode = "nemo"
     tick_delay_idx = TICK_DELAY_DEFAULT
-    renderer.add_message(f"Speed: {TICK_DELAYS[tick_delay_idx]}s  [:faster  ]:slower")
+    stepped = False
+    step_requested = False
+    renderer.tick_delay_idx = tick_delay_idx
+    renderer.tick_delay = TICK_DELAYS[tick_delay_idx]
+    renderer.stepped = stepped
+    renderer.add_message(f"Speed: {TICK_DELAYS[tick_delay_idx]}s  [:faster  ]:slower  SPC:step")
     nemo_thinking = False
     nemo_result_holder = []
     nemo = world_state.nemo
@@ -277,10 +299,20 @@ def run_curses(stdscr, world_state, spawn_x, spawn_y):
             renderer.add_message(f"Control: {control_mode.upper()}")
         elif key == ord("["):
             tick_delay_idx = max(0, tick_delay_idx - 1)
-            renderer.add_message(f"Speed: {TICK_DELAYS[tick_delay_idx]}s delay")
+            renderer.tick_delay_idx = tick_delay_idx
+            renderer.tick_delay = TICK_DELAYS[tick_delay_idx]
+            renderer.add_message(f"Speed: {TICK_DELAYS[tick_delay_idx]}s")
         elif key == ord("]"):
             tick_delay_idx = min(len(TICK_DELAYS) - 1, tick_delay_idx + 1)
-            renderer.add_message(f"Speed: {TICK_DELAYS[tick_delay_idx]}s delay")
+            renderer.tick_delay_idx = tick_delay_idx
+            renderer.tick_delay = TICK_DELAYS[tick_delay_idx]
+            renderer.add_message(f"Speed: {TICK_DELAYS[tick_delay_idx]}s")
+        elif key == ord(" "):
+            stepped = not stepped
+            renderer.stepped = stepped
+            renderer.add_message("STEP mode ON — press . to advance" if stepped else "STEP mode OFF")
+        elif key == ord(".") and control_mode == "nemo" and stepped:
+            step_requested = True
         elif control_mode == "aaron" and key in CURSES_KEYS:
             action_name, args = CURSES_KEYS[key]
             result = apply_action(action_name, args, nemo, world_state, renderer)
@@ -289,17 +321,20 @@ def run_curses(stdscr, world_state, spawn_x, spawn_y):
                 renderer.center_on(nemo.x, nemo.y)
 
         if control_mode == "nemo" and not nemo_thinking:
-            nemo_result_holder.clear()
-            nemo_thinking = True
-            t = threading.Thread(target=nemo_think_async,
-                                 args=(world_state, nemo_result_holder), daemon=True)
-            t.start()
-            renderer.add_message("Nemo is thinking...")
+            if not stepped or step_requested:
+                step_requested = False
+                nemo_result_holder.clear()
+                nemo_thinking = True
+                t = threading.Thread(target=nemo_think_async,
+                                     args=(world_state, nemo_result_holder), daemon=True)
+                t.start()
+                renderer.add_message("Nemo is thinking...")
 
         if nemo_thinking and nemo_result_holder:
             nemo_thinking = False
             _process_nemo_result(nemo_result_holder[0], nemo, world_state, renderer)
-            time.sleep(TICK_DELAYS[tick_delay_idx])
+            if not stepped:
+                time.sleep(TICK_DELAYS[tick_delay_idx])
 
         renderer.draw(world_state)
         time.sleep(0.033)

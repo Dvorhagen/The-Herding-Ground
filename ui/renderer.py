@@ -51,6 +51,10 @@ class Renderer:
         # Nemo's last thought
         self.last_thought = ""
 
+        self.tick_delay_idx = 3   # set by main.py
+        self.tick_delay = 1.0
+        self.stepped = False
+
         # Scanline surface for CRT effect
         self._scanlines = self._make_scanlines()
 
@@ -149,7 +153,20 @@ class Renderer:
         # Inventory
         inv = nemo.describe_inventory()
         self._text(f"CARRY: {inv}", px + 10, y, max_width=PANEL_W - 20)
-        y += 24
+        y += 20
+
+        # Speed bar
+        n = 7
+        seg_w, seg_h, seg_gap = 18, 8, 2
+        bar_x = px + 10
+        for i in range(n):
+            color = COLOR_HIGHLIGHT if i <= self.tick_delay_idx else COLOR_TEXT_DIM
+            pygame.draw.rect(self.screen, color,
+                             (bar_x + i * (seg_w + seg_gap), y, seg_w, seg_h))
+        label = "STEP" if self.stepped else f"{self.tick_delay}s"
+        spd_color = (255, 100, 60) if self.stepped else COLOR_TEXT
+        self._text(label, bar_x + n * (seg_w + seg_gap) + 6, y - 1, color=spd_color)
+        y += 18
 
         # Divider
         pygame.draw.line(self.screen, COLOR_BORDER, (px + 8, y), (px + PANEL_W - 8, y), 1)

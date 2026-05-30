@@ -54,6 +54,9 @@ class CursesRenderer:
         self.max_messages = 50
         self.view_x = 0
         self.view_y = 0
+        self.tick_delay_idx = 3   # set by main.py
+        self.tick_delay = 1.0
+        self.stepped = False
 
         self._setup_curses()
 
@@ -170,6 +173,19 @@ class CursesRenderer:
         self._panel_text(row, px, panel_w, f"CARRY: {inv}")
         row += 1
 
+        # Speed bar: 7 segments, filled up to current index
+        n = 7
+        filled = self.tick_delay_idx + 1
+        bar = "█" * filled + "░" * (n - filled)
+        if self.stepped:
+            spd_str = f"SPD : [{bar}] STEP"
+            attr = curses.color_pair(PAIR_WARNING) | curses.A_BOLD
+        else:
+            spd_str = f"SPD : [{bar}] {self.tick_delay}s"
+            attr = curses.color_pair(PAIR_NORMAL)
+        self._panel_text(row, px, panel_w, spd_str, attr)
+        row += 1
+
         self._put(row, px, "─" * (panel_w - 1), curses.color_pair(PAIR_DIM))
         row += 1
 
@@ -206,7 +222,7 @@ class CursesRenderer:
                 break
 
     def _draw_bottom_bar(self, row, w):
-        bar = " TAB:toggle  arrows/wasd:move  p:pickup  e:examine  q:quit "
+        bar = " TAB:mode  arrows/wasd:move  p:pickup  e:examine  [:faster  ]:slower  SPC:step  q:quit "
         bar = bar[:w - 1].ljust(w - 1)
         try:
             self.stdscr.addstr(row, 0, bar,
