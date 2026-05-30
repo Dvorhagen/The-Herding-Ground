@@ -250,6 +250,84 @@ def action_dig(actor, args: dict, world_state) -> ActionResult:
     return ActionResult(True, "You dig into the earth — soil and roots, nothing else. Your hands are dirty.")
 
 
+def action_equip(actor, args: dict, world_state) -> ActionResult:
+    """Equip an item from inventory. args: {item_name: str}"""
+    target = args.get("item_name", "").lower()
+    if not target:
+        return ActionResult(False, f"Equip what? Carrying: {actor.describe_inventory()}", world_changed=False)
+    item = next((i for i in actor.inventory if target in i.name.lower()), None)
+    if not item:
+        return ActionResult(False, f"You don't have '{target}'.", world_changed=False)
+    msg = actor.equip(item)
+    return ActionResult(True, msg)
+
+
+def action_unequip(actor, args: dict, world_state) -> ActionResult:
+    """Unequip from a slot. args: {slot: str} or {item_name: str}"""
+    slot = args.get("slot", args.get("item_name", "")).lower()
+    # Allow item name instead of slot name
+    if slot and slot not in actor.equipment:
+        for s, item in actor.equipment.items():
+            if item and slot in item.name.lower():
+                slot = s
+                break
+    msg = actor.unequip(slot)
+    return ActionResult(True if "Unequipped" in msg else False, msg,
+                        world_changed="Unequipped" in msg)
+
+
+def action_craft(actor, args: dict, world_state) -> ActionResult:
+    """Craft an item from inventory components."""
+    from .crafting import RECIPES, can_craft, consume_inputs
+    recipe_name = (args.get("recipe") or args.get("item_name") or "").lower().strip()
+
+    if not recipe_name:
+        counts = {}
+        for item in actor.inventory:
+            counts[item.name.lower()] = counts.get(item.name.lower(), 0) + 1
+        lines = []
+        for name, recipe in RECIPES.items():
+            ok, reason = can_craft(actor.inventory, recipe)
+            needs = ", ".join(f"{v}× {k}" for k, v in recipe["inputs"].items())
+            mark = "✓" if ok else "✗"
+            lines.append(f"  {mark} {name}: {recipe['description']} [{needs}]")
+        return ActionResult(True, "Known recipes:\n" + "\n".join(lines), world_changed=False)
+
+    # Fuzzy match recipe name
+    match = next((n for n in RECIPES if recipe_name in n), None)
+    if not match:
+        return ActionResult(False, f"Unknown recipe '{recipe_name}'. Use 'craft' to list all.", world_changed=False)
+    recipe = RECIPES[match]
+    ok, reason = can_craft(actor.inventory, recipe)
+    if not ok:
+        return ActionResult(False, f"Can't craft {match}. {reason}.", world_changed=False)
+    consume_inputs(actor.inventory, recipe)
+    item = recipe["output"](actor.x, actor.y)
+    actor.inventory.append(item)
+    return ActionResult(True, f"You craft a {item.name}. {item.description}.")
+
+
+def action_attack(actor, args: dict, world_state) -> ActionResult:
+    """Attack a nearby animal or entity. args: {target: str} optional"""
+    from .animals import Animal
+    target_name = (args.get("target") or args.get("item_name") or "").lower()
+    nearby = [e for e in world_state.get_entities_near(actor.x, actor.y, radius=2)
+              if isinstance(e, Animal) and e.alive]
+    if target_name:
+        nearby = [e for e in nearby if target_name in e.name.lower()]
+    if not nearby:
+        return ActionResult(False, "Nothing to attack nearby.", world_changed=False)
+    target = min(nearby, key=lambda e: (e.x - actor.x)**2 + (e.y - actor.y)**2)
+    weapon = actor.equipment.get("weapon")
+    damage = getattr(weapon, 'damage', 2)
+    weapon_str = f"with your {weapon.name}" if weapon else "with your bare hands"
+    result_str = target.take_damage(damage, world_state)
+    msg = f"You strike the {target.name} {weapon_str} — {result_str}."
+    if result_str == "dead":
+        msg += " It crumples. Something warm and final."
+    return ActionResult(True, msg)
+
+
 def action_reflect(actor, args: dict, world_state) -> ActionResult:
     """
     Special action: Moriarty pauses to reflect on its state.
@@ -273,13 +351,23 @@ ACTION_REGISTRY = {
     "look":    action_examine,
     "wait":    action_wait,
     "rest":    action_wait,
-    "sleep":   action_sleep,
-    "drink":   action_drink,
-    "listen":  action_listen,
-    "throw":   action_throw,
-    "hurl":    action_throw,
-    "dig":     action_dig,
-    "reflect": action_reflect,
+    "sleep":    action_sleep,
+    "drink":    action_drink,
+    "listen":   action_listen,
+    "throw":    action_throw,
+    "hurl":     action_throw,
+    "dig":      action_dig,
+    "equip":    action_equip,
+    "wear":     action_equip,
+    "wield":    action_equip,
+    "unequip":  action_unequip,
+    "remove":   action_unequip,
+    "craft":    action_craft,
+    "make":     action_craft,
+    "attack":   action_attack,
+    "strike":   action_attack,
+    "hit":      action_attack,
+    "reflect":  action_reflect,
 }
 
 

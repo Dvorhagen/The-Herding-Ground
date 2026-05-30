@@ -361,6 +361,140 @@ class FlowerPatch(WorldObject):
         }
 
 
+@dataclass
+class Tree(WorldObject):
+    has_nest: bool = False
+
+    def __post_init__(self):
+        self.symbol = "T"
+        self.color = (30, 110, 30)
+        self.blocks = True
+        self.opacity = 0.4
+        self.description = "a tall oak, bark furrowed with age"
+
+    def interactions(self) -> dict:
+        from ..entities.actions import ActionResult
+
+        def climb_tree(actor, args, ws):
+            actor.status.fatigue = min(100, actor.status.fatigue + 5)
+            from ..world.state import _dist, _direction_name
+            terrain = {}
+            for dy in range(-25, 26):
+                for dx in range(-25, 26):
+                    if _dist(dx, dy) > 25:
+                        continue
+                    tile = ws.world.get(actor.x + dx, actor.y + dy)
+                    if tile:
+                        t = tile.tile_type.name.lower()
+                        d = _direction_name(dx, dy)
+                        terrain.setdefault(t, set()).add(d)
+            lines = [f"  {t}: {', '.join(sorted(ds)[:3])}"
+                     for t, ds in sorted(terrain.items())]
+            return ActionResult(True,
+                "You haul yourself up branch by branch. From the canopy:\n" +
+                "\n".join(lines[:8]))
+
+        def look_for_nest(actor, args, ws):
+            if not self.has_nest:
+                return ActionResult(False,
+                    "You search the branches — no nest here.", world_changed=False)
+            from ..entities.items import make_egg, make_feather
+            import random
+            if random.random() < 0.6:
+                egg = make_egg(actor.x, actor.y)
+                actor.inventory.append(egg)
+                return ActionResult(True,
+                    "You find a small nest tucked in the fork. There's an egg inside — you take it.")
+            else:
+                feather = make_feather(actor.x, actor.y)
+                actor.inventory.append(feather)
+                return ActionResult(True,
+                    "You find a nest, but it's empty save for a few loose feathers.")
+
+        result = {
+            "examine": lambda a, args, ws: ActionResult(True,
+                f"{self.name}: {self.description}." +
+                (" A nest is visible in the branches." if self.has_nest else ""),
+                world_changed=False),
+            "shelter": lambda a, args, ws: ActionResult(True,
+                "You press against the trunk. The canopy closes overhead.",
+                world_changed=False),
+            "climb":         climb_tree,
+            "look for nest": look_for_nest,
+        }
+        return result
+
+
+@dataclass
+class HollowTree(WorldObject):
+    def __post_init__(self):
+        self.symbol = "H"
+        self.color = (60, 80, 40)
+        self.blocks = False
+        self.opacity = 0.2
+        self.description = "an ancient hollow tree, big enough to step inside"
+
+    def interactions(self) -> dict:
+        from ..entities.actions import ActionResult
+
+        def shelter_inside(actor, args, ws):
+            actor.status.fatigue = max(0, actor.status.fatigue - 8)
+            actor.status.mood = "sheltered"
+            return ActionResult(True,
+                "You step into the hollow. It smells of damp wood and earth. The world narrows to a slit of light.")
+
+        return {
+            "examine": lambda a, args, ws: ActionResult(True,
+                f"{self.name}: {self.description}. The interior is dark and dry.",
+                world_changed=False),
+            "shelter": shelter_inside,
+            "peek inside": lambda a, args, ws: ActionResult(True,
+                "You peer into the hollow — darkness, a few old leaves, the smell of something that lived here.",
+                world_changed=False),
+            "hide": lambda a, args, ws: (
+                setattr(actor, 'hidden', True) or
+                ActionResult(True, "You squeeze into the hollow and go still. The forest closes around you.",
+                             world_changed=False)
+            ),
+        }
+
+
+@dataclass
+class ReedBed(WorldObject):
+    harvested: bool = False
+
+    def __post_init__(self):
+        self.symbol = "|"
+        self.color = (60, 110, 70)
+        self.blocks = False
+        self.description = "a dense stand of tall reeds"
+
+    def interactions(self) -> dict:
+        from ..entities.actions import ActionResult
+        from ..entities.items import make_reed
+
+        def harvest(actor, args, ws):
+            if self.harvested:
+                return ActionResult(False,
+                    "The reeds are already cut — new growth will take time.", world_changed=False)
+            self.harvested = True
+            self.color = (40, 70, 45)
+            self.description = "a cut reed stand, stubble at the waterline"
+            for _ in range(3):
+                reed = make_reed(actor.x, actor.y)
+                actor.inventory.append(reed)
+            return ActionResult(True,
+                "You wade in and cut a bundle of reeds. Three long stems, good for weaving.")
+
+        return {
+            "examine": lambda a, args, ws: ActionResult(True,
+                f"{self.name}: {self.description}." +
+                (" Already cut." if self.harvested else " Tall and harvestable."),
+                world_changed=False),
+            "harvest": harvest,
+        }
+
+
 # --- Factory functions ---
 
 def make_campfire(x: int, y: int) -> Campfire:
@@ -383,3 +517,14 @@ def make_wild_mushroom(x: int, y: int) -> WildMushroom:
 
 def make_flower_patch(x: int, y: int) -> FlowerPatch:
     return FlowerPatch(name="wildflowers", x=x, y=y)
+
+def make_tree(x: int, y: int, has_nest: bool = False) -> Tree:
+    import random
+    return Tree(name="oak tree", x=x, y=y,
+                has_nest=has_nest or random.random() < 0.12)
+
+def make_hollow_tree(x: int, y: int) -> HollowTree:
+    return HollowTree(name="hollow tree", x=x, y=y)
+
+def make_reed_bed(x: int, y: int) -> ReedBed:
+    return ReedBed(name="reed bed", x=x, y=y)

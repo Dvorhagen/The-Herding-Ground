@@ -115,6 +115,10 @@ class MoriartyEntity(Entity):
     Extends Entity with inventory and status.
     """
     inventory: list = field(default_factory=list)
+    equipment: dict = field(default_factory=lambda: {
+        "weapon": None, "offhand": None, "light": None,
+        "head": None,   "body":   None,
+    })
     status: StatusEffects = field(default_factory=StatusEffects)
     event_log: list = field(default_factory=list)
     max_log: int = 20
@@ -130,10 +134,44 @@ class MoriartyEntity(Entity):
         if len(self.event_log) > self.max_log:
             self.event_log.pop(0)
 
+    def equip(self, item) -> str:
+        slot = getattr(item, 'slot', '')
+        if not getattr(item, 'equippable', False) or not slot:
+            return f"The {item.name} can't be equipped."
+        if slot not in self.equipment:
+            return f"Unknown equipment slot: {slot}."
+        current = self.equipment[slot]
+        if current:
+            self.inventory.append(current)
+        if item in self.inventory:
+            self.inventory.remove(item)
+        self.equipment[slot] = item
+        return f"Equipped {item.name}."
+
+    def unequip(self, slot: str) -> str:
+        if slot not in self.equipment:
+            return f"No slot '{slot}'. Slots: {list(self.equipment.keys())}."
+        item = self.equipment[slot]
+        if not item:
+            return f"Nothing equipped in {slot}."
+        self.inventory.append(item)
+        self.equipment[slot] = None
+        return f"Unequipped {item.name}."
+
+    def equipped_light_radius(self) -> int:
+        light = self.equipment.get("light")
+        return getattr(light, 'light_radius', 0) if light else 0
+
     def describe_inventory(self) -> str:
         if not self.inventory:
             return "nothing"
         return ", ".join(item.name for item in self.inventory)
+
+    def describe_equipment(self) -> str:
+        worn = {s: i for s, i in self.equipment.items() if i}
+        if not worn:
+            return "nothing equipped"
+        return ", ".join(f"{s}: {i.name}" for s, i in worn.items())
 
     def describe(self) -> str:
         return f"Moriarty at ({self.x}, {self.y}) — {self.status.describe()}"

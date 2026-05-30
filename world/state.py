@@ -144,6 +144,10 @@ class WorldState:
     def advance_tick(self):
         self.tick += 1
         self.moriarty.status.tick()
+        from ..entities.animals import Animal
+        for entity in list(self.entities):
+            if isinstance(entity, Animal) and entity.alive:
+                entity.tick(self)
 
     def _describe_tile_at(self, x: int, y: int) -> str:
         tile = self.world.get(x, y)
@@ -260,6 +264,8 @@ class WorldState:
         items_str = (", ".join(i.name for i in items_here)
                      if items_here else "none")
 
+        from ..entities.animals import Animal
+
         # Visible entities (within close range)
         visible_entities = self.get_entities_near(moriarty.x, moriarty.y,
                                                    radius=VISION_CLOSE)
@@ -270,12 +276,14 @@ class WorldState:
             dx, dy = e.x - moriarty.x, e.y - moriarty.y
             d = int(_dist(dx, dy))
             direction = _direction_name(dx, dy)
-            entity_lines.append(
-                f"  {e.name} ({d}m {direction})"
-                + (" — right here, can pick up" if d == 0 else
-                   " — move there to pick up"
-                   if hasattr(e, 'item_type') else "")
-            )
+            if isinstance(e, Animal):
+                hp_str = f" [{e.health}/{e.max_health}hp]" if e.health < e.max_health else ""
+                entity_lines.append(f"  {e.name} ({d}m {direction}){hp_str} — attack, or approach cautiously")
+            elif hasattr(e, 'item_type'):
+                hint = " — right here, pick up" if d == 0 else " — move closer to pick up"
+                entity_lines.append(f"  {e.name} ({d}m {direction}){hint}")
+            else:
+                entity_lines.append(f"  {e.name} ({d}m {direction})")
 
         entity_str = "\n".join(entity_lines) if entity_lines else "  none visible"
 
@@ -318,6 +326,7 @@ class WorldState:
             self.pending_memory_result = ""
 
         hidden_str = "  (you are hidden)" if moriarty.hidden else ""
+        equip_str = moriarty.describe_equipment()
 
         return f"""[PERCEPTION — Tick {self.tick}]
 
@@ -325,6 +334,7 @@ class WorldState:
 
 HERE (pick up immediately): {items_str}
 Carrying: {moriarty.describe_inventory()}
+Equipped: {equip_str}
 Status: {moriarty.status.describe()}{hidden_str}
 
 Visible entities:

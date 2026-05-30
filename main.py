@@ -34,7 +34,7 @@ if not USE_CURSES:
 # ── Path setup ────────────────────────────────────────────────────────────────
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-from moriarty.world.mapgen import generate_world, find_spawn, populate_natural_objects
+from moriarty.world.mapgen import generate_world, find_spawn, populate_natural_objects, populate_animals
 from moriarty.world.state import WorldState
 from moriarty.entities.base import MoriartyEntity, EntityType
 from moriarty.entities.items import make_apple, make_stick
@@ -189,6 +189,8 @@ def _init_world():
     # Populate the natural world
     print("[MORIARTY] Populating natural objects...")
     populate_natural_objects(world_state, seed=42)
+    print("[MORIARTY] Populating animals...")
+    populate_animals(world_state, seed=42)
 
     wiki._ensure_dirs()
     wiki.get_self_model()

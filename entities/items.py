@@ -24,7 +24,12 @@ class Item(Entity):
     weight: float = 1.0
     description: str = "an unremarkable object"
     usable: bool = False
-    blocks: bool = False    # Items don't block movement by default
+    blocks: bool = False
+    # Equipment fields — only meaningful when equippable=True
+    equippable: bool = False
+    slot: str = ""          # "weapon", "offhand", "light", "head", "body"
+    damage: int = 0         # weapon damage
+    light_radius: int = 0   # tiles of extra vision when equipped
 
     def __post_init__(self):
         self.entity_type = EntityType.ITEM
@@ -126,11 +131,108 @@ def make_firewood(x: int, y: int) -> Item:
     return item
 
 def make_stone(x: int, y: int) -> Item:
-    item = Item(
+    return Item(
         name="stone", x=x, y=y,
         item_type=ItemType.MATERIAL,
         description="a smooth, palm-sized river stone",
-        weight=0.5,
-        symbol="*", color=(100, 100, 90)
+        weight=0.5, symbol="*", color=(100, 100, 90)
     )
+
+
+# --- Natural materials ---
+
+def make_reed(x: int, y: int) -> Item:
+    return Item(
+        name="reed", x=x, y=y,
+        item_type=ItemType.MATERIAL,
+        description="a long fibrous reed stem, good for weaving",
+        weight=0.2, symbol="|", color=(80, 120, 60)
+    )
+
+def make_rope(x: int, y: int) -> Item:
+    return Item(
+        name="rope", x=x, y=y,
+        item_type=ItemType.MATERIAL,
+        description="a length of twisted reed rope, surprisingly strong",
+        weight=0.5, symbol="~", color=(120, 100, 60)
+    )
+
+def make_flint(x: int, y: int) -> Item:
+    return Item(
+        name="flint", x=x, y=y,
+        item_type=ItemType.MATERIAL,
+        description="a sharp-edged flint nodule",
+        weight=0.4, symbol="^", color=(80, 80, 90)
+    )
+
+def make_feather(x: int, y: int) -> Item:
+    return Item(
+        name="feather", x=x, y=y,
+        item_type=ItemType.MATERIAL,
+        description="a long flight feather, still clean",
+        weight=0.05, symbol='"', color=(180, 180, 160)
+    )
+
+def make_egg(x: int, y: int) -> FoodItem:
+    return FoodItem(
+        name="egg", x=x, y=y,
+        description="a small speckled egg",
+        nutrition=10, symbol="o", color=(200, 180, 120)
+    )
+
+def make_meat(x: int, y: int) -> FoodItem:
+    return FoodItem(
+        name="raw meat", x=x, y=y,
+        description="a chunk of raw animal meat — should be cooked eventually",
+        nutrition=25, symbol="%", color=(180, 60, 60)
+    )
+
+
+# --- Weapons (equippable) ---
+
+def make_stone_knife(x: int, y: int) -> ToolItem:
+    item = ToolItem(
+        name="stone knife", x=x, y=y,
+        description="a crude but effective flint blade lashed to a short handle",
+        symbol="k", color=(120, 120, 110)
+    )
+    item.equippable = True
+    item.slot = "weapon"
+    item.damage = 5
+    return item
+
+def make_spear(x: int, y: int) -> ToolItem:
+    item = ToolItem(
+        name="spear", x=x, y=y,
+        description="a straight shaft with a sharpened flint tip — good reach",
+        symbol="!", color=(130, 100, 50)
+    )
+    item.equippable = True
+    item.slot = "weapon"
+    item.damage = 8
+    return item
+
+def make_club(x: int, y: int) -> ToolItem:
+    item = ToolItem(
+        name="club", x=x, y=y,
+        description="a heavy knotted branch — blunt and brutal",
+        symbol=")", color=(100, 70, 30)
+    )
+    item.equippable = True
+    item.slot = "weapon"
+    item.damage = 6
+    return item
+
+
+# --- Light sources (equippable) ---
+
+def make_torch(x: int, y: int) -> ToolItem:
+    item = ToolItem(
+        name="torch", x=x, y=y,
+        description="a stick wrapped with burning material — warm light, limited life",
+        symbol="†", color=(220, 150, 40)
+    )
+    item.equippable = True
+    item.slot = "light"
+    item.light_radius = 8
     return item

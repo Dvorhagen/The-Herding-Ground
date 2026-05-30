@@ -78,7 +78,11 @@ Available actions:
   dig                             (may turn up a stone)
   wait
   reflect
-  [object verbs shown nearby: warm, sit, open, take, forage, pick, climb, hide, chop, ...]
+  equip       item_name=<name>    (wield a weapon, wear armour, hold a torch)
+  unequip     slot=weapon|light|head|body|offhand
+  craft       recipe=<name>       (omit name to list all known recipes)
+  attack      target=<name>       (strike a nearby animal)
+  [object verbs shown nearby: warm, sit, open, take, forage, pick, climb, hide, chop, harvest, ...]
 
 Example:
 THOUGHT: There's an apple to my east, I'll move toward it.
@@ -131,10 +135,14 @@ What your body knows how to do:
   drink                            (from an adjacent water source)
   sleep                            (deep rest when fatigued)
   throw       item_name=<name> direction=<dir>
-  dig                              (may surface a stone)
+  dig                              (may surface a stone or flint)
+  equip       item_name=<name>    (wield weapon, hold torch, etc.)
+  unequip     slot=<slot>
+  craft       recipe=<name>       (or just 'craft' to list options)
+  attack      target=<name>       (strike a nearby animal)
   wait
   reflect
-  [any verb shown by a nearby object: warm, sit, forage, pick, climb, hide, chop, ...]
+  [any verb shown by a nearby object: warm, sit, forage, pick, climb, hide, chop, harvest, ...]
 
 Spatial: items under "HERE" are at your feet. Items under "Visible entities" require moving there first.
 
@@ -171,10 +179,14 @@ What you can do:
   drink                (from water nearby)
   sleep                (when exhausted)
   throw <item> <direction>
-  dig                  (may turn up a stone)
+  dig                  (may turn up stone or flint)
+  equip <item>
+  unequip <slot>
+  craft <recipe>       (or just: craft)
+  attack <animal>
   wait
   reflect
-  [verbs shown by nearby objects: warm, sit, forage, pick, climb, hide, chop, ...]
+  [verbs shown by nearby objects: warm, sit, forage, pick, climb, hide, chop, harvest, ...]
 
 Spatial: items under "Visible entities" require moving there first.
 

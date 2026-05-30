@@ -129,7 +129,9 @@ def _place_mountains(world, rng):
         # Bias toward map edges so the center stays explorable
         edge = rng.choice(["east", "north", "south"])
         if edge == "east":
-            mx = rng.randint(3 * world.width // 4, world.width - 30)
+            lo = 3 * world.width // 4
+            hi = max(lo, world.width - 30)
+            mx = rng.randint(lo, hi)
             my = rng.randint(world.height // 6, 5 * world.height // 6)
             direction = (0, 1)
         elif edge == "north":
@@ -336,13 +338,40 @@ def find_spawn(world: WorldMap) -> tuple[int, int]:
 
 # ── Natural object population ─────────────────────────────────────────────────
 
+def populate_animals(world_state, seed: int = None):
+    """Scatter animals across the world based on species terrain preference."""
+    from ..entities.animals import make_rabbit, make_deer, make_fox, make_bird
+
+    rng = random.Random((seed or 0) + 7)
+    world = world_state.world
+    W, H = world.width, world.height
+
+    def place_animals(make_fn, preferred, count):
+        placed = 0
+        attempts = 0
+        while placed < count and attempts < count * 100:
+            x = rng.randint(15, W - 15)
+            y = rng.randint(15, H - 15)
+            tile = world.get(x, y)
+            if tile and tile.tile_type in preferred:
+                world_state.add_entity(make_fn(x, y))
+                placed += 1
+            attempts += 1
+
+    place_animals(make_rabbit, {TileType.GRASS, TileType.WETLAND},         35)
+    place_animals(make_deer,   {TileType.FOREST, TileType.GRASS},           20)
+    place_animals(make_fox,    {TileType.GRASS, TileType.FOREST, TileType.ROCKY}, 15)
+    place_animals(make_bird,   {TileType.GRASS, TileType.SAND, TileType.WETLAND}, 25)
+
+
 def populate_natural_objects(world_state, seed: int = None):
     """
     Scatter natural world objects across the map based on tile type.
     Call this after WorldState is created, before the game loop starts.
     """
     from .objects import (make_boulder, make_bush, make_fallen_log,
-                          make_wild_mushroom, make_flower_patch)
+                          make_wild_mushroom, make_flower_patch,
+                          make_tree, make_hollow_tree, make_reed_bed)
 
     rng = random.Random(seed)
     world = world_state.world
@@ -401,11 +430,26 @@ def populate_natural_objects(world_state, seed: int = None):
     # Flower patches — open clearings and grassland
     _scatter(make_flower_patch, {TileType.GRASS},       45, min_spacing=7)
 
-    # Scatter some loose stones as ground items near rocky areas
-    from ..entities.items import make_stone
-    for _ in range(60):
+    # Individual trees — distinct objects within and at forest edges
+    _scatter(make_tree, forest | {TileType.GRASS},  60, min_spacing=8)
+
+    # Hollow trees — rarer, deep forest
+    _scatter(make_hollow_tree, forest,              12, min_spacing=20)
+
+    # Reed beds — adjacent to water
+    _scatter(make_reed_bed, wet,                    35, min_spacing=6, extra=near_water)
+
+    # Loose stones as ground items near rocky areas
+    from ..entities.items import make_stone, make_flint
+    for _ in range(80):
         x = rng.randint(8, W - 8)
         y = rng.randint(8, H - 8)
         tile = world.get(x, y)
         if tile and tile.tile_type in (TileType.ROCKY, TileType.SAND, TileType.MOUNTAIN):
             world_state.add_entity(make_stone(x, y))
+    for _ in range(30):
+        x = rng.randint(8, W - 8)
+        y = rng.randint(8, H - 8)
+        tile = world.get(x, y)
+        if tile and tile.tile_type in (TileType.ROCKY, TileType.MOUNTAIN):
+            world_state.add_entity(make_flint(x, y))
