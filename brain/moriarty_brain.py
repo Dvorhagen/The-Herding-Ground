@@ -78,11 +78,20 @@ Available actions:
   dig                             (may turn up a stone)
   wait
   reflect
-  equip       item_name=<name>    (wield a weapon, wear armour, hold a torch)
-  unequip     slot=weapon|light|head|body|offhand
-  craft       recipe=<name>       (omit name to list all known recipes)
-  attack      target=<name>       (strike a nearby animal)
+  equip        item_name=<name>       (wield weapon, hold torch, etc.)
+  unequip      slot=weapon|light|...
+  craft        recipe=<name>          (omit to list options)
+  attack       target=<name> part=<head|torso|arm|leg>  (part optional)
+  grapple      target=<name>          (must be adjacent — locks both in place)
+  break grapple                       (strength contest to escape)
+  dodge                               (defensive stance — next hit harder to land)
+  flee combat                         (disengage if mobile enough)
   [object verbs shown nearby: warm, sit, open, take, forage, pick, climb, hide, chop, harvest, ...]
+
+[BODY STATUS] appears in perception when you're wounded. It shows injuries by body
+part, pain level, blood loss, shock, and mobility. Wounds are real — a broken leg
+means you can't run; a cut arm weakens your grip. Seek shelter, rest, or food to
+stabilise. Ignoring blood loss will kill you over time.
 
 Example:
 THOUGHT: There's an apple to my east, I'll move toward it.
@@ -136,13 +145,21 @@ What your body knows how to do:
   sleep                            (deep rest when fatigued)
   throw       item_name=<name> direction=<dir>
   dig                              (may surface a stone or flint)
-  equip       item_name=<name>    (wield weapon, hold torch, etc.)
-  unequip     slot=<slot>
-  craft       recipe=<name>       (or just 'craft' to list options)
-  attack      target=<name>       (strike a nearby animal)
+  equip        item_name=<name>
+  unequip      slot=<slot>
+  craft        recipe=<name>   (or just 'craft' to list)
+  attack       target=<name>  part=<head|torso|arm|leg>
+  grapple      target=<name>  (adjacent only)
+  break grapple
+  dodge
+  flee combat
   wait
   reflect
   [any verb shown by a nearby object: warm, sit, forage, pick, climb, hide, chop, harvest, ...]
+
+[BODY STATUS] block appears when you're wounded. Wounds are permanent until treated.
+Blood loss accumulates each tick — it will kill you if untreated. Seek rest near
+a campfire, or eat to help stabilise. A grappled animal attacks every tick.
 
 Spatial: items under "HERE" are at your feet. Items under "Visible entities" require moving there first.
 
@@ -182,11 +199,17 @@ What you can do:
   dig                  (may turn up stone or flint)
   equip <item>
   unequip <slot>
-  craft <recipe>       (or just: craft)
-  attack <animal>
+  craft <recipe>
+  attack <animal> <body part>
+  grapple <animal>
+  break grapple
+  dodge
+  flee combat
   wait
   reflect
   [verbs shown by nearby objects: warm, sit, forage, pick, climb, hide, chop, harvest, ...]
+
+[BODY STATUS] appears when wounded. Blood loss ticks every turn — treat it.
 
 Spatial: items under "Visible entities" require moving there first.
 

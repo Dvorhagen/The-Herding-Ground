@@ -14,6 +14,7 @@ On death (health <= 0): entity is removed from world, raw meat is dropped.
 import random
 from dataclasses import dataclass, field
 from .base import Entity, EntityType, DIRECTIONS
+from .combat import ANIMAL_STATS
 from ..world.tiles import TileType
 
 
@@ -34,6 +35,7 @@ class Animal(Entity):
     def __post_init__(self):
         self.entity_type = EntityType.CREATURE
         self.blocks = False
+        self.combat_stats = ANIMAL_STATS.get(self.species, ANIMAL_STATS["animal"])
 
     def tick(self, world_state):
         if not self.alive:
@@ -78,16 +80,14 @@ class Animal(Entity):
         self.health -= amount
         if self.health <= 0:
             self.alive = False
-            world_state.remove_entity(self)
-            from .items import make_meat, make_feather
-            meat = make_meat(self.x, self.y)
-            world_state.add_entity(meat)
-            # Birds drop a feather instead of meat
-            if self.species == "bird":
-                feather = make_feather(self.x, self.y)
-                world_state.add_entity(feather)
-                world_state.remove_entity(meat)
-            return f"dead"
+            if world_state is not None:
+                world_state.remove_entity(self)
+                from .items import make_meat, make_feather
+                if self.species == "bird":
+                    world_state.add_entity(make_feather(self.x, self.y))
+                else:
+                    world_state.add_entity(make_meat(self.x, self.y))
+            return "dead"
         return f"injured ({self.health}/{self.max_health} hp)"
 
     def describe(self) -> str:

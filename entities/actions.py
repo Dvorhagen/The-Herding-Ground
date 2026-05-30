@@ -308,9 +308,15 @@ def action_craft(actor, args: dict, world_state) -> ActionResult:
 
 
 def action_attack(actor, args: dict, world_state) -> ActionResult:
-    """Attack a nearby animal or entity. args: {target: str} optional"""
+    """Full combat exchange: Mo attacks, animal counter-attacks.
+    args: {target: str, part: str (optional body part)}"""
     from .animals import Animal
+    from .combat import (resolve_attack, BODY_PART_LOOKUP,
+                         MORIARTY_STATS, ANIMAL_STATS)
+
     target_name = (args.get("target") or args.get("item_name") or "").lower()
+    part_name   = (args.get("part") or "").lower().strip()
+
     nearby = [e for e in world_state.get_entities_near(actor.x, actor.y, radius=2)
               if isinstance(e, Animal) and e.alive]
     if target_name:
@@ -318,14 +324,68 @@ def action_attack(actor, args: dict, world_state) -> ActionResult:
     if not nearby:
         return ActionResult(False, "Nothing to attack nearby.", world_changed=False)
     target = min(nearby, key=lambda e: (e.x - actor.x)**2 + (e.y - actor.y)**2)
-    weapon = actor.equipment.get("weapon")
-    damage = getattr(weapon, 'damage', 2)
-    weapon_str = f"with your {weapon.name}" if weapon else "with your bare hands"
-    result_str = target.take_damage(damage, world_state)
-    msg = f"You strike the {target.name} {weapon_str} — {result_str}."
-    if result_str == "dead":
-        msg += " It crumples. Something warm and final."
+
+    weapon   = actor.equipment.get("weapon")
+    w_damage = getattr(weapon, 'damage', 2)
+    target_part = BODY_PART_LOOKUP.get(part_name)
+
+    msg = resolve_attack(
+        actor.combat_state, target, target_part, w_damage, world_state
+    )
     return ActionResult(True, msg)
+
+
+def action_grapple(actor, args: dict, world_state) -> ActionResult:
+    """Attempt to seize and hold a nearby animal. Must be adjacent."""
+    from .animals import Animal
+    from .combat import resolve_grapple
+
+    target_name = (args.get("target") or args.get("item_name") or "").lower()
+    adjacent = [e for e in world_state.get_entities_near(actor.x, actor.y, radius=1)
+                if isinstance(e, Animal) and e.alive]
+    if target_name:
+        adjacent = [e for e in adjacent if target_name in e.name.lower()]
+    if not adjacent:
+        return ActionResult(False, "Nothing close enough to grapple — move adjacent first.", world_changed=False)
+    target = adjacent[0]
+    msg = resolve_grapple(actor.combat_state, target)
+    return ActionResult(True, msg)
+
+
+def action_break_grapple(actor, args: dict, world_state) -> ActionResult:
+    """Attempt to break free from a grapple."""
+    from .combat import resolve_break_grapple
+    msg = resolve_break_grapple(actor.combat_state)
+    return ActionResult("free" in msg.lower() or "wrench" in msg.lower(), msg,
+                        world_changed=False)
+
+
+def action_dodge(actor, args: dict, world_state) -> ActionResult:
+    """Take a defensive stance — increases dodge chance on the next hit."""
+    from .combat import resolve_dodge
+    msg = resolve_dodge(actor.combat_state)
+    return ActionResult(True, msg, world_changed=False)
+
+
+def action_flee_combat(actor, args: dict, world_state) -> ActionResult:
+    """Attempt to disengage from combat and put distance between you and the fight."""
+    from .combat import resolve_flee_combat
+    success, msg = resolve_flee_combat(actor.combat_state, actor, world_state)
+    if success:
+        # Move 2-3 tiles away from grappled/nearest enemy
+        from .animals import Animal
+        from .base import DIRECTIONS
+        enemies = [e for e in world_state.get_entities_near(actor.x, actor.y, radius=5)
+                   if isinstance(e, Animal) and e.alive]
+        if enemies:
+            nearest = min(enemies, key=lambda e: (e.x - actor.x)**2 + (e.y - actor.y)**2)
+            dx = actor.x - nearest.x
+            dy = actor.y - nearest.y
+            for _ in range(3):
+                sx = (1 if dx > 0 else -1) if abs(dx) > 0 else 0
+                sy = (1 if dy > 0 else -1) if abs(dy) > 0 else 0
+                actor.move(sx or 1, sy, world_state.world)
+    return ActionResult(success, msg, world_changed=success)
 
 
 def action_reflect(actor, args: dict, world_state) -> ActionResult:
@@ -364,10 +424,19 @@ ACTION_REGISTRY = {
     "remove":   action_unequip,
     "craft":    action_craft,
     "make":     action_craft,
-    "attack":   action_attack,
-    "strike":   action_attack,
-    "hit":      action_attack,
-    "reflect":  action_reflect,
+    "attack":        action_attack,
+    "strike":        action_attack,
+    "hit":           action_attack,
+    "grapple":       action_grapple,
+    "grab":          action_grapple,
+    "seize":         action_grapple,
+    "break grapple": action_break_grapple,
+    "break free":    action_break_grapple,
+    "dodge":         action_dodge,
+    "parry":         action_dodge,
+    "flee combat":   action_flee_combat,
+    "disengage":     action_flee_combat,
+    "reflect":       action_reflect,
 }
 
 

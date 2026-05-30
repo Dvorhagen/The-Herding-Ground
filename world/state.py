@@ -144,6 +144,11 @@ class WorldState:
     def advance_tick(self):
         self.tick += 1
         self.moriarty.status.tick()
+        # Tick combat state (bleeding, shock, grapple counter-attacks)
+        self.moriarty.combat_state.tick(self)
+        if self.moriarty.combat_state.pending_grapple_msg:
+            self.moriarty.log_event(self.moriarty.combat_state.pending_grapple_msg)
+            self.moriarty.combat_state.pending_grapple_msg = ""
         from ..entities.animals import Animal
         for entity in list(self.entities):
             if isinstance(entity, Animal) and entity.alive:
@@ -328,6 +333,12 @@ class WorldState:
         hidden_str = "  (you are hidden)" if moriarty.hidden else ""
         equip_str = moriarty.describe_equipment()
 
+        # Body status — only shown when wounded
+        cs = moriarty.combat_state
+        body_block = ""
+        if cs.any_wounds or cs.blood_loss > 0 or cs.grappled_with:
+            body_block = f"\n[BODY STATUS]\n{cs.describe_body()}\n{cs.describe_conditions()}\n"
+
         return f"""[PERCEPTION — Tick {self.tick}]
 
 {vision}
@@ -336,7 +347,7 @@ HERE (pick up immediately): {items_str}
 Carrying: {moriarty.describe_inventory()}
 Equipped: {equip_str}
 Status: {moriarty.status.describe()}{hidden_str}
-
+{body_block}
 Visible entities:
 {entity_str}
 

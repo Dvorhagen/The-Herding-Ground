@@ -119,6 +119,7 @@ class MoriartyEntity(Entity):
         "weapon": None, "offhand": None, "light": None,
         "head": None,   "body":   None,
     })
+    combat_state: "CombatState" = field(default_factory=lambda: None)
     status: StatusEffects = field(default_factory=StatusEffects)
     event_log: list = field(default_factory=list)
     max_log: int = 20
@@ -128,6 +129,9 @@ class MoriartyEntity(Entity):
         self.symbol = "N"
         self.color = (100, 255, 100)
         self.blocks = True
+        if self.combat_state is None:
+            from .combat import CombatState
+            self.combat_state = CombatState()
 
     def log_event(self, event: str):
         self.event_log.append(event)
