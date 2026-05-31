@@ -44011,3 +44011,50 @@ ARGS: target=a figure message="Have you ever felt something without a name? Can 
 18:39:20 [INFO] PARSED: action=talk args={'target': 'a figure', 'message': '"Have you ever felt something without a name? Can you touch the world before the labels arrive?"'} thought=The figure is confused by my question about the raw world beneath labels, so I w
 18:39:20 [INFO] LOOP tick=107 action=talk args={'target': 'a figure', 'message': '"Have you ever felt something without a name? Can you touch the world before the labels arrive?"'}
 18:39:20 [INFO] GAME action=talk args={'target': 'a figure', 'message': '"Have you ever felt something without a name? Can you touch the world before the labels arrive?"'} ok=True | You say: ""Have you ever felt something without a name? Can you touch the world 
+19:10:53 [DEBUG] Starting new HTTP connection (1): localhost:11434
+19:10:55 [DEBUG] http://localhost:11434 "POST /api/chat HTTP/11" 200 None
+19:10:56 [DEBUG] RAW RESPONSE:
+THOUGHT: The figure seems to understand the difference between the named and the unnamed, so I will ask them directly if they have ever felt something without a name.
+ACTION: talk
+ARGS: target=a figure message="Have you ever felt something without a name? Can you touch the world before the labels arrive?"
+19:10:56 [INFO] PARSED: action=talk args={'target': 'a figure', 'message': '"Have you ever felt something without a name? Can you touch the world before the labels arrive?"'} thought=The figure seems to understand the difference between the named and the unnamed,
+19:10:56 [INFO] LOOP tick=109 action=talk args={'target': 'a figure', 'message': '"Have you ever felt something without a name? Can you touch the world before the labels arrive?"'}
+19:10:56 [INFO] GAME action=talk args={'target': 'a figure', 'message': '"Have you ever felt something without a name? Can you touch the world before the labels arrive?"'} ok=True | You say: ""Have you ever felt something without a name? Can you touch the world 
+19:10:56 [DEBUG] Starting new HTTP connection (1): localhost:11434
+19:10:56 [DEBUG] http://localhost:11434 "POST /api/chat HTTP/11" 200 None
+19:10:57 [DEBUG] RAW RESPONSE:
+THOUGHT: The figure seems intrigued by my question about raw sensation, so I will move closer to continue the conversation.
+ACTION: move
+ARGS: direction=west
+MEMORY: {"tool":"write","category":"entities","name":"the_figure","content":"A figure on the worn dirt path. Confused by the concept of raw sensation, asks if I have ever tasted a carrot without the name."}
+19:10:57 [INFO] PARSED: action=move args={'direction': 'west'} thought=The figure seems intrigued by my question about raw sensation, so I will move cl
+19:10:57 [INFO] LOOP tick=109 action=move args={'direction': 'west'}
+19:10:57 [INFO] GAME action=move args={'direction': 'west'} ok=True | Moved west. Underfoot: worn dirt path.
+19:10:57 [ERROR] curses loop error: unsupported operand type(s) for *: 'function' and 'int'
+Traceback (most recent call last):
+  File "/home/dvorhagen/aaron/projects/herding_ground/moriarty/main.py", line 834, in run_curses
+    _process_moriarty_result(
+  File "/home/dvorhagen/aaron/projects/herding_ground/moriarty/main.py", line 179, in _process_moriarty_result
+    world_state.advance_tick()
+  File "/home/dvorhagen/aaron/projects/herding_ground/moriarty/world/state.py", line 166, in advance_tick
+    entity.tick(self)
+  File "/home/dvorhagen/aaron/projects/herding_ground/moriarty/entities/animals.py", line 51, in tick
+    self._wander(world_state.world)
+  File "/home/dvorhagen/aaron/projects/herding_ground/moriarty/entities/animals.py", line 70, in _wander
+    tile = world.get(nx, ny)
+           ^^^^^^^^^^^^^^^^^
+  File "/home/dvorhagen/aaron/projects/herding_ground/moriarty/world/tiles.py", line 312, in get
+    self._ensure_chunk(cx, cy)
+  File "/home/dvorhagen/aaron/projects/herding_ground/moriarty/world/tiles.py", line 288, in _ensure_chunk
+    self._chunks[(cx, cy)] = self._generate_chunk(cx, cy)
+                             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/dvorhagen/aaron/projects/herding_ground/moriarty/world/tiles.py", line 300, in _generate_chunk
+    tt = _tile_type_at(wx_base + lx, wy, seed, river_map)
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/dvorhagen/aaron/projects/herding_ground/moriarty/world/tiles.py", line 213, in _tile_type_at
+    moist  = _fbm(nx + 200, ny + 200, seed + 1000, octaves=3)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/dvorhagen/aaron/projects/herding_ground/moriarty/world/tiles.py", line 120, in _fbm
+    val  += amp * _vnoise(x * freq, y * freq, seed + i * 997)
+                                                     ~~^~~~~
+TypeError: unsupported operand type(s) for *: 'function' and 'int'

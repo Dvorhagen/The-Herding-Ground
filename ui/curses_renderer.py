@@ -193,31 +193,46 @@ class CursesRenderer:
         self.view_y = y - map_h // 2
 
     def draw(self, world_state):
-        # Detect terminal resize (KEY_RESIZE or SIGWINCH on iPad/SSH)
         try:
             curses.update_lines_cols()
         except Exception:
             pass
 
-        self.stdscr.erase()
-        h, w = self.stdscr.getmaxyx()
-
-        panel_w = min(42, w // 3)
-        map_w = w - panel_w - 1  # -1 for divider
-        map_h = h - 1            # -1 for bottom bar
-
-        self._draw_map(world_state, map_w, map_h)
-        self._draw_divider(map_w, map_h)
-        self._draw_panel(world_state, map_w + 1, panel_w, map_h)
-        self._draw_bottom_bar(h - 1, w)
-
-        if self.show_help:
-            self._draw_help()
-
         try:
+            self.stdscr.erase()
+            h, w = self.stdscr.getmaxyx()
+
+            # Terminal too small to draw safely — just show a message and bail
+            if h < 6 or w < 20:
+                try:
+                    self.stdscr.addstr(0, 0, "Terminal too small"[:w - 1])
+                    self.stdscr.refresh()
+                except curses.error:
+                    pass
+                return
+
+            panel_w = min(42, max(1, w // 3))
+            map_w   = max(1, w - panel_w - 1)
+            map_h   = max(1, h - 1)
+
+            self._draw_map(world_state, map_w, map_h)
+            self._draw_divider(map_w, map_h)
+            self._draw_panel(world_state, map_w + 1, panel_w, map_h)
+            self._draw_bottom_bar(h - 1, w)
+
+            if self.show_help:
+                self._draw_help()
+
             self.stdscr.refresh()
+
         except curses.error:
-            pass
+            try:
+                self.stdscr.clear()
+                self.stdscr.refresh()
+            except Exception:
+                pass
+        except Exception:
+            pass   # swallow any other draw error — don't crash the game
 
     def _draw_map(self, world_state, map_w, map_h):
         world = world_state.world
@@ -299,105 +314,85 @@ class CursesRenderer:
             self._put(row, map_w, "|", curses.color_pair(PAIR_DIM))
 
     def _draw_panel(self, world_state, px, panel_w, map_h):
+        """Draw the right-hand status panel. Every section guards row < map_h."""
         moriarty = world_state.moriarty
         row = 0
 
-        # Title + control mode
-        self._put(row, px, "// MORIARTY",
-                  curses.color_pair(PAIR_HIGHLIGHT) | curses.A_BOLD)
-        row += 1
-        self._put(row, px, "-" * (panel_w - 1), curses.color_pair(PAIR_DIM))
-        row += 1
+        def put(text, attr=None):
+            nonlocal row
+            if row >= map_h:
+                return False
+            if attr is None:
+                attr = curses.color_pair(PAIR_NORMAL)
+            self._panel_text(row, px, panel_w, text, attr)
+            row += 1
+            return True
 
-        # Control mode indicator
+        def divider():
+            put("-" * (panel_w - 1), curses.color_pair(PAIR_DIM))
+
+        # Header
+        if not put("// MORIARTY", curses.color_pair(PAIR_HIGHLIGHT) | curses.A_BOLD):
+            return
+        divider()
+
+        # Control mode
         label = self.control_mode_label
-        if label == "MORIARTY":
-            mode_attr = curses.color_pair(PAIR_HIGHLIGHT)
-        elif label == "GOD":
-            mode_attr = curses.color_pair(PAIR_WARNING) | curses.A_BOLD
-        elif label == "PLAYER":
-            mode_attr = curses.color_pair(PAIR_PLAYER) | curses.A_BOLD
-        else:
-            mode_attr = curses.color_pair(PAIR_WARNING) | curses.A_BOLD
-        self._panel_text(row, px, panel_w, f"MODE : {label}", mode_attr)
-        row += 1
+        mode_attr = {
+            "MORIARTY": curses.color_pair(PAIR_HIGHLIGHT),
+            "GOD":      curses.color_pair(PAIR_WARNING) | curses.A_BOLD,
+            "PLAYER":   curses.color_pair(PAIR_PLAYER)  | curses.A_BOLD,
+        }.get(label, curses.color_pair(PAIR_WARNING) | curses.A_BOLD)
+        put(f"MODE : {label}", mode_attr)
 
-        # Status
-        self._panel_text(row, px, panel_w,
-                         f"POS  : ({moriarty.x},{moriarty.y})  T:{world_state.tick}")
-        row += 1
-
-        status = moriarty.status.describe()
-        # Colour warning if hungry/tired
+        # Position / tick / status
+        put(f"POS  : ({moriarty.x},{moriarty.y})  T:{world_state.tick}")
         warn = moriarty.status.hunger < 20 or moriarty.status.fatigue > 80
-        attr = curses.color_pair(PAIR_WARNING) if warn else curses.color_pair(PAIR_NORMAL)
-        self._panel_text(row, px, panel_w, f"STATE: {status}", attr)
-        row += 1
+        put(f"STATE: {moriarty.status.describe()}",
+            curses.color_pair(PAIR_WARNING) if warn else curses.color_pair(PAIR_NORMAL))
+        put(f"CARRY: {moriarty.describe_inventory()}")
 
-        inv = moriarty.describe_inventory()
-        self._panel_text(row, px, panel_w, f"CARRY: {inv}")
-        row += 1
-
-        # Speed bar: 7 segments, filled up to current index (ASCII-safe)
-        n = 7
-        filled = self.tick_delay_idx + 1
+        # Speed bar
+        n, filled = 7, self.tick_delay_idx + 1
         bar = "#" * filled + "." * (n - filled)
         if self.stepped:
-            spd_str = f"SPD : [{bar}] STEP"
-            attr = curses.color_pair(PAIR_WARNING) | curses.A_BOLD
+            put(f"SPD : [{bar}] STEP", curses.color_pair(PAIR_WARNING) | curses.A_BOLD)
         else:
-            spd_str = f"SPD : [{bar}] {self.tick_delay}s"
-            attr = curses.color_pair(PAIR_NORMAL)
-        self._panel_text(row, px, panel_w, spd_str, attr)
-        row += 1
+            put(f"SPD : [{bar}] {self.tick_delay}s")
 
-        self._put(row, px, "-" * (panel_w - 1), curses.color_pair(PAIR_DIM))
-        row += 1
+        divider()
 
         # Thought / live reasoning stream
         if self.reasoning_stream:
-            self._put(row, px, "REASONING:",
-                      curses.color_pair(PAIR_DIM) | curses.A_DIM)
-            row += 1
-            tail = self.reasoning_stream[-200:]
-            if len(self.reasoning_stream) > 200:
+            if not put("REASONING:", curses.color_pair(PAIR_DIM)):
+                return
+            tail = _safe(self.reasoning_stream[-200:])
+            if len(tail) == 200:
                 tail = tail[tail.find(" ") + 1:]
-            wrapped = textwrap.wrap(tail, panel_w - 2)
-            for line in wrapped[-4:]:   # show last 4 lines of reasoning
-                self._panel_text(row, px, panel_w, line,
-                                 curses.color_pair(PAIR_DIM))
-                row += 1
+            wrap_w = max(1, panel_w - 2)
+            for line in textwrap.wrap(tail, wrap_w)[-4:]:
+                if not put(line, curses.color_pair(PAIR_DIM)):
+                    return
         else:
-            self._put(row, px, "THOUGHT:",
-                      curses.color_pair(PAIR_DIM))
-            row += 1
+            if not put("THOUGHT:", curses.color_pair(PAIR_DIM)):
+                return
             if self.last_thought:
-                wrapped = textwrap.wrap(self.last_thought, panel_w - 2)
-                for line in wrapped[:3]:  # max 3 lines
-                    self._panel_text(row, px, panel_w, line,
-                                     curses.color_pair(PAIR_HIGHLIGHT))
-                    row += 1
-            else:
-                row += 1
+                wrap_w = max(1, panel_w - 2)
+                for line in textwrap.wrap(_safe(self.last_thought), wrap_w)[:4]:
+                    if not put(line, curses.color_pair(PAIR_HIGHLIGHT)):
+                        return
 
-        self._put(row, px, "-" * (panel_w - 1), curses.color_pair(PAIR_DIM))
-        row += 1
+        divider()
 
-        # Message log
-        self._put(row, px, "LOG:",
-                  curses.color_pair(PAIR_DIM))
-        row += 1
-
-        available = map_h - row
-        visible = self.messages[-available:] if available > 0 else []
-        for i, msg in enumerate(visible):
-            # Fade older messages
-            age = len(visible) - i
+        # Message log — fills remaining space
+        if not put("LOG:", curses.color_pair(PAIR_DIM)):
+            return
+        available = max(0, map_h - row)
+        for i, msg in enumerate(self.messages[-available:]):
+            age = available - i
             attr = curses.color_pair(PAIR_DIM) if age > 5 else curses.color_pair(PAIR_NORMAL)
-            self._panel_text(row, px, panel_w, msg, attr)
-            row += 1
-            if row >= map_h:
-                break
+            if not put(_safe(msg), attr):
+                return
 
     def _draw_bottom_bar(self, row, w):
         safe_w = max(1, w - 1)   # never write to the very last cell (curses error)
@@ -459,15 +454,17 @@ class CursesRenderer:
         }
 
     def _draw_speech_bubbles(self, world_state, map_w: int, map_h: int):
-        """Draw floating speech text above each speaking entity."""
+        """Draw floating speech text near speaking entities."""
         import time
         now = time.monotonic()
         expired = [n for n, b in self.speech_bubbles.items() if b["expires"] <= now]
         for n in expired:
             del self.speech_bubbles[n]
 
+        if map_w < 4 or map_h < 3:
+            return
+
         for name, bubble in self.speech_bubbles.items():
-            # Resolve current world position of the speaker
             mo = world_state.moriarty
             if name in (mo.name.lower(), "moriarty"):
                 ex, ey = mo.x, mo.y
@@ -480,42 +477,40 @@ class CursesRenderer:
                     continue
                 ex, ey = found.x, found.y
 
-            # Convert to viewport coordinates
-            sc = ex - self.view_x   # screen column (speaker's @)
-            sr = ey - self.view_y   # screen row
+            sc = ex - self.view_x
+            sr = ey - self.view_y
 
-            # Draw one row above; if that's off-screen, draw one below
-            bubble_row = sr - 1 if sr > 0 else sr + 1
-            if bubble_row < 0 or bubble_row >= map_h:
+            # Prefer one row above; fall back to one row below; skip if both off-screen
+            if 0 < sr < map_h:
+                bubble_row = sr - 1
+            elif sr == 0 and map_h > 1:
+                bubble_row = 1
+            else:
                 continue
 
-            full_text = f'"{bubble["text"]}"'
-            # Word-wrap to at most map_w - 2 chars
-            wrap_w = min(60, map_w - 2)
-            words = full_text.split()
-            wrapped_lines = []
-            cur = ""
-            for word in words:
-                if len(cur) + len(word) + 1 <= wrap_w:
-                    cur = cur + (" " if cur else "") + word
-                else:
-                    if cur:
-                        wrapped_lines.append(cur)
-                    cur = word
-            if cur:
-                wrapped_lines.append(cur)
+            # Sanitise BEFORE wrapping so length arithmetic is correct
+            full_text = _safe(f'"{bubble["text"]}"')
+            wrap_w = max(10, min(50, map_w - 2))
+            wrapped_lines = textwrap.wrap(full_text, wrap_w) or [full_text[:wrap_w]]
 
-            for li, text in enumerate(wrapped_lines):
-                row_y = bubble_row - li  # stack upward from the bubble_row
+            for li, line in enumerate(wrapped_lines):
+                row_y = bubble_row - li   # stack upward
+                if row_y < 0:
+                    row_y = bubble_row + li + 1   # flip below if no room above
                 if row_y < 0 or row_y >= map_h:
                     continue
-                start_col = sc - len(text) // 2
+
+                # Centre on speaker, then shift left if needed to stay on screen
+                start_col = sc - len(line) // 2
+                if start_col + len(line) > map_w - 1:
+                    start_col = max(0, map_w - 1 - len(line))
                 if start_col < 0:
                     start_col = 0
-                if start_col + len(text) > map_w:
-                    text = text[:map_w - start_col]
-                self._put(row_y, start_col, text,
-                          curses.color_pair(PAIR_HIGHLIGHT) | curses.A_BOLD)
+                # Final clip (text wider than entire map)
+                line = line[:max(0, map_w - start_col)]
+                if line:
+                    self._put(row_y, start_col, line,
+                              curses.color_pair(PAIR_HIGHLIGHT) | curses.A_BOLD)
 
     def get_text_input(self, prompt: str) -> str:
         """
