@@ -36,27 +36,39 @@ def _sanitize_name(name: str) -> str:
 def read_page(category: str, name: str) -> str | None:
     """
     Read a wiki page. Returns content string or None if not found.
-    category: 'places', 'entities', 'events', 'self'
-    name: page name (will be sanitized)
+    Style tag annotations are stripped before returning — Mo never sees them.
     """
     _ensure_dirs()
     path = WIKI_DIR / category / f"{_sanitize_name(name)}.md"
     if path.exists():
-        return path.read_text()
+        return _strip_style_tag(path.read_text())
     return None
 
 
-def write_page(category: str, name: str, content: str, append: bool = False):
+def write_page(category: str, name: str, content: str,
+               append: bool = False, style_tag: str = ""):
     """
     Write or update a wiki page.
     append=True adds content rather than replacing.
+    style_tag: prompt style label recorded as a trailing HTML comment for
+               Aaron's reference — stripped before Mo reads the page back.
     """
     _ensure_dirs()
     path = WIKI_DIR / category / f"{_sanitize_name(name)}.md"
     if append and path.exists():
-        existing = path.read_text()
+        existing = _strip_style_tag(path.read_text())
         content = existing + "\n\n" + content
-    path.write_text(content)
+    body = content
+    if style_tag:
+        body = content.rstrip() + f"\n<!-- style: {style_tag} -->\n"
+    path.write_text(body)
+
+
+def _strip_style_tag(content: str) -> str:
+    """Remove the trailing <!-- style: ... --> annotation before returning to Mo."""
+    lines = content.split("\n")
+    cleaned = [l for l in lines if not l.startswith("<!-- style:")]
+    return "\n".join(cleaned).rstrip()
 
 
 def list_pages(category: str = None) -> list[str]:
@@ -89,7 +101,7 @@ def search_pages(query: str) -> list[tuple[str, str]]:
         if not cat_dir.exists():
             continue
         for f in cat_dir.glob("*.md"):
-            content = f.read_text()
+            content = _strip_style_tag(f.read_text())
             if query_lower in content.lower():
                 # Extract a brief snippet around the first match
                 idx = content.lower().find(query_lower)
@@ -147,7 +159,11 @@ def update_self_model(new_content: str):
 
 MEMORY_TOOLS = {
     "read":   lambda category, name, **_: read_page(category, name) or f"No page found: {category}/{name}",
-    "write":  lambda category, name, content, **kw: (write_page(category, name, content, kw.get("append", False)), "Page written.")[1],
+    "write":  lambda category, name, content, **kw: (
+        write_page(category, name, content,
+                   kw.get("append", False), kw.get("_style_tag", "")),
+        "Page written."
+    )[1],
     "list":   lambda category=None, **_: "\n".join(list_pages(category)),
     "search": lambda query, **_: "\n".join(f"{p}: ...{s}..." for p, s in search_pages(query)) or "No results.",
 }

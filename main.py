@@ -131,7 +131,8 @@ def _handle_reflection(moriarty, world_state, renderer):
         moriarty.log_event("Reflected and updated self-model.")
 
 
-def _process_moriarty_result(action_dict, moriarty, world_state, renderer, follow_mo=True):
+def _process_moriarty_result(action_dict, moriarty, world_state, renderer,
+                             follow_mo=True, prompt_label=""):
     """Handle one brain tick result: log thought, execute action, record event."""
     if action_dict["thought"]:
         renderer.last_thought = action_dict["thought"]
@@ -140,7 +141,12 @@ def _process_moriarty_result(action_dict, moriarty, world_state, renderer, follo
     log.info(f"LOOP tick={world_state.tick} action={action_dict['action']} args={action_dict['args']}")
 
     if action_dict["memory_tool"]:
-        mem_result = wiki.execute_memory_tool(action_dict["memory_tool"])
+        tool = action_dict["memory_tool"]
+        # Inject the current prompt style tag into write calls so Aaron can
+        # see which style produced which memory entries (stripped on read-back).
+        if tool.get("tool") == "write" and prompt_label:
+            tool = dict(tool, _style_tag=prompt_label)
+        mem_result = wiki.execute_memory_tool(tool)
         world_state.pending_memory_result = mem_result
         renderer.add_message(f"[MEM] {mem_result[:80]}")
 
@@ -486,6 +492,7 @@ def run_pygame(world_state, spawn_x, spawn_y):
             _process_moriarty_result(
                 moriarty_result_holder[0], moriarty, world_state, renderer,
                 follow_mo=(control_mode == "moriarty"),
+                prompt_label=PROMPT_LABELS[prompt_style_idx],
             )
             if player_entity:
                 world_state.pending_messages = [
@@ -708,6 +715,7 @@ def run_curses(stdscr, world_state, spawn_x, spawn_y):
             _process_moriarty_result(
                 moriarty_result_holder[0], moriarty, world_state, renderer,
                 follow_mo=(control_mode == "moriarty"),
+                prompt_label=PROMPT_LABELS[prompt_style_idx],
             )
             if player_entity:
                 world_state.pending_messages = [
