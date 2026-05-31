@@ -58,6 +58,7 @@ class Renderer:
         self.show_los = False
         self.show_help = False
         self.control_mode_label = "MORIARTY"
+        self.player_entity = None       # set by main.py when avatar is active
 
         # Non-blocking text input (same pattern as curses renderer)
         self.text_input_active = False
@@ -343,6 +344,26 @@ class Renderer:
         # Divider
         pygame.draw.line(self.screen, COLOR_BORDER, (px + 8, y), (px + PANEL_W - 8, y), 1)
         y += 8
+
+        # Player inventory / equipment panel (when avatar is active)
+        pe = self.player_entity
+        if pe and not getattr(pe, 'is_god', False):
+            pygame.draw.line(self.screen, COLOR_BORDER, (px + 8, y), (px + PANEL_W - 8, y), 1)
+            y += 6
+            plabel = self.font_sm.render(f"YOU ({pe.name})", True, COLOR_PLAYER)
+            self.screen.blit(plabel, (px + 10, y)); y += 15
+            # Carrying
+            inv_str = pe.describe_inventory()[:40]
+            self._text(f"Carry: {inv_str}", px + 10, y, max_width=PANEL_W - 20); y += 14
+            # Wearing
+            wearing_lines = pe.describe_wearing().split("\n")
+            for wl in wearing_lines[:3]:
+                self._text(wl[:40], px + 10, y, color=COLOR_TEXT_DIM, max_width=PANEL_W - 20)
+                y += 13
+            # Hotkeys reminder
+            self._text("P:pick D:drop U:use E:exam F:atk G:grap W:equip /:cmd",
+                       px + 10, y, color=COLOR_TEXT_DIM, max_width=PANEL_W - 20)
+            y += 15
 
         # Message log
         log_label = self.font_sm.render("LOG:", True, COLOR_TEXT_DIM)

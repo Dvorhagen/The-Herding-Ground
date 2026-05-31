@@ -117,7 +117,8 @@ class MoriartyEntity(Entity):
     inventory: list = field(default_factory=list)
     equipment: dict = field(default_factory=lambda: {
         "weapon": None, "offhand": None, "light": None,
-        "head": None,   "body":   None,
+        "head":   None, "body":   None,  "legs":  None,
+        "feet":   None, "back":   None,
     })
     combat_state: "CombatState" = field(default_factory=lambda: None)
     status: StatusEffects = field(default_factory=StatusEffects)
@@ -173,49 +174,64 @@ class MoriartyEntity(Entity):
         return ", ".join(item.name for item in self.inventory)
 
     def describe_equipment(self) -> str:
+        """Full slot→name listing for the UI panel."""
         worn = {s: i for s, i in self.equipment.items() if i}
         if not worn:
-            return "nothing equipped"
-        return ", ".join(f"{s}: {i.name}" for s, i in worn.items())
+            return "nothing"
+        return "  ".join(f"{s}: {i.name}" for s, i in worn.items())
+
+    def describe_wearing(self) -> str:
+        """Natural-language equipment summary for the perception block."""
+        clothing_slots = ("body", "legs", "feet", "head", "back")
+        weapon_slots   = ("weapon", "offhand")
+        light_slots    = ("light",)
+
+        clothes = [i.name for s, i in self.equipment.items()
+                   if s in clothing_slots and i]
+        weapons = [i.name for s, i in self.equipment.items()
+                   if s in weapon_slots and i]
+        lights  = [i.name for s, i in self.equipment.items()
+                   if s in light_slots and i]
+
+        parts = []
+        if clothes: parts.append("Wearing: " + ", ".join(clothes))
+        if weapons: parts.append("Wielding: " + ", ".join(weapons))
+        if lights:  parts.append("Holding (light): " + ", ".join(lights))
+        return "\n".join(parts) if parts else "Wearing: nothing"
 
     def describe(self) -> str:
         return f"Moriarty at ({self.x}, {self.y}) — {self.status.describe()}"
 
 
 @dataclass
-class PlayerEntity(Entity):
+class PlayerEntity(MoriartyEntity):
     """
-    The human player's avatar when they drop into the world.
-    Mo perceives this as "a figure" and can talk to it.
-    Has full combat, inventory, and equipment like Mo — no god powers by default.
+    Human player avatar. Inherits all of Mo's capabilities — same inventory,
+    equipment, combat, actions. Mo perceives this as "a figure".
+    is_god: invisible to Mo, used for observer/injector mode.
     """
-    inventory: list  = field(default_factory=list)
-    equipment: dict  = field(default_factory=lambda: {
-        "weapon": None, "offhand": None, "light": None,
-        "head": None, "body": None,
-    })
-    name:     str    = "figure"
-    is_god:   bool   = False   # god mode: invisible, injects environment
+    is_god: bool = False
 
     def __post_init__(self):
+        super().__post_init__()          # sets up combat_state, etc.
         self.entity_type = EntityType.PLAYER
         self.symbol = "@"
-        self.color  = (255, 220, 100)   # amber — distinct from Mo's green
-        self.blocks = True
-        if not self.is_god:
-            from .combat import CombatState
-            self.combat_state = CombatState()
+        self.color  = (255, 220, 100)    # amber — distinct from Mo's green
+        self.blocks = not self.is_god
 
     def describe(self) -> str:
         """Detailed description returned by the examine action."""
-        parts = ["A humanoid figure — bipedal, still, watching you."]
-        worn = {s: i for s, i in self.equipment.items() if i}
-        if worn:
-            parts.append("They carry " + ", ".join(i.name for i in worn.values()) + ".")
-        elif self.inventory:
-            parts.append("They appear to be carrying something.")
-        else:
-            parts.append("Their hands are empty.")
+        parts = ["A humanoid figure — bipedal, watching you."]
+        wearing = [i.name for s, i in self.equipment.items()
+                   if i and s in ("body", "legs", "feet", "head")]
+        weapons = [i.name for s, i in self.equipment.items()
+                   if i and s in ("weapon", "offhand")]
+        if wearing:
+            parts.append(f"They're wearing {', '.join(wearing)}.")
+        if weapons:
+            parts.append(f"They carry a {weapons[0]}.")
+        if self.inventory:
+            parts.append("They have things in their pack.")
         parts.append("They haven't attacked. You could talk to them.")
         return " ".join(parts)
 

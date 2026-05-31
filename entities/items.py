@@ -264,6 +264,47 @@ def make_healing_herb_item(x: int, y: int) -> Item:
     return item
 
 
+@dataclass
+class ClothingItem(Item):
+    """Wearable clothing occupying a body-related slot."""
+    def __post_init__(self):
+        self.item_type = ItemType.MISC
+        self.equippable = True
+        super().__post_init__()
+        self.symbol = "="
+
+
+def make_worn_tunic(x: int = 0, y: int = 0) -> ClothingItem:
+    item = ClothingItem(name="worn tunic", x=x, y=y,
+                        description="a faded linen tunic, soft with long wear",
+                        weight=0.3, color=(100, 80, 60))
+    item.slot = "body"
+    return item
+
+def make_rough_trousers(x: int = 0, y: int = 0) -> ClothingItem:
+    item = ClothingItem(name="rough trousers", x=x, y=y,
+                        description="coarse cloth trousers, functional if plain",
+                        weight=0.2, color=(80, 70, 50))
+    item.slot = "legs"
+    return item
+
+def make_simple_boots(x: int = 0, y: int = 0) -> ClothingItem:
+    item = ClothingItem(name="simple boots", x=x, y=y,
+                        description="worn leather boots, fitted and broken in",
+                        weight=0.4, color=(70, 50, 30))
+    item.slot = "feet"
+    return item
+
+def make_small_satchel(x: int = 0, y: int = 0) -> Item:
+    item = Item(name="small satchel", x=x, y=y,
+                item_type=ItemType.MISC,
+                description="a leather satchel hung at the hip — holds more",
+                weight=0.2, symbol="s", color=(110, 75, 40))
+    item.equippable = True
+    item.slot = "back"
+    return item
+
+
 def make_torch(x: int, y: int) -> ToolItem:
     item = ToolItem(
         name="torch", x=x, y=y,

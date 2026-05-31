@@ -39,7 +39,8 @@ from moriarty.world.mapgen import find_spawn, populate_natural_objects, populate
 from moriarty.world.state import WorldState
 from moriarty.world.save import save_world, load_world, save_info, IncompatibleSaveError
 from moriarty.entities.base import MoriartyEntity, PlayerEntity, EntityType, DIRECTIONS
-from moriarty.entities.items import make_apple, make_stick
+from moriarty.entities.items import (make_apple, make_stick,
+    make_worn_tunic, make_rough_trousers, make_simple_boots, make_small_satchel)
 from moriarty.world.objects import make_campfire, make_chest
 from moriarty.entities.actions import resolve_action, ActionResult
 from moriarty.brain import moriarty_brain
@@ -203,6 +204,8 @@ def _process_text_input_key(key, renderer, control_mode, player_entity, moriarty
             if hasattr(renderer, "add_speech_bubble"):
                 renderer.add_speech_bubble(player_entity.name, text)
             renderer.add_message(f'[you → Mo]: "{text}"')
+        elif renderer.text_input_mode == "player_command" and player_entity:
+            _player_command(text, player_entity, world_state, renderer)
     elif key == 27:                              # ESC — cancel
         renderer.text_input_active = False
         renderer.text_input_buffer = []
@@ -228,6 +231,85 @@ def _find_player_spawn(world_state) -> tuple:
                         and not world_state.get_objects_at(x, y)):
                     return x, y
     return mo.x + 3, mo.y  # fallback
+
+
+def _player_action(action_name: str, args: dict, player, world_state, renderer):
+    """Execute an action on behalf of the player avatar and show the result."""
+    result = resolve_action(action_name, args, player, world_state)
+    renderer.add_message(f"[you] {result.message}")
+
+
+def _player_command(text: str, player, world_state, renderer):
+    """Parse a free-text command from the player using the NATURAL parser."""
+    from moriarty.brain.moriarty_brain import parse_natural_response
+    # Wrap as a two-line natural response (blank thought + command line)
+    parsed = parse_natural_response(f"(command)\n{text.strip()}")
+    result = resolve_action(parsed["action"], parsed["args"], player, world_state)
+    renderer.add_message(f"[you] {result.message}")
+
+
+def _player_hotkey(key, player, world_state, renderer):
+    """Handle player-mode action hotkeys not in KEY_ACTIONS."""
+    # These are only checked in pygame mode
+    if not hasattr(renderer, 'text_input_active'):
+        return
+
+    import pygame
+
+    if key == pygame.K_d:           # Drop last inventory item
+        if player.inventory:
+            item = player.inventory[-1]
+            result = resolve_action("drop", {"item_name": item.name}, player, world_state)
+            renderer.add_message(f"[you] {result.message}")
+        else:
+            renderer.add_message("[you] Nothing to drop.")
+
+    elif key == pygame.K_u:         # Use best consumable
+        usable = [i for i in player.inventory if getattr(i, 'usable', False)]
+        if usable:
+            result = resolve_action("use", {"item_name": usable[0].name}, player, world_state)
+            renderer.add_message(f"[you] {result.message}")
+        else:
+            renderer.add_message("[you] Nothing usable in inventory.")
+
+    elif key == pygame.K_e:         # Examine surroundings
+        result = resolve_action("examine", {"target": "surroundings"}, player, world_state)
+        renderer.add_message(f"[you] {result.message[:120]}")
+
+    elif key in (pygame.K_f, pygame.K_a):   # Attack nearest animal
+        result = resolve_action("attack", {}, player, world_state)
+        renderer.add_message(f"[you] {result.message}")
+
+    elif key == pygame.K_g:         # Grapple
+        result = resolve_action("grapple", {}, player, world_state)
+        renderer.add_message(f"[you] {result.message}")
+
+    elif key == pygame.K_w:         # Equip best weapon
+        weapons = [i for i in player.inventory if getattr(i, 'slot', '') == 'weapon']
+        if weapons:
+            best = max(weapons, key=lambda i: getattr(i, 'damage', 0))
+            result = resolve_action("equip", {"item_name": best.name}, player, world_state)
+            renderer.add_message(f"[you] {result.message}")
+        else:
+            renderer.add_message("[you] No weapon in inventory.")
+
+    elif key == pygame.K_c:         # Craft menu
+        from moriarty.entities.crafting import RECIPES, can_craft
+        lines = []
+        craftable = []
+        for i, (name, recipe) in enumerate(RECIPES.items(), 1):
+            ok, _ = can_craft(player.inventory, recipe)
+            mark = "✓" if ok else "✗"
+            lines.append(f"  {mark} {i}. {name}")
+            if ok:
+                craftable.append((i, name))
+        renderer.add_message("Recipes: " + " | ".join(lines))
+
+    elif key == pygame.K_SLASH:     # Free command input
+        renderer.text_input_active = True
+        renderer.text_input_prompt = "Command"
+        renderer.text_input_mode   = "player_command"
+        renderer.text_input_buffer = []
 
 
 def _player_move(player_entity, direction: str, world_state, renderer) -> bool:
@@ -272,6 +354,11 @@ def _init_world(seed: int = 42):
     sx, sy = near_spawn( 1, -1); world_state.add_entity(make_stick(sx, sy))
     moriarty.status.hunger = 80
 
+    # Dress Mo — he starts clothed, not naked
+    for item in (make_worn_tunic(), make_rough_trousers(),
+                 make_simple_boots(), make_small_satchel()):
+        moriarty.equip(item)
+
     # Starter objects near spawn
     cx, cy = near_spawn(3,  0)
     world_state.add_object(make_campfire(cx, cy))
@@ -291,7 +378,7 @@ def _init_world(seed: int = 42):
 
 # ── Pygame game loop ──────────────────────────────────────────────────────────
 
-def run_pygame(world_state, spawn_x, spawn_y):
+def run_pygame(world_state, spawn_x, spawn_y, cfg=None):
     from moriarty.ui.renderer import Renderer
     KEY_ACTIONS = _make_pygame_keymap()
 
@@ -305,8 +392,9 @@ def run_pygame(world_state, spawn_x, spawn_y):
     # control_mode: "moriarty" | "awaiting_mode_choice" | "god" | "player"
     control_mode = "moriarty"
     player_entity = None
-    tick_delay_idx = TICK_DELAY_DEFAULT
-    stepped = False
+    cfg = cfg or {}
+    tick_delay_idx = cfg.get("tick_delay_idx", TICK_DELAY_DEFAULT)
+    stepped        = cfg.get("default_stepped", False)
     step_requested = False
     prompt_style_idx = 0
     renderer.tick_delay_idx = tick_delay_idx
@@ -385,6 +473,7 @@ def run_pygame(world_state, spawn_x, spawn_y):
                             renderer.add_message("Back to observation.")
                         control_mode = "moriarty"
                         renderer.control_mode_label = "MORIARTY"
+                        renderer.player_entity = None
                         renderer.center_on(moriarty.x, moriarty.y)
 
                 # ── T: open text input (non-blocking) ─────────────────────────
@@ -422,8 +511,9 @@ def run_pygame(world_state, spawn_x, spawn_y):
                             renderer.add_message(f"You appear at ({px},{py}) as a figure.")
                         control_mode = "player"
                         renderer.control_mode_label = "PLAYER"
+                        renderer.player_entity = player_entity
                         renderer.center_on(player_entity.x, player_entity.y)
-                        renderer.add_message("PLAYER MODE — arrows:move  t:talk  p:pickup  .:wait")
+                        renderer.add_message("PLAYER — arrows:move  t:talk  f:attack  w:equip  /:command")
                     elif event.key == pygame.K_ESCAPE:
                         control_mode = "moriarty"
                         renderer.control_mode_label = "MORIARTY"
@@ -472,19 +562,12 @@ def run_pygame(world_state, spawn_x, spawn_y):
                             if moved:
                                 renderer.center_on(player_entity.x, player_entity.y)
                                 world_state.advance_tick()
-                        elif action_name == "pickup":
-                            items = world_state.get_items_at(player_entity.x, player_entity.y)
-                            if items:
-                                item = items[0]
-                                player_entity.inventory.append(item)
-                                world_state.remove_entity(item)
-                                renderer.add_message(f"You pick up {item.name}.")
-                                world_state.advance_tick()
-                            else:
-                                renderer.add_message("Nothing to pick up here.")
-                        elif action_name == "wait":
-                            renderer.add_message("You wait.")
+                        else:
+                            _player_action(action_name, args,
+                                           player_entity, world_state, renderer)
                             world_state.advance_tick()
+                    else:
+                        _player_hotkey(event.key, player_entity, world_state, renderer)
 
         # Mo always thinks autonomously, gated by mo_idle_until
         import time as _t
@@ -521,7 +604,7 @@ def run_pygame(world_state, spawn_x, spawn_y):
 
 # ── Curses game loop ──────────────────────────────────────────────────────────
 
-def run_curses(stdscr, world_state, spawn_x, spawn_y):
+def run_curses(stdscr, world_state, spawn_x, spawn_y, cfg=None):
     import curses
     import time
     from moriarty.ui.curses_renderer import CursesRenderer
@@ -558,8 +641,9 @@ def run_curses(stdscr, world_state, spawn_x, spawn_y):
     control_mode = "moriarty"
     player_entity = None
 
-    tick_delay_idx = TICK_DELAY_DEFAULT
-    stepped = False
+    cfg = cfg or {}
+    tick_delay_idx = cfg.get("tick_delay_idx", TICK_DELAY_DEFAULT)
+    stepped        = cfg.get("default_stepped", False)
     step_requested = False
     prompt_style_idx = 0
     renderer.tick_delay_idx = tick_delay_idx
@@ -789,10 +873,10 @@ def run():
     if USE_CURSES:
         import curses
         print("[MORIARTY] Terminal mode (curses). Press Q to quit.")
-        curses.wrapper(run_curses, world_state, sx, sy)
+        curses.wrapper(run_curses, world_state, sx, sy, cfg)
     else:
         print("[MORIARTY] Graphical mode (pygame).")
-        run_pygame(world_state, sx, sy)
+        run_pygame(world_state, sx, sy, cfg)
 
     print("[MORIARTY] Goodbye.")
 

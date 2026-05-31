@@ -393,8 +393,8 @@ class WorldState:
             memory_block = f"\n[MEMORY RETRIEVED]\n{self.pending_memory_result}\n"
             self.pending_memory_result = ""
 
-        hidden_str = "  (you are hidden)" if moriarty.hidden else ""
-        equip_str = moriarty.describe_equipment()
+        hidden_str  = "  (you are hidden)" if moriarty.hidden else ""
+        wearing_str = moriarty.describe_wearing()
 
         # Body status — only shown when wounded
         cs = moriarty.combat_state
@@ -408,7 +408,7 @@ class WorldState:
 
 HERE (pick up immediately): {items_str}
 Carrying: {moriarty.describe_inventory()}
-Equipped: {equip_str}
+{wearing_str}
 Status: {moriarty.status.describe()}{hidden_str}
 {body_block}
 Visible entities:

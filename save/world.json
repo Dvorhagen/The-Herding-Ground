@@ -1,0 +1,3899 @@
+{
+  "version": 2,
+  "saved_at": "2026-05-31T17:41:35",
+  "tick": 8,
+  "seed": 42,
+  "world_objects": [
+    {
+      "type": "Campfire",
+      "name": "campfire",
+      "x": 3,
+      "y": 28,
+      "lit": true
+    },
+    {
+      "type": "Chest",
+      "name": "chest",
+      "x": -2,
+      "y": 29,
+      "locked": false,
+      "contents": [
+        {
+          "item_name": "apple",
+          "x": -2,
+          "y": 29
+        }
+      ]
+    },
+    {
+      "type": "Boulder",
+      "name": "boulder",
+      "x": 147,
+      "y": -95
+    },
+    {
+      "type": "Boulder",
+      "name": "boulder",
+      "x": 3,
+      "y": 24
+    },
+    {
+      "type": "Boulder",
+      "name": "boulder",
+      "x": 158,
+      "y": -36
+    },
+    {
+      "type": "Boulder",
+      "name": "boulder",
+      "x": 14,
+      "y": -10
+    },
+    {
+      "type": "Boulder",
+      "name": "boulder",
+      "x": 145,
+      "y": -65
+    },
+    {
+      "type": "Boulder",
+      "name": "boulder",
+      "x": 170,
+      "y": 14
+    },
+    {
+      "type": "Boulder",
+      "name": "boulder",
+      "x": 25,
+      "y": -15
+    },
+    {
+      "type": "Boulder",
+      "name": "boulder",
+      "x": 125,
+      "y": -120
+    },
+    {
+      "type": "Boulder",
+      "name": "boulder",
+      "x": 168,
+      "y": -94
+    },
+    {
+      "type": "Boulder",
+      "name": "boulder",
+      "x": -100,
+      "y": 80
+    },
+    {
+      "type": "Boulder",
+      "name": "boulder",
+      "x": 131,
+      "y": -51
+    },
+    {
+      "type": "Boulder",
+      "name": "boulder",
+      "x": -98,
+      "y": 124
+    },
+    {
+      "type": "Boulder",
+      "name": "boulder",
+      "x": -72,
+      "y": 124
+    },
+    {
+      "type": "Boulder",
+      "name": "boulder",
+      "x": 173,
+      "y": -50
+    },
+    {
+      "type": "Boulder",
+      "name": "boulder",
+      "x": 49,
+      "y": -81
+    },
+    {
+      "type": "Boulder",
+      "name": "boulder",
+      "x": -119,
+      "y": 139
+    },
+    {
+      "type": "Boulder",
+      "name": "boulder",
+      "x": 162,
+      "y": 8
+    },
+    {
+      "type": "Boulder",
+      "name": "boulder",
+      "x": -100,
+      "y": 72
+    },
+    {
+      "type": "Boulder",
+      "name": "boulder",
+      "x": 159,
+      "y": -99
+    },
+    {
+      "type": "Boulder",
+      "name": "boulder",
+      "x": -5,
+      "y": -48
+    },
+    {
+      "type": "Boulder",
+      "name": "boulder",
+      "x": -39,
+      "y": -130
+    },
+    {
+      "type": "Boulder",
+      "name": "boulder",
+      "x": 137,
+      "y": -73
+    },
+    {
+      "type": "Boulder",
+      "name": "boulder",
+      "x": -90,
+      "y": 59
+    },
+    {
+      "type": "Boulder",
+      "name": "boulder",
+      "x": 162,
+      "y": -25
+    },
+    {
+      "type": "Boulder",
+      "name": "boulder",
+      "x": 179,
+      "y": -97
+    },
+    {
+      "type": "Boulder",
+      "name": "boulder",
+      "x": -1,
+      "y": 4
+    },
+    {
+      "type": "Boulder",
+      "name": "boulder",
+      "x": -12,
+      "y": -10
+    },
+    {
+      "type": "Boulder",
+      "name": "boulder",
+      "x": -50,
+      "y": -130
+    },
+    {
+      "type": "Boulder",
+      "name": "boulder",
+      "x": 40,
+      "y": -117
+    },
+    {
+      "type": "Boulder",
+      "name": "boulder",
+      "x": 160,
+      "y": 17
+    },
+    {
+      "type": "Boulder",
+      "name": "boulder",
+      "x": 159,
+      "y": -89
+    },
+    {
+      "type": "Boulder",
+      "name": "boulder",
+      "x": 29,
+      "y": 15
+    },
+    {
+      "type": "Boulder",
+      "name": "boulder",
+      "x": 24,
+      "y": -28
+    },
+    {
+      "type": "Boulder",
+      "name": "boulder",
+      "x": -9,
+      "y": 11
+    },
+    {
+      "type": "Boulder",
+      "name": "boulder",
+      "x": 96,
+      "y": -111
+    },
+    {
+      "type": "Boulder",
+      "name": "boulder",
+      "x": 175,
+      "y": -74
+    },
+    {
+      "type": "Boulder",
+      "name": "boulder",
+      "x": -68,
+      "y": 97
+    },
+    {
+      "type": "Boulder",
+      "name": "boulder",
+      "x": -13,
+      "y": -44
+    },
+    {
+      "type": "Boulder",
+      "name": "boulder",
+      "x": 52,
+      "y": 15
+    },
+    {
+      "type": "Boulder",
+      "name": "boulder",
+      "x": -1,
+      "y": -38
+    },
+    {
+      "type": "Boulder",
+      "name": "boulder",
+      "x": -165,
+      "y": -26
+    },
+    {
+      "type": "Boulder",
+      "name": "boulder",
+      "x": -78,
+      "y": -142
+    },
+    {
+      "type": "Boulder",
+      "name": "boulder",
+      "x": -58,
+      "y": -88
+    },
+    {
+      "type": "Boulder",
+      "name": "boulder",
+      "x": 62,
+      "y": 190
+    },
+    {
+      "type": "Boulder",
+      "name": "boulder",
+      "x": 8,
+      "y": -67
+    },
+    {
+      "type": "Boulder",
+      "name": "boulder",
+      "x": 130,
+      "y": 158
+    },
+    {
+      "type": "Boulder",
+      "name": "boulder",
+      "x": -21,
+      "y": -97
+    },
+    {
+      "type": "Boulder",
+      "name": "boulder",
+      "x": 116,
+      "y": -139
+    },
+    {
+      "type": "Boulder",
+      "name": "boulder",
+      "x": -21,
+      "y": 142
+    },
+    {
+      "type": "Boulder",
+      "name": "boulder",
+      "x": -142,
+      "y": 151
+    },
+    {
+      "type": "FallenLog",
+      "name": "fallen log",
+      "x": 116,
+      "y": 185
+    },
+    {
+      "type": "FallenLog",
+      "name": "fallen log",
+      "x": 47,
+      "y": -67
+    },
+    {
+      "type": "FallenLog",
+      "name": "fallen log",
+      "x": 137,
+      "y": 197
+    },
+    {
+      "type": "FallenLog",
+      "name": "fallen log",
+      "x": 131,
+      "y": 184
+    },
+    {
+      "type": "FallenLog",
+      "name": "fallen log",
+      "x": 143,
+      "y": 179
+    },
+    {
+      "type": "FallenLog",
+      "name": "fallen log",
+      "x": 38,
+      "y": -67
+    },
+    {
+      "type": "FallenLog",
+      "name": "fallen log",
+      "x": 136,
+      "y": 175
+    },
+    {
+      "type": "FallenLog",
+      "name": "fallen log",
+      "x": 125,
+      "y": 182
+    },
+    {
+      "type": "FallenLog",
+      "name": "fallen log",
+      "x": 64,
+      "y": -74
+    },
+    {
+      "type": "FallenLog",
+      "name": "fallen log",
+      "x": 126,
+      "y": 192
+    },
+    {
+      "type": "FallenLog",
+      "name": "fallen log",
+      "x": 120,
+      "y": 191
+    },
+    {
+      "type": "FallenLog",
+      "name": "fallen log",
+      "x": 55,
+      "y": -66
+    },
+    {
+      "type": "FallenLog",
+      "name": "fallen log",
+      "x": 41,
+      "y": -57
+    },
+    {
+      "type": "FallenLog",
+      "name": "fallen log",
+      "x": 28,
+      "y": -100
+    },
+    {
+      "type": "FallenLog",
+      "name": "fallen log",
+      "x": 128,
+      "y": 203
+    },
+    {
+      "type": "FallenLog",
+      "name": "fallen log",
+      "x": 120,
+      "y": 172
+    },
+    {
+      "type": "FallenLog",
+      "name": "fallen log",
+      "x": 134,
+      "y": 165
+    },
+    {
+      "type": "FallenLog",
+      "name": "fallen log",
+      "x": 131,
+      "y": 196
+    },
+    {
+      "type": "FallenLog",
+      "name": "fallen log",
+      "x": 48,
+      "y": -62
+    },
+    {
+      "type": "FallenLog",
+      "name": "fallen log",
+      "x": 58,
+      "y": -73
+    },
+    {
+      "type": "FallenLog",
+      "name": "fallen log",
+      "x": 134,
+      "y": 204
+    },
+    {
+      "type": "FallenLog",
+      "name": "fallen log",
+      "x": 114,
+      "y": 180
+    },
+    {
+      "type": "FallenLog",
+      "name": "fallen log",
+      "x": 33,
+      "y": -74
+    },
+    {
+      "type": "FallenLog",
+      "name": "fallen log",
+      "x": 142,
+      "y": 187
+    },
+    {
+      "type": "FallenLog",
+      "name": "fallen log",
+      "x": 131,
+      "y": 176
+    },
+    {
+      "type": "FallenLog",
+      "name": "fallen log",
+      "x": 118,
+      "y": 198
+    },
+    {
+      "type": "FallenLog",
+      "name": "fallen log",
+      "x": 136,
+      "y": 181
+    },
+    {
+      "type": "FallenLog",
+      "name": "fallen log",
+      "x": 140,
+      "y": 168
+    },
+    {
+      "type": "FallenLog",
+      "name": "fallen log",
+      "x": 48,
+      "y": -120
+    },
+    {
+      "type": "FallenLog",
+      "name": "fallen log",
+      "x": 37,
+      "y": -62
+    },
+    {
+      "type": "FallenLog",
+      "name": "fallen log",
+      "x": 41,
+      "y": -73
+    },
+    {
+      "type": "FallenLog",
+      "name": "fallen log",
+      "x": 123,
+      "y": 204
+    },
+    {
+      "type": "FallenLog",
+      "name": "fallen log",
+      "x": 131,
+      "y": 191
+    },
+    {
+      "type": "FallenLog",
+      "name": "fallen log",
+      "x": 120,
+      "y": 178
+    },
+    {
+      "type": "FallenLog",
+      "name": "fallen log",
+      "x": 126,
+      "y": 173
+    },
+    {
+      "type": "FallenLog",
+      "name": "fallen log",
+      "x": 50,
+      "y": -72
+    },
+    {
+      "type": "FallenLog",
+      "name": "fallen log",
+      "x": 112,
+      "y": 175
+    },
+    {
+      "type": "FallenLog",
+      "name": "fallen log",
+      "x": 60,
+      "y": -67
+    },
+    {
+      "type": "Bush",
+      "name": "bush",
+      "x": 85,
+      "y": 185,
+      "foraged": false
+    },
+    {
+      "type": "Bush",
+      "name": "bush",
+      "x": -157,
+      "y": -134,
+      "foraged": false
+    },
+    {
+      "type": "Bush",
+      "name": "bush",
+      "x": -168,
+      "y": -75,
+      "foraged": false
+    },
+    {
+      "type": "Bush",
+      "name": "bush",
+      "x": 67,
+      "y": 197,
+      "foraged": false
+    },
+    {
+      "type": "Bush",
+      "name": "bush",
+      "x": -85,
+      "y": 11,
+      "foraged": false
+    },
+    {
+      "type": "Bush",
+      "name": "bush",
+      "x": 57,
+      "y": 187,
+      "foraged": false
+    },
+    {
+      "type": "Bush",
+      "name": "bush",
+      "x": 37,
+      "y": -139,
+      "foraged": false
+    },
+    {
+      "type": "Bush",
+      "name": "bush",
+      "x": 129,
+      "y": 2,
+      "foraged": false
+    },
+    {
+      "type": "Bush",
+      "name": "bush",
+      "x": -64,
+      "y": 141,
+      "foraged": false
+    },
+    {
+      "type": "Bush",
+      "name": "bush",
+      "x": -69,
+      "y": 51,
+      "foraged": false
+    },
+    {
+      "type": "Bush",
+      "name": "bush",
+      "x": 90,
+      "y": 169,
+      "foraged": false
+    },
+    {
+      "type": "Bush",
+      "name": "bush",
+      "x": 73,
+      "y": -68,
+      "foraged": false
+    },
+    {
+      "type": "Bush",
+      "name": "bush",
+      "x": -163,
+      "y": -51,
+      "foraged": false
+    },
+    {
+      "type": "Bush",
+      "name": "bush",
+      "x": 13,
+      "y": 166,
+      "foraged": false
+    },
+    {
+      "type": "Bush",
+      "name": "bush",
+      "x": -102,
+      "y": 113,
+      "foraged": false
+    },
+    {
+      "type": "Bush",
+      "name": "bush",
+      "x": 20,
+      "y": -62,
+      "foraged": false
+    },
+    {
+      "type": "Bush",
+      "name": "bush",
+      "x": -167,
+      "y": 155,
+      "foraged": false
+    },
+    {
+      "type": "Bush",
+      "name": "bush",
+      "x": 114,
+      "y": 171,
+      "foraged": false
+    },
+    {
+      "type": "Bush",
+      "name": "bush",
+      "x": 68,
+      "y": -26,
+      "foraged": false
+    },
+    {
+      "type": "Bush",
+      "name": "bush",
+      "x": -4,
+      "y": -87,
+      "foraged": false
+    },
+    {
+      "type": "Bush",
+      "name": "bush",
+      "x": -60,
+      "y": -77,
+      "foraged": false
+    },
+    {
+      "type": "Bush",
+      "name": "bush",
+      "x": -94,
+      "y": -75,
+      "foraged": false
+    },
+    {
+      "type": "Bush",
+      "name": "bush",
+      "x": 147,
+      "y": 202,
+      "foraged": false
+    },
+    {
+      "type": "Bush",
+      "name": "bush",
+      "x": 46,
+      "y": -36,
+      "foraged": false
+    },
+    {
+      "type": "Bush",
+      "name": "bush",
+      "x": 178,
+      "y": 163,
+      "foraged": false
+    },
+    {
+      "type": "Bush",
+      "name": "bush",
+      "x": 128,
+      "y": 159,
+      "foraged": false
+    },
+    {
+      "type": "Bush",
+      "name": "bush",
+      "x": -91,
+      "y": -152,
+      "foraged": false
+    },
+    {
+      "type": "Bush",
+      "name": "bush",
+      "x": 62,
+      "y": 201,
+      "foraged": false
+    },
+    {
+      "type": "Bush",
+      "name": "bush",
+      "x": -114,
+      "y": -36,
+      "foraged": false
+    },
+    {
+      "type": "Bush",
+      "name": "bush",
+      "x": 36,
+      "y": 66,
+      "foraged": false
+    },
+    {
+      "type": "Bush",
+      "name": "bush",
+      "x": -136,
+      "y": 107,
+      "foraged": false
+    },
+    {
+      "type": "Bush",
+      "name": "bush",
+      "x": 60,
+      "y": 51,
+      "foraged": false
+    },
+    {
+      "type": "Bush",
+      "name": "bush",
+      "x": -134,
+      "y": -127,
+      "foraged": false
+    },
+    {
+      "type": "Bush",
+      "name": "bush",
+      "x": 102,
+      "y": 83,
+      "foraged": false
+    },
+    {
+      "type": "Bush",
+      "name": "bush",
+      "x": -157,
+      "y": 109,
+      "foraged": false
+    },
+    {
+      "type": "Bush",
+      "name": "bush",
+      "x": -85,
+      "y": 47,
+      "foraged": false
+    },
+    {
+      "type": "Bush",
+      "name": "bush",
+      "x": 130,
+      "y": 102,
+      "foraged": false
+    },
+    {
+      "type": "Bush",
+      "name": "bush",
+      "x": -119,
+      "y": 106,
+      "foraged": false
+    },
+    {
+      "type": "Bush",
+      "name": "bush",
+      "x": 15,
+      "y": -133,
+      "foraged": false
+    },
+    {
+      "type": "Bush",
+      "name": "bush",
+      "x": -130,
+      "y": -145,
+      "foraged": false
+    },
+    {
+      "type": "Bush",
+      "name": "bush",
+      "x": 71,
+      "y": -89,
+      "foraged": false
+    },
+    {
+      "type": "Bush",
+      "name": "bush",
+      "x": -101,
+      "y": 50,
+      "foraged": false
+    },
+    {
+      "type": "Bush",
+      "name": "bush",
+      "x": -129,
+      "y": 29,
+      "foraged": false
+    },
+    {
+      "type": "Bush",
+      "name": "bush",
+      "x": 150,
+      "y": 131,
+      "foraged": false
+    },
+    {
+      "type": "Bush",
+      "name": "bush",
+      "x": -67,
+      "y": 133,
+      "foraged": false
+    },
+    {
+      "type": "Bush",
+      "name": "bush",
+      "x": 167,
+      "y": 134,
+      "foraged": false
+    },
+    {
+      "type": "Bush",
+      "name": "bush",
+      "x": -135,
+      "y": 100,
+      "foraged": false
+    },
+    {
+      "type": "Bush",
+      "name": "bush",
+      "x": 161,
+      "y": 170,
+      "foraged": false
+    },
+    {
+      "type": "Bush",
+      "name": "bush",
+      "x": 42,
+      "y": -18,
+      "foraged": false
+    },
+    {
+      "type": "Bush",
+      "name": "bush",
+      "x": 93,
+      "y": -20,
+      "foraged": false
+    },
+    {
+      "type": "Bush",
+      "name": "bush",
+      "x": 26,
+      "y": 92,
+      "foraged": false
+    },
+    {
+      "type": "Bush",
+      "name": "bush",
+      "x": -78,
+      "y": 14,
+      "foraged": false
+    },
+    {
+      "type": "Bush",
+      "name": "bush",
+      "x": 46,
+      "y": -18,
+      "foraged": false
+    },
+    {
+      "type": "Bush",
+      "name": "bush",
+      "x": -113,
+      "y": -78,
+      "foraged": false
+    },
+    {
+      "type": "Bush",
+      "name": "bush",
+      "x": -73,
+      "y": -42,
+      "foraged": false
+    },
+    {
+      "type": "Bush",
+      "name": "bush",
+      "x": 80,
+      "y": -144,
+      "foraged": false
+    },
+    {
+      "type": "Bush",
+      "name": "bush",
+      "x": 131,
+      "y": -3,
+      "foraged": false
+    },
+    {
+      "type": "Bush",
+      "name": "bush",
+      "x": -51,
+      "y": -74,
+      "foraged": false
+    },
+    {
+      "type": "Bush",
+      "name": "bush",
+      "x": -3,
+      "y": 134,
+      "foraged": false
+    },
+    {
+      "type": "Bush",
+      "name": "bush",
+      "x": 163,
+      "y": 137,
+      "foraged": false
+    },
+    {
+      "type": "Bush",
+      "name": "bush",
+      "x": -102,
+      "y": 188,
+      "foraged": false
+    },
+    {
+      "type": "Bush",
+      "name": "bush",
+      "x": 170,
+      "y": 171,
+      "foraged": false
+    },
+    {
+      "type": "Bush",
+      "name": "bush",
+      "x": -151,
+      "y": 41,
+      "foraged": false
+    },
+    {
+      "type": "Bush",
+      "name": "bush",
+      "x": -87,
+      "y": 164,
+      "foraged": false
+    },
+    {
+      "type": "Bush",
+      "name": "bush",
+      "x": 10,
+      "y": 183,
+      "foraged": false
+    },
+    {
+      "type": "Bush",
+      "name": "bush",
+      "x": -155,
+      "y": 47,
+      "foraged": false
+    },
+    {
+      "type": "Bush",
+      "name": "bush",
+      "x": -146,
+      "y": 179,
+      "foraged": false
+    },
+    {
+      "type": "Bush",
+      "name": "bush",
+      "x": -152,
+      "y": -13,
+      "foraged": false
+    },
+    {
+      "type": "Bush",
+      "name": "bush",
+      "x": 23,
+      "y": 198,
+      "foraged": false
+    },
+    {
+      "type": "Bush",
+      "name": "bush",
+      "x": 71,
+      "y": -11,
+      "foraged": false
+    },
+    {
+      "type": "Bush",
+      "name": "bush",
+      "x": -127,
+      "y": -32,
+      "foraged": false
+    },
+    {
+      "type": "Bush",
+      "name": "bush",
+      "x": -177,
+      "y": 96,
+      "foraged": false
+    },
+    {
+      "type": "Bush",
+      "name": "bush",
+      "x": -63,
+      "y": 134,
+      "foraged": false
+    },
+    {
+      "type": "Bush",
+      "name": "bush",
+      "x": -24,
+      "y": -90,
+      "foraged": false
+    },
+    {
+      "type": "Bush",
+      "name": "bush",
+      "x": 154,
+      "y": 135,
+      "foraged": false
+    },
+    {
+      "type": "Bush",
+      "name": "bush",
+      "x": -15,
+      "y": -76,
+      "foraged": false
+    },
+    {
+      "type": "Bush",
+      "name": "bush",
+      "x": -174,
+      "y": 185,
+      "foraged": false
+    },
+    {
+      "type": "Bush",
+      "name": "bush",
+      "x": -144,
+      "y": -40,
+      "foraged": false
+    },
+    {
+      "type": "Bush",
+      "name": "bush",
+      "x": 25,
+      "y": 186,
+      "foraged": false
+    },
+    {
+      "type": "Bush",
+      "name": "bush",
+      "x": -151,
+      "y": 108,
+      "foraged": false
+    },
+    {
+      "type": "Bush",
+      "name": "bush",
+      "x": -34,
+      "y": 187,
+      "foraged": false
+    },
+    {
+      "type": "Bush",
+      "name": "bush",
+      "x": 156,
+      "y": 35,
+      "foraged": false
+    },
+    {
+      "type": "Bush",
+      "name": "bush",
+      "x": 17,
+      "y": -120,
+      "foraged": false
+    },
+    {
+      "type": "Bush",
+      "name": "bush",
+      "x": 63,
+      "y": -129,
+      "foraged": false
+    },
+    {
+      "type": "Bush",
+      "name": "bush",
+      "x": -52,
+      "y": 139,
+      "foraged": false
+    },
+    {
+      "type": "Bush",
+      "name": "bush",
+      "x": -143,
+      "y": -63,
+      "foraged": false
+    },
+    {
+      "type": "Bush",
+      "name": "bush",
+      "x": 140,
+      "y": 185,
+      "foraged": false
+    },
+    {
+      "type": "Bush",
+      "name": "bush",
+      "x": -146,
+      "y": 36,
+      "foraged": false
+    },
+    {
+      "type": "Bush",
+      "name": "bush",
+      "x": -136,
+      "y": 67,
+      "foraged": false
+    },
+    {
+      "type": "Bush",
+      "name": "bush",
+      "x": -43,
+      "y": -116,
+      "foraged": false
+    },
+    {
+      "type": "Bush",
+      "name": "bush",
+      "x": -12,
+      "y": 67,
+      "foraged": false
+    },
+    {
+      "type": "Bush",
+      "name": "bush",
+      "x": 111,
+      "y": 191,
+      "foraged": false
+    },
+    {
+      "type": "Bush",
+      "name": "bush",
+      "x": 12,
+      "y": 151,
+      "foraged": false
+    },
+    {
+      "type": "Bush",
+      "name": "bush",
+      "x": -72,
+      "y": 150,
+      "foraged": false
+    },
+    {
+      "type": "Bush",
+      "name": "bush",
+      "x": -16,
+      "y": 78,
+      "foraged": false
+    },
+    {
+      "type": "Bush",
+      "name": "bush",
+      "x": 100,
+      "y": 102,
+      "foraged": false
+    },
+    {
+      "type": "Bush",
+      "name": "bush",
+      "x": 3,
+      "y": -58,
+      "foraged": false
+    },
+    {
+      "type": "Bush",
+      "name": "bush",
+      "x": -150,
+      "y": 92,
+      "foraged": false
+    },
+    {
+      "type": "Bush",
+      "name": "bush",
+      "x": -180,
+      "y": -82,
+      "foraged": false
+    },
+    {
+      "type": "Bush",
+      "name": "bush",
+      "x": -171,
+      "y": -23,
+      "foraged": false
+    },
+    {
+      "type": "Bush",
+      "name": "bush",
+      "x": -173,
+      "y": -116,
+      "foraged": false
+    },
+    {
+      "type": "Bush",
+      "name": "bush",
+      "x": 138,
+      "y": 181,
+      "foraged": false
+    },
+    {
+      "type": "Bush",
+      "name": "bush",
+      "x": -111,
+      "y": 186,
+      "foraged": false
+    },
+    {
+      "type": "Bush",
+      "name": "bush",
+      "x": -135,
+      "y": -76,
+      "foraged": false
+    },
+    {
+      "type": "Bush",
+      "name": "bush",
+      "x": -23,
+      "y": -115,
+      "foraged": false
+    },
+    {
+      "type": "Bush",
+      "name": "bush",
+      "x": -77,
+      "y": 140,
+      "foraged": false
+    },
+    {
+      "type": "Bush",
+      "name": "bush",
+      "x": -56,
+      "y": 68,
+      "foraged": false
+    },
+    {
+      "type": "Bush",
+      "name": "bush",
+      "x": 137,
+      "y": 54,
+      "foraged": false
+    },
+    {
+      "type": "Bush",
+      "name": "bush",
+      "x": 56,
+      "y": 120,
+      "foraged": false
+    },
+    {
+      "type": "Bush",
+      "name": "bush",
+      "x": 110,
+      "y": 179,
+      "foraged": false
+    },
+    {
+      "type": "WildMushroom",
+      "name": "mushrooms",
+      "x": 114,
+      "y": 190
+    },
+    {
+      "type": "WildMushroom",
+      "name": "mushrooms",
+      "x": 141,
+      "y": 194
+    },
+    {
+      "type": "WildMushroom",
+      "name": "mushrooms",
+      "x": 48,
+      "y": -74
+    },
+    {
+      "type": "WildMushroom",
+      "name": "mushrooms",
+      "x": 141,
+      "y": 173
+    },
+    {
+      "type": "WildMushroom",
+      "name": "mushrooms",
+      "x": 63,
+      "y": -79
+    },
+    {
+      "type": "WildMushroom",
+      "name": "mushrooms",
+      "x": 37,
+      "y": -61
+    },
+    {
+      "type": "WildMushroom",
+      "name": "mushrooms",
+      "x": 27,
+      "y": -93
+    },
+    {
+      "type": "WildMushroom",
+      "name": "mushrooms",
+      "x": 141,
+      "y": 184
+    },
+    {
+      "type": "WildMushroom",
+      "name": "mushrooms",
+      "x": 51,
+      "y": -65
+    },
+    {
+      "type": "WildMushroom",
+      "name": "mushrooms",
+      "x": 131,
+      "y": 168
+    },
+    {
+      "type": "WildMushroom",
+      "name": "mushrooms",
+      "x": 117,
+      "y": 179
+    },
+    {
+      "type": "WildMushroom",
+      "name": "mushrooms",
+      "x": 60,
+      "y": -73
+    },
+    {
+      "type": "WildMushroom",
+      "name": "mushrooms",
+      "x": 121,
+      "y": 172
+    },
+    {
+      "type": "WildMushroom",
+      "name": "mushrooms",
+      "x": 128,
+      "y": 190
+    },
+    {
+      "type": "WildMushroom",
+      "name": "mushrooms",
+      "x": 137,
+      "y": 201
+    },
+    {
+      "type": "WildMushroom",
+      "name": "mushrooms",
+      "x": 50,
+      "y": -57
+    },
+    {
+      "type": "WildMushroom",
+      "name": "mushrooms",
+      "x": 130,
+      "y": 207
+    },
+    {
+      "type": "WildMushroom",
+      "name": "mushrooms",
+      "x": 137,
+      "y": 163
+    },
+    {
+      "type": "WildMushroom",
+      "name": "mushrooms",
+      "x": 123,
+      "y": 198
+    },
+    {
+      "type": "WildMushroom",
+      "name": "mushrooms",
+      "x": 30,
+      "y": -75
+    },
+    {
+      "type": "WildMushroom",
+      "name": "mushrooms",
+      "x": 47,
+      "y": -120
+    },
+    {
+      "type": "WildMushroom",
+      "name": "mushrooms",
+      "x": 40,
+      "y": -71
+    },
+    {
+      "type": "WildMushroom",
+      "name": "mushrooms",
+      "x": 69,
+      "y": -83
+    },
+    {
+      "type": "WildMushroom",
+      "name": "mushrooms",
+      "x": 128,
+      "y": 176
+    },
+    {
+      "type": "WildMushroom",
+      "name": "mushrooms",
+      "x": 131,
+      "y": 197
+    },
+    {
+      "type": "WildMushroom",
+      "name": "mushrooms",
+      "x": 54,
+      "y": -72
+    },
+    {
+      "type": "WildMushroom",
+      "name": "mushrooms",
+      "x": 120,
+      "y": 190
+    },
+    {
+      "type": "WildMushroom",
+      "name": "mushrooms",
+      "x": 59,
+      "y": -66
+    },
+    {
+      "type": "WildMushroom",
+      "name": "mushrooms",
+      "x": 126,
+      "y": 184
+    },
+    {
+      "type": "WildMushroom",
+      "name": "mushrooms",
+      "x": 44,
+      "y": -61
+    },
+    {
+      "type": "WildMushroom",
+      "name": "mushrooms",
+      "x": 55,
+      "y": -120
+    },
+    {
+      "type": "FlowerPatch",
+      "name": "wildflowers",
+      "x": -9,
+      "y": -108,
+      "picked": false
+    },
+    {
+      "type": "FlowerPatch",
+      "name": "wildflowers",
+      "x": 41,
+      "y": 111,
+      "picked": false
+    },
+    {
+      "type": "FlowerPatch",
+      "name": "wildflowers",
+      "x": -5,
+      "y": -77,
+      "picked": false
+    },
+    {
+      "type": "FlowerPatch",
+      "name": "wildflowers",
+      "x": -41,
+      "y": 86,
+      "picked": false
+    },
+    {
+      "type": "FlowerPatch",
+      "name": "wildflowers",
+      "x": 24,
+      "y": 93,
+      "picked": false
+    },
+    {
+      "type": "FlowerPatch",
+      "name": "wildflowers",
+      "x": 8,
+      "y": -90,
+      "picked": false
+    },
+    {
+      "type": "FlowerPatch",
+      "name": "wildflowers",
+      "x": -116,
+      "y": 23,
+      "picked": false
+    },
+    {
+      "type": "FlowerPatch",
+      "name": "wildflowers",
+      "x": 105,
+      "y": -50,
+      "picked": false
+    },
+    {
+      "type": "FlowerPatch",
+      "name": "wildflowers",
+      "x": 66,
+      "y": 172,
+      "picked": false
+    },
+    {
+      "type": "FlowerPatch",
+      "name": "wildflowers",
+      "x": 114,
+      "y": 151,
+      "picked": false
+    },
+    {
+      "type": "FlowerPatch",
+      "name": "wildflowers",
+      "x": -168,
+      "y": -121,
+      "picked": false
+    },
+    {
+      "type": "FlowerPatch",
+      "name": "wildflowers",
+      "x": 24,
+      "y": 56,
+      "picked": false
+    },
+    {
+      "type": "FlowerPatch",
+      "name": "wildflowers",
+      "x": 127,
+      "y": -46,
+      "picked": false
+    },
+    {
+      "type": "FlowerPatch",
+      "name": "wildflowers",
+      "x": -62,
+      "y": -41,
+      "picked": false
+    },
+    {
+      "type": "FlowerPatch",
+      "name": "wildflowers",
+      "x": -48,
+      "y": -86,
+      "picked": false
+    },
+    {
+      "type": "FlowerPatch",
+      "name": "wildflowers",
+      "x": 1,
+      "y": 204,
+      "picked": false
+    },
+    {
+      "type": "FlowerPatch",
+      "name": "wildflowers",
+      "x": 24,
+      "y": -71,
+      "picked": false
+    },
+    {
+      "type": "FlowerPatch",
+      "name": "wildflowers",
+      "x": 86,
+      "y": -34,
+      "picked": false
+    },
+    {
+      "type": "FlowerPatch",
+      "name": "wildflowers",
+      "x": -85,
+      "y": 20,
+      "picked": false
+    },
+    {
+      "type": "FlowerPatch",
+      "name": "wildflowers",
+      "x": 116,
+      "y": -46,
+      "picked": false
+    },
+    {
+      "type": "FlowerPatch",
+      "name": "wildflowers",
+      "x": -128,
+      "y": -134,
+      "picked": false
+    },
+    {
+      "type": "FlowerPatch",
+      "name": "wildflowers",
+      "x": 61,
+      "y": 205,
+      "picked": false
+    },
+    {
+      "type": "FlowerPatch",
+      "name": "wildflowers",
+      "x": -153,
+      "y": -149,
+      "picked": false
+    },
+    {
+      "type": "FlowerPatch",
+      "name": "wildflowers",
+      "x": 98,
+      "y": 202,
+      "picked": false
+    },
+    {
+      "type": "FlowerPatch",
+      "name": "wildflowers",
+      "x": 119,
+      "y": 7,
+      "picked": false
+    },
+    {
+      "type": "FlowerPatch",
+      "name": "wildflowers",
+      "x": -74,
+      "y": -24,
+      "picked": false
+    },
+    {
+      "type": "FlowerPatch",
+      "name": "wildflowers",
+      "x": -163,
+      "y": -48,
+      "picked": false
+    },
+    {
+      "type": "FlowerPatch",
+      "name": "wildflowers",
+      "x": 48,
+      "y": -147,
+      "picked": false
+    },
+    {
+      "type": "FlowerPatch",
+      "name": "wildflowers",
+      "x": -44,
+      "y": -51,
+      "picked": false
+    },
+    {
+      "type": "FlowerPatch",
+      "name": "wildflowers",
+      "x": -83,
+      "y": -33,
+      "picked": false
+    },
+    {
+      "type": "FlowerPatch",
+      "name": "wildflowers",
+      "x": -117,
+      "y": 171,
+      "picked": false
+    },
+    {
+      "type": "FlowerPatch",
+      "name": "wildflowers",
+      "x": 140,
+      "y": 123,
+      "picked": false
+    },
+    {
+      "type": "FlowerPatch",
+      "name": "wildflowers",
+      "x": 83,
+      "y": -45,
+      "picked": false
+    },
+    {
+      "type": "FlowerPatch",
+      "name": "wildflowers",
+      "x": 93,
+      "y": -9,
+      "picked": false
+    },
+    {
+      "type": "FlowerPatch",
+      "name": "wildflowers",
+      "x": 7,
+      "y": 52,
+      "picked": false
+    },
+    {
+      "type": "FlowerPatch",
+      "name": "wildflowers",
+      "x": -115,
+      "y": 32,
+      "picked": false
+    },
+    {
+      "type": "FlowerPatch",
+      "name": "wildflowers",
+      "x": 150,
+      "y": 97,
+      "picked": false
+    },
+    {
+      "type": "FlowerPatch",
+      "name": "wildflowers",
+      "x": 100,
+      "y": 168,
+      "picked": false
+    },
+    {
+      "type": "FlowerPatch",
+      "name": "wildflowers",
+      "x": -174,
+      "y": -15,
+      "picked": false
+    },
+    {
+      "type": "FlowerPatch",
+      "name": "wildflowers",
+      "x": 57,
+      "y": -40,
+      "picked": false
+    },
+    {
+      "type": "FlowerPatch",
+      "name": "wildflowers",
+      "x": 123,
+      "y": 116,
+      "picked": false
+    },
+    {
+      "type": "FlowerPatch",
+      "name": "wildflowers",
+      "x": 148,
+      "y": 168,
+      "picked": false
+    },
+    {
+      "type": "FlowerPatch",
+      "name": "wildflowers",
+      "x": 10,
+      "y": 199,
+      "picked": false
+    },
+    {
+      "type": "FlowerPatch",
+      "name": "wildflowers",
+      "x": 64,
+      "y": 63,
+      "picked": false
+    },
+    {
+      "type": "FlowerPatch",
+      "name": "wildflowers",
+      "x": 17,
+      "y": 124,
+      "picked": false
+    },
+    {
+      "type": "Tree",
+      "name": "oak tree",
+      "x": -172,
+      "y": 182,
+      "has_nest": false
+    },
+    {
+      "type": "Tree",
+      "name": "oak tree",
+      "x": 8,
+      "y": 98,
+      "has_nest": false
+    },
+    {
+      "type": "Tree",
+      "name": "oak tree",
+      "x": 160,
+      "y": 204,
+      "has_nest": true
+    },
+    {
+      "type": "Tree",
+      "name": "oak tree",
+      "x": 96,
+      "y": -39,
+      "has_nest": false
+    },
+    {
+      "type": "Tree",
+      "name": "oak tree",
+      "x": 57,
+      "y": 165,
+      "has_nest": false
+    },
+    {
+      "type": "Tree",
+      "name": "oak tree",
+      "x": -165,
+      "y": 13,
+      "has_nest": false
+    },
+    {
+      "type": "Tree",
+      "name": "oak tree",
+      "x": 142,
+      "y": 78,
+      "has_nest": false
+    },
+    {
+      "type": "Tree",
+      "name": "oak tree",
+      "x": 128,
+      "y": 67,
+      "has_nest": false
+    },
+    {
+      "type": "Tree",
+      "name": "oak tree",
+      "x": 5,
+      "y": 163,
+      "has_nest": false
+    },
+    {
+      "type": "Tree",
+      "name": "oak tree",
+      "x": -76,
+      "y": -18,
+      "has_nest": false
+    },
+    {
+      "type": "Tree",
+      "name": "oak tree",
+      "x": -113,
+      "y": 117,
+      "has_nest": false
+    },
+    {
+      "type": "Tree",
+      "name": "oak tree",
+      "x": 104,
+      "y": -43,
+      "has_nest": false
+    },
+    {
+      "type": "Tree",
+      "name": "oak tree",
+      "x": 145,
+      "y": 140,
+      "has_nest": false
+    },
+    {
+      "type": "Tree",
+      "name": "oak tree",
+      "x": -161,
+      "y": -39,
+      "has_nest": true
+    },
+    {
+      "type": "Tree",
+      "name": "oak tree",
+      "x": 128,
+      "y": 81,
+      "has_nest": false
+    },
+    {
+      "type": "Tree",
+      "name": "oak tree",
+      "x": 134,
+      "y": 158,
+      "has_nest": false
+    },
+    {
+      "type": "Tree",
+      "name": "oak tree",
+      "x": 59,
+      "y": 194,
+      "has_nest": false
+    },
+    {
+      "type": "Tree",
+      "name": "oak tree",
+      "x": 164,
+      "y": 113,
+      "has_nest": false
+    },
+    {
+      "type": "Tree",
+      "name": "oak tree",
+      "x": -169,
+      "y": -31,
+      "has_nest": false
+    },
+    {
+      "type": "Tree",
+      "name": "oak tree",
+      "x": 124,
+      "y": 109,
+      "has_nest": false
+    },
+    {
+      "type": "Tree",
+      "name": "oak tree",
+      "x": 11,
+      "y": 145,
+      "has_nest": true
+    },
+    {
+      "type": "Tree",
+      "name": "oak tree",
+      "x": 165,
+      "y": 63,
+      "has_nest": false
+    },
+    {
+      "type": "Tree",
+      "name": "oak tree",
+      "x": -4,
+      "y": 33,
+      "has_nest": true
+    },
+    {
+      "type": "Tree",
+      "name": "oak tree",
+      "x": -139,
+      "y": 196,
+      "has_nest": false
+    },
+    {
+      "type": "Tree",
+      "name": "oak tree",
+      "x": -115,
+      "y": 17,
+      "has_nest": false
+    },
+    {
+      "type": "Tree",
+      "name": "oak tree",
+      "x": -175,
+      "y": 50,
+      "has_nest": false
+    },
+    {
+      "type": "Tree",
+      "name": "oak tree",
+      "x": 43,
+      "y": 70,
+      "has_nest": false
+    },
+    {
+      "type": "Tree",
+      "name": "oak tree",
+      "x": 152,
+      "y": 116,
+      "has_nest": false
+    },
+    {
+      "type": "Tree",
+      "name": "oak tree",
+      "x": 27,
+      "y": 174,
+      "has_nest": true
+    },
+    {
+      "type": "Tree",
+      "name": "oak tree",
+      "x": 54,
+      "y": -38,
+      "has_nest": false
+    },
+    {
+      "type": "Tree",
+      "name": "oak tree",
+      "x": 33,
+      "y": 89,
+      "has_nest": false
+    },
+    {
+      "type": "Tree",
+      "name": "oak tree",
+      "x": -133,
+      "y": 0,
+      "has_nest": false
+    },
+    {
+      "type": "Tree",
+      "name": "oak tree",
+      "x": 110,
+      "y": 143,
+      "has_nest": false
+    },
+    {
+      "type": "Tree",
+      "name": "oak tree",
+      "x": 39,
+      "y": -26,
+      "has_nest": false
+    },
+    {
+      "type": "Tree",
+      "name": "oak tree",
+      "x": 118,
+      "y": 31,
+      "has_nest": false
+    },
+    {
+      "type": "Tree",
+      "name": "oak tree",
+      "x": 135,
+      "y": -107,
+      "has_nest": false
+    },
+    {
+      "type": "Tree",
+      "name": "oak tree",
+      "x": -180,
+      "y": -34,
+      "has_nest": false
+    },
+    {
+      "type": "Tree",
+      "name": "oak tree",
+      "x": 90,
+      "y": 19,
+      "has_nest": false
+    },
+    {
+      "type": "Tree",
+      "name": "oak tree",
+      "x": -86,
+      "y": 6,
+      "has_nest": false
+    },
+    {
+      "type": "Tree",
+      "name": "oak tree",
+      "x": -105,
+      "y": 88,
+      "has_nest": false
+    },
+    {
+      "type": "Tree",
+      "name": "oak tree",
+      "x": 15,
+      "y": -66,
+      "has_nest": false
+    },
+    {
+      "type": "Tree",
+      "name": "oak tree",
+      "x": -14,
+      "y": 28,
+      "has_nest": false
+    },
+    {
+      "type": "Tree",
+      "name": "oak tree",
+      "x": 109,
+      "y": 53,
+      "has_nest": false
+    },
+    {
+      "type": "Tree",
+      "name": "oak tree",
+      "x": -75,
+      "y": 141,
+      "has_nest": false
+    },
+    {
+      "type": "Tree",
+      "name": "oak tree",
+      "x": 129,
+      "y": -21,
+      "has_nest": false
+    },
+    {
+      "type": "Tree",
+      "name": "oak tree",
+      "x": 134,
+      "y": 20,
+      "has_nest": false
+    },
+    {
+      "type": "Tree",
+      "name": "oak tree",
+      "x": 125,
+      "y": -5,
+      "has_nest": false
+    },
+    {
+      "type": "Tree",
+      "name": "oak tree",
+      "x": -177,
+      "y": -50,
+      "has_nest": false
+    },
+    {
+      "type": "Tree",
+      "name": "oak tree",
+      "x": 5,
+      "y": 70,
+      "has_nest": true
+    },
+    {
+      "type": "Tree",
+      "name": "oak tree",
+      "x": -142,
+      "y": 88,
+      "has_nest": false
+    },
+    {
+      "type": "Tree",
+      "name": "oak tree",
+      "x": -151,
+      "y": 110,
+      "has_nest": true
+    },
+    {
+      "type": "Tree",
+      "name": "oak tree",
+      "x": 71,
+      "y": -41,
+      "has_nest": false
+    },
+    {
+      "type": "Tree",
+      "name": "oak tree",
+      "x": -164,
+      "y": -125,
+      "has_nest": false
+    },
+    {
+      "type": "Tree",
+      "name": "oak tree",
+      "x": -76,
+      "y": 42,
+      "has_nest": false
+    },
+    {
+      "type": "Tree",
+      "name": "oak tree",
+      "x": -95,
+      "y": 27,
+      "has_nest": false
+    },
+    {
+      "type": "Tree",
+      "name": "oak tree",
+      "x": 19,
+      "y": 184,
+      "has_nest": false
+    },
+    {
+      "type": "Tree",
+      "name": "oak tree",
+      "x": 56,
+      "y": -48,
+      "has_nest": true
+    },
+    {
+      "type": "Tree",
+      "name": "oak tree",
+      "x": 38,
+      "y": 189,
+      "has_nest": false
+    },
+    {
+      "type": "Tree",
+      "name": "oak tree",
+      "x": 20,
+      "y": -150,
+      "has_nest": false
+    },
+    {
+      "type": "Tree",
+      "name": "oak tree",
+      "x": -117,
+      "y": -135,
+      "has_nest": true
+    },
+    {
+      "type": "HollowTree",
+      "name": "hollow tree",
+      "x": 135,
+      "y": 191
+    },
+    {
+      "type": "HollowTree",
+      "name": "hollow tree",
+      "x": 112,
+      "y": 178
+    },
+    {
+      "type": "HollowTree",
+      "name": "hollow tree",
+      "x": 51,
+      "y": -120
+    },
+    {
+      "type": "HollowTree",
+      "name": "hollow tree",
+      "x": 40,
+      "y": -61
+    },
+    {
+      "type": "HollowTree",
+      "name": "hollow tree",
+      "x": 133,
+      "y": 167
+    },
+    {
+      "type": "ReedBed",
+      "name": "reed bed",
+      "x": -25,
+      "y": -84,
+      "harvested": false
+    },
+    {
+      "type": "ReedBed",
+      "name": "reed bed",
+      "x": -37,
+      "y": -94,
+      "harvested": false
+    },
+    {
+      "type": "ReedBed",
+      "name": "reed bed",
+      "x": -21,
+      "y": 194,
+      "harvested": false
+    },
+    {
+      "type": "ReedBed",
+      "name": "reed bed",
+      "x": -36,
+      "y": -134,
+      "harvested": false
+    },
+    {
+      "type": "ReedBed",
+      "name": "reed bed",
+      "x": -37,
+      "y": -104,
+      "harvested": false
+    },
+    {
+      "type": "ReedBed",
+      "name": "reed bed",
+      "x": -35,
+      "y": 87,
+      "harvested": false
+    },
+    {
+      "type": "ReedBed",
+      "name": "reed bed",
+      "x": -32,
+      "y": 182,
+      "harvested": false
+    },
+    {
+      "type": "ReedBed",
+      "name": "reed bed",
+      "x": -37,
+      "y": -140,
+      "harvested": false
+    },
+    {
+      "type": "ReedBed",
+      "name": "reed bed",
+      "x": -31,
+      "y": 195,
+      "harvested": false
+    },
+    {
+      "type": "ReedBed",
+      "name": "reed bed",
+      "x": 84,
+      "y": 85,
+      "harvested": false
+    },
+    {
+      "type": "ReedBed",
+      "name": "reed bed",
+      "x": -36,
+      "y": -118,
+      "harvested": false
+    },
+    {
+      "type": "ReedBed",
+      "name": "reed bed",
+      "x": -25,
+      "y": 19,
+      "harvested": false
+    },
+    {
+      "type": "ReedBed",
+      "name": "reed bed",
+      "x": 96,
+      "y": 103,
+      "harvested": false
+    },
+    {
+      "type": "ReedBed",
+      "name": "reed bed",
+      "x": -27,
+      "y": -11,
+      "harvested": false
+    },
+    {
+      "type": "ReedBed",
+      "name": "reed bed",
+      "x": 87,
+      "y": 103,
+      "harvested": false
+    },
+    {
+      "type": "ReedBed",
+      "name": "reed bed",
+      "x": -35,
+      "y": -79,
+      "harvested": false
+    },
+    {
+      "type": "ReedBed",
+      "name": "reed bed",
+      "x": 99,
+      "y": 87,
+      "harvested": false
+    },
+    {
+      "type": "ReedBed",
+      "name": "reed bed",
+      "x": -25,
+      "y": 52,
+      "harvested": false
+    },
+    {
+      "type": "ReedBed",
+      "name": "reed bed",
+      "x": -22,
+      "y": 200,
+      "harvested": false
+    },
+    {
+      "type": "ReedBed",
+      "name": "reed bed",
+      "x": 81,
+      "y": 94,
+      "harvested": false
+    },
+    {
+      "type": "ReedBed",
+      "name": "reed bed",
+      "x": -35,
+      "y": 100,
+      "harvested": false
+    },
+    {
+      "type": "ReedBed",
+      "name": "reed bed",
+      "x": -25,
+      "y": 70,
+      "harvested": false
+    },
+    {
+      "type": "ReedBed",
+      "name": "reed bed",
+      "x": -27,
+      "y": -110,
+      "harvested": false
+    },
+    {
+      "type": "ReedBed",
+      "name": "reed bed",
+      "x": -23,
+      "y": 172,
+      "harvested": false
+    },
+    {
+      "type": "ReedBed",
+      "name": "reed bed",
+      "x": -34,
+      "y": 121,
+      "harvested": false
+    },
+    {
+      "type": "ReedBed",
+      "name": "reed bed",
+      "x": -24,
+      "y": -48,
+      "harvested": false
+    },
+    {
+      "type": "ReedBed",
+      "name": "reed bed",
+      "x": -27,
+      "y": -30,
+      "harvested": false
+    },
+    {
+      "type": "ReedBed",
+      "name": "reed bed",
+      "x": -37,
+      "y": -35,
+      "harvested": false
+    },
+    {
+      "type": "ReedBed",
+      "name": "reed bed",
+      "x": -35,
+      "y": 61,
+      "harvested": false
+    },
+    {
+      "type": "ReedBed",
+      "name": "reed bed",
+      "x": -28,
+      "y": 4,
+      "harvested": false
+    },
+    {
+      "type": "ReedBed",
+      "name": "reed bed",
+      "x": -36,
+      "y": -125,
+      "harvested": false
+    },
+    {
+      "type": "ReedBed",
+      "name": "reed bed",
+      "x": -28,
+      "y": -146,
+      "harvested": false
+    },
+    {
+      "type": "ReedBed",
+      "name": "reed bed",
+      "x": -25,
+      "y": 117,
+      "harvested": false
+    },
+    {
+      "type": "ReedBed",
+      "name": "reed bed",
+      "x": -36,
+      "y": 55,
+      "harvested": false
+    },
+    {
+      "type": "ReedBed",
+      "name": "reed bed",
+      "x": -36,
+      "y": -28,
+      "harvested": false
+    },
+    {
+      "type": "HerbPatch",
+      "name": "herb patch",
+      "x": 25,
+      "y": 141,
+      "harvested": false
+    },
+    {
+      "type": "HerbPatch",
+      "name": "herb patch",
+      "x": -62,
+      "y": 141,
+      "harvested": false
+    },
+    {
+      "type": "HerbPatch",
+      "name": "herb patch",
+      "x": 103,
+      "y": 157,
+      "harvested": false
+    },
+    {
+      "type": "HerbPatch",
+      "name": "herb patch",
+      "x": -39,
+      "y": -99,
+      "harvested": false
+    },
+    {
+      "type": "HerbPatch",
+      "name": "herb patch",
+      "x": -18,
+      "y": 142,
+      "harvested": false
+    },
+    {
+      "type": "HerbPatch",
+      "name": "herb patch",
+      "x": 13,
+      "y": 102,
+      "harvested": false
+    },
+    {
+      "type": "HerbPatch",
+      "name": "herb patch",
+      "x": -146,
+      "y": 116,
+      "harvested": false
+    },
+    {
+      "type": "HerbPatch",
+      "name": "herb patch",
+      "x": -125,
+      "y": -50,
+      "harvested": false
+    },
+    {
+      "type": "HerbPatch",
+      "name": "herb patch",
+      "x": -174,
+      "y": 27,
+      "harvested": false
+    },
+    {
+      "type": "HerbPatch",
+      "name": "herb patch",
+      "x": 158,
+      "y": 125,
+      "harvested": false
+    },
+    {
+      "type": "HerbPatch",
+      "name": "herb patch",
+      "x": 146,
+      "y": -23,
+      "harvested": false
+    },
+    {
+      "type": "HerbPatch",
+      "name": "herb patch",
+      "x": 3,
+      "y": 170,
+      "harvested": false
+    },
+    {
+      "type": "HerbPatch",
+      "name": "herb patch",
+      "x": -146,
+      "y": -99,
+      "harvested": false
+    },
+    {
+      "type": "HerbPatch",
+      "name": "herb patch",
+      "x": -136,
+      "y": 146,
+      "harvested": false
+    },
+    {
+      "type": "HerbPatch",
+      "name": "herb patch",
+      "x": -80,
+      "y": 28,
+      "harvested": false
+    },
+    {
+      "type": "HerbPatch",
+      "name": "herb patch",
+      "x": -173,
+      "y": 143,
+      "harvested": false
+    },
+    {
+      "type": "HerbPatch",
+      "name": "herb patch",
+      "x": 158,
+      "y": 143,
+      "harvested": false
+    },
+    {
+      "type": "HerbPatch",
+      "name": "herb patch",
+      "x": -88,
+      "y": 8,
+      "harvested": false
+    },
+    {
+      "type": "HerbPatch",
+      "name": "herb patch",
+      "x": 138,
+      "y": 167,
+      "harvested": false
+    },
+    {
+      "type": "HerbPatch",
+      "name": "herb patch",
+      "x": 121,
+      "y": -134,
+      "harvested": false
+    },
+    {
+      "type": "HerbPatch",
+      "name": "herb patch",
+      "x": -109,
+      "y": -26,
+      "harvested": false
+    },
+    {
+      "type": "HerbPatch",
+      "name": "herb patch",
+      "x": 49,
+      "y": 195,
+      "harvested": false
+    },
+    {
+      "type": "HerbPatch",
+      "name": "herb patch",
+      "x": 34,
+      "y": 87,
+      "harvested": false
+    },
+    {
+      "type": "HerbPatch",
+      "name": "herb patch",
+      "x": 19,
+      "y": 68,
+      "harvested": false
+    },
+    {
+      "type": "HerbPatch",
+      "name": "herb patch",
+      "x": -162,
+      "y": 171,
+      "harvested": false
+    },
+    {
+      "type": "HerbPatch",
+      "name": "herb patch",
+      "x": 18,
+      "y": -68,
+      "harvested": false
+    },
+    {
+      "type": "HerbPatch",
+      "name": "herb patch",
+      "x": 88,
+      "y": 143,
+      "harvested": false
+    },
+    {
+      "type": "HerbPatch",
+      "name": "herb patch",
+      "x": -17,
+      "y": -116,
+      "harvested": false
+    },
+    {
+      "type": "HerbPatch",
+      "name": "herb patch",
+      "x": -77,
+      "y": 6,
+      "harvested": false
+    },
+    {
+      "type": "HerbPatch",
+      "name": "herb patch",
+      "x": -172,
+      "y": 179,
+      "harvested": false
+    },
+    {
+      "type": "HerbPatch",
+      "name": "herb patch",
+      "x": -72,
+      "y": 136,
+      "harvested": false
+    },
+    {
+      "type": "HerbPatch",
+      "name": "herb patch",
+      "x": 133,
+      "y": 88,
+      "harvested": false
+    },
+    {
+      "type": "HerbPatch",
+      "name": "herb patch",
+      "x": 101,
+      "y": -41,
+      "harvested": false
+    },
+    {
+      "type": "HerbPatch",
+      "name": "herb patch",
+      "x": 162,
+      "y": 206,
+      "harvested": false
+    },
+    {
+      "type": "HerbPatch",
+      "name": "herb patch",
+      "x": -170,
+      "y": 118,
+      "harvested": false
+    },
+    {
+      "type": "HerbPatch",
+      "name": "herb patch",
+      "x": -129,
+      "y": 109,
+      "harvested": false
+    },
+    {
+      "type": "HerbPatch",
+      "name": "herb patch",
+      "x": -80,
+      "y": 56,
+      "harvested": false
+    },
+    {
+      "type": "HerbPatch",
+      "name": "herb patch",
+      "x": -58,
+      "y": -70,
+      "harvested": false
+    },
+    {
+      "type": "HerbPatch",
+      "name": "herb patch",
+      "x": 173,
+      "y": 139,
+      "harvested": false
+    },
+    {
+      "type": "HerbPatch",
+      "name": "herb patch",
+      "x": 170,
+      "y": 77,
+      "harvested": false
+    }
+  ],
+  "entities": [
+    {
+      "kind": "item",
+      "item_name": "apple",
+      "x": -1,
+      "y": 30
+    },
+    {
+      "kind": "item",
+      "item_name": "stone",
+      "x": 61,
+      "y": -90
+    },
+    {
+      "kind": "item",
+      "item_name": "stone",
+      "x": -2,
+      "y": 6
+    },
+    {
+      "kind": "item",
+      "item_name": "stone",
+      "x": 106,
+      "y": -112
+    },
+    {
+      "kind": "item",
+      "item_name": "stone",
+      "x": -120,
+      "y": -39
+    },
+    {
+      "kind": "item",
+      "item_name": "stone",
+      "x": -152,
+      "y": 22
+    },
+    {
+      "kind": "item",
+      "item_name": "stone",
+      "x": 123,
+      "y": -83
+    },
+    {
+      "kind": "item",
+      "item_name": "stone",
+      "x": 130,
+      "y": -83
+    },
+    {
+      "kind": "item",
+      "item_name": "stone",
+      "x": -42,
+      "y": -135
+    },
+    {
+      "kind": "item",
+      "item_name": "stone",
+      "x": 139,
+      "y": -57
+    },
+    {
+      "kind": "item",
+      "item_name": "stone",
+      "x": 66,
+      "y": -96
+    },
+    {
+      "kind": "item",
+      "item_name": "stone",
+      "x": 159,
+      "y": -63
+    },
+    {
+      "kind": "item",
+      "item_name": "stone",
+      "x": 13,
+      "y": 13
+    },
+    {
+      "kind": "item",
+      "item_name": "stone",
+      "x": 27,
+      "y": -8
+    },
+    {
+      "kind": "item",
+      "item_name": "stone",
+      "x": 64,
+      "y": -20
+    },
+    {
+      "kind": "item",
+      "item_name": "stone",
+      "x": 177,
+      "y": 34
+    },
+    {
+      "kind": "item",
+      "item_name": "stone",
+      "x": -22,
+      "y": 9
+    },
+    {
+      "kind": "item",
+      "item_name": "stone",
+      "x": -27,
+      "y": 0
+    },
+    {
+      "kind": "item",
+      "item_name": "stone",
+      "x": -34,
+      "y": 63
+    },
+    {
+      "kind": "item",
+      "item_name": "stone",
+      "x": 42,
+      "y": 13
+    },
+    {
+      "kind": "item",
+      "item_name": "stone",
+      "x": 179,
+      "y": -122
+    },
+    {
+      "kind": "item",
+      "item_name": "stone",
+      "x": -53,
+      "y": 168
+    },
+    {
+      "kind": "item",
+      "item_name": "flint",
+      "x": 12,
+      "y": -49
+    },
+    {
+      "kind": "item",
+      "item_name": "flint",
+      "x": 172,
+      "y": -29
+    },
+    {
+      "kind": "item",
+      "item_name": "flint",
+      "x": -75,
+      "y": 124
+    },
+    {
+      "kind": "item",
+      "item_name": "flint",
+      "x": 147,
+      "y": -49
+    },
+    {
+      "kind": "item",
+      "item_name": "flint",
+      "x": 166,
+      "y": -78
+    },
+    {
+      "kind": "item",
+      "item_name": "flint",
+      "x": 57,
+      "y": -107
+    },
+    {
+      "kind": "item",
+      "item_name": "flint",
+      "x": 163,
+      "y": 47
+    },
+    {
+      "kind": "animal",
+      "species": "rabbit",
+      "name": "rabbit",
+      "x": -147,
+      "y": 24,
+      "health": 4,
+      "alive": true
+    },
+    {
+      "kind": "animal",
+      "species": "rabbit",
+      "name": "rabbit",
+      "x": -15,
+      "y": 134,
+      "health": 4,
+      "alive": true
+    },
+    {
+      "kind": "animal",
+      "species": "rabbit",
+      "name": "rabbit",
+      "x": 81,
+      "y": -128,
+      "health": 4,
+      "alive": true
+    },
+    {
+      "kind": "animal",
+      "species": "rabbit",
+      "name": "rabbit",
+      "x": -39,
+      "y": -72,
+      "health": 4,
+      "alive": true
+    },
+    {
+      "kind": "animal",
+      "species": "rabbit",
+      "name": "rabbit",
+      "x": 54,
+      "y": -127,
+      "health": 4,
+      "alive": true
+    },
+    {
+      "kind": "animal",
+      "species": "rabbit",
+      "name": "rabbit",
+      "x": 143,
+      "y": 127,
+      "health": 4,
+      "alive": true
+    },
+    {
+      "kind": "animal",
+      "species": "rabbit",
+      "name": "rabbit",
+      "x": 77,
+      "y": -42,
+      "health": 4,
+      "alive": true
+    },
+    {
+      "kind": "animal",
+      "species": "rabbit",
+      "name": "rabbit",
+      "x": 128,
+      "y": -6,
+      "health": 4,
+      "alive": true
+    },
+    {
+      "kind": "animal",
+      "species": "rabbit",
+      "name": "rabbit",
+      "x": 112,
+      "y": 40,
+      "health": 4,
+      "alive": true
+    },
+    {
+      "kind": "animal",
+      "species": "rabbit",
+      "name": "rabbit",
+      "x": 23,
+      "y": -138,
+      "health": 4,
+      "alive": true
+    },
+    {
+      "kind": "animal",
+      "species": "rabbit",
+      "name": "rabbit",
+      "x": -53,
+      "y": -80,
+      "health": 4,
+      "alive": true
+    },
+    {
+      "kind": "animal",
+      "species": "rabbit",
+      "name": "rabbit",
+      "x": -132,
+      "y": 62,
+      "health": 4,
+      "alive": true
+    },
+    {
+      "kind": "animal",
+      "species": "rabbit",
+      "name": "rabbit",
+      "x": 156,
+      "y": 52,
+      "health": 4,
+      "alive": true
+    },
+    {
+      "kind": "animal",
+      "species": "rabbit",
+      "name": "rabbit",
+      "x": -155,
+      "y": 187,
+      "health": 4,
+      "alive": true
+    },
+    {
+      "kind": "animal",
+      "species": "rabbit",
+      "name": "rabbit",
+      "x": 31,
+      "y": 200,
+      "health": 4,
+      "alive": true
+    },
+    {
+      "kind": "animal",
+      "species": "rabbit",
+      "name": "rabbit",
+      "x": 100,
+      "y": 162,
+      "health": 4,
+      "alive": true
+    },
+    {
+      "kind": "animal",
+      "species": "rabbit",
+      "name": "rabbit",
+      "x": -74,
+      "y": 182,
+      "health": 4,
+      "alive": true
+    },
+    {
+      "kind": "animal",
+      "species": "rabbit",
+      "name": "rabbit",
+      "x": -147,
+      "y": 135,
+      "health": 4,
+      "alive": true
+    },
+    {
+      "kind": "animal",
+      "species": "rabbit",
+      "name": "rabbit",
+      "x": -48,
+      "y": 124,
+      "health": 4,
+      "alive": true
+    },
+    {
+      "kind": "animal",
+      "species": "rabbit",
+      "name": "rabbit",
+      "x": 128,
+      "y": 121,
+      "health": 4,
+      "alive": true
+    },
+    {
+      "kind": "animal",
+      "species": "rabbit",
+      "name": "rabbit",
+      "x": -17,
+      "y": -84,
+      "health": 4,
+      "alive": true
+    },
+    {
+      "kind": "animal",
+      "species": "rabbit",
+      "name": "rabbit",
+      "x": 67,
+      "y": -39,
+      "health": 4,
+      "alive": true
+    },
+    {
+      "kind": "animal",
+      "species": "rabbit",
+      "name": "rabbit",
+      "x": 121,
+      "y": 72,
+      "health": 4,
+      "alive": true
+    },
+    {
+      "kind": "animal",
+      "species": "rabbit",
+      "name": "rabbit",
+      "x": 134,
+      "y": 99,
+      "health": 4,
+      "alive": true
+    },
+    {
+      "kind": "animal",
+      "species": "rabbit",
+      "name": "rabbit",
+      "x": 174,
+      "y": 207,
+      "health": 4,
+      "alive": true
+    },
+    {
+      "kind": "animal",
+      "species": "rabbit",
+      "name": "rabbit",
+      "x": 75,
+      "y": 42,
+      "health": 4,
+      "alive": true
+    },
+    {
+      "kind": "animal",
+      "species": "rabbit",
+      "name": "rabbit",
+      "x": 101,
+      "y": -141,
+      "health": 4,
+      "alive": true
+    },
+    {
+      "kind": "animal",
+      "species": "rabbit",
+      "name": "rabbit",
+      "x": 97,
+      "y": -75,
+      "health": 4,
+      "alive": true
+    },
+    {
+      "kind": "animal",
+      "species": "rabbit",
+      "name": "rabbit",
+      "x": -172,
+      "y": -50,
+      "health": 4,
+      "alive": true
+    },
+    {
+      "kind": "animal",
+      "species": "rabbit",
+      "name": "rabbit",
+      "x": -148,
+      "y": -125,
+      "health": 4,
+      "alive": true
+    },
+    {
+      "kind": "animal",
+      "species": "rabbit",
+      "name": "rabbit",
+      "x": 174,
+      "y": 208,
+      "health": 4,
+      "alive": true
+    },
+    {
+      "kind": "animal",
+      "species": "rabbit",
+      "name": "rabbit",
+      "x": 10,
+      "y": 202,
+      "health": 4,
+      "alive": true
+    },
+    {
+      "kind": "animal",
+      "species": "rabbit",
+      "name": "rabbit",
+      "x": -144,
+      "y": 92,
+      "health": 4,
+      "alive": true
+    },
+    {
+      "kind": "animal",
+      "species": "rabbit",
+      "name": "rabbit",
+      "x": -99,
+      "y": -19,
+      "health": 4,
+      "alive": true
+    },
+    {
+      "kind": "animal",
+      "species": "rabbit",
+      "name": "rabbit",
+      "x": -126,
+      "y": -99,
+      "health": 4,
+      "alive": true
+    },
+    {
+      "kind": "animal",
+      "species": "deer",
+      "name": "deer",
+      "x": 26,
+      "y": 99,
+      "health": 15,
+      "alive": true
+    },
+    {
+      "kind": "animal",
+      "species": "deer",
+      "name": "deer",
+      "x": 53,
+      "y": 181,
+      "health": 15,
+      "alive": true
+    },
+    {
+      "kind": "animal",
+      "species": "deer",
+      "name": "deer",
+      "x": -134,
+      "y": 192,
+      "health": 15,
+      "alive": true
+    },
+    {
+      "kind": "animal",
+      "species": "deer",
+      "name": "deer",
+      "x": -56,
+      "y": 56,
+      "health": 15,
+      "alive": true
+    },
+    {
+      "kind": "animal",
+      "species": "deer",
+      "name": "deer",
+      "x": -7,
+      "y": 115,
+      "health": 15,
+      "alive": true
+    },
+    {
+      "kind": "animal",
+      "species": "deer",
+      "name": "deer",
+      "x": 107,
+      "y": -148,
+      "health": 15,
+      "alive": true
+    },
+    {
+      "kind": "animal",
+      "species": "deer",
+      "name": "deer",
+      "x": 12,
+      "y": 32,
+      "health": 15,
+      "alive": true
+    },
+    {
+      "kind": "animal",
+      "species": "deer",
+      "name": "deer",
+      "x": -126,
+      "y": 162,
+      "health": 15,
+      "alive": true
+    },
+    {
+      "kind": "animal",
+      "species": "deer",
+      "name": "deer",
+      "x": 123,
+      "y": -18,
+      "health": 15,
+      "alive": true
+    },
+    {
+      "kind": "animal",
+      "species": "deer",
+      "name": "deer",
+      "x": 125,
+      "y": 67,
+      "health": 15,
+      "alive": true
+    },
+    {
+      "kind": "animal",
+      "species": "deer",
+      "name": "deer",
+      "x": -138,
+      "y": -21,
+      "health": 15,
+      "alive": true
+    },
+    {
+      "kind": "animal",
+      "species": "deer",
+      "name": "deer",
+      "x": 4,
+      "y": 194,
+      "health": 15,
+      "alive": true
+    },
+    {
+      "kind": "animal",
+      "species": "deer",
+      "name": "deer",
+      "x": 165,
+      "y": 111,
+      "health": 15,
+      "alive": true
+    },
+    {
+      "kind": "animal",
+      "species": "deer",
+      "name": "deer",
+      "x": -112,
+      "y": 81,
+      "health": 15,
+      "alive": true
+    },
+    {
+      "kind": "animal",
+      "species": "deer",
+      "name": "deer",
+      "x": 111,
+      "y": -86,
+      "health": 15,
+      "alive": true
+    },
+    {
+      "kind": "animal",
+      "species": "deer",
+      "name": "deer",
+      "x": -51,
+      "y": 110,
+      "health": 15,
+      "alive": true
+    },
+    {
+      "kind": "animal",
+      "species": "deer",
+      "name": "deer",
+      "x": -122,
+      "y": 23,
+      "health": 15,
+      "alive": true
+    },
+    {
+      "kind": "animal",
+      "species": "deer",
+      "name": "deer",
+      "x": 127,
+      "y": 137,
+      "health": 15,
+      "alive": true
+    },
+    {
+      "kind": "animal",
+      "species": "deer",
+      "name": "deer",
+      "x": -20,
+      "y": 64,
+      "health": 15,
+      "alive": true
+    },
+    {
+      "kind": "animal",
+      "species": "deer",
+      "name": "deer",
+      "x": 151,
+      "y": 112,
+      "health": 15,
+      "alive": true
+    },
+    {
+      "kind": "animal",
+      "species": "fox",
+      "name": "fox",
+      "x": -58,
+      "y": -147,
+      "health": 8,
+      "alive": true
+    },
+    {
+      "kind": "animal",
+      "species": "fox",
+      "name": "fox",
+      "x": -67,
+      "y": -137,
+      "health": 8,
+      "alive": true
+    },
+    {
+      "kind": "animal",
+      "species": "fox",
+      "name": "fox",
+      "x": -15,
+      "y": -110,
+      "health": 8,
+      "alive": true
+    },
+    {
+      "kind": "animal",
+      "species": "fox",
+      "name": "fox",
+      "x": -46,
+      "y": 131,
+      "health": 8,
+      "alive": true
+    },
+    {
+      "kind": "animal",
+      "species": "fox",
+      "name": "fox",
+      "x": -166,
+      "y": 58,
+      "health": 8,
+      "alive": true
+    },
+    {
+      "kind": "animal",
+      "species": "fox",
+      "name": "fox",
+      "x": 173,
+      "y": 114,
+      "health": 8,
+      "alive": true
+    },
+    {
+      "kind": "animal",
+      "species": "fox",
+      "name": "fox",
+      "x": -50,
+      "y": -93,
+      "health": 8,
+      "alive": true
+    },
+    {
+      "kind": "animal",
+      "species": "fox",
+      "name": "fox",
+      "x": 44,
+      "y": -38,
+      "health": 8,
+      "alive": true
+    },
+    {
+      "kind": "animal",
+      "species": "fox",
+      "name": "fox",
+      "x": -166,
+      "y": 94,
+      "health": 8,
+      "alive": true
+    },
+    {
+      "kind": "animal",
+      "species": "fox",
+      "name": "fox",
+      "x": 121,
+      "y": -74,
+      "health": 8,
+      "alive": true
+    },
+    {
+      "kind": "animal",
+      "species": "fox",
+      "name": "fox",
+      "x": -47,
+      "y": 54,
+      "health": 8,
+      "alive": true
+    },
+    {
+      "kind": "animal",
+      "species": "fox",
+      "name": "fox",
+      "x": -92,
+      "y": -15,
+      "health": 8,
+      "alive": true
+    },
+    {
+      "kind": "animal",
+      "species": "fox",
+      "name": "fox",
+      "x": 118,
+      "y": -39,
+      "health": 8,
+      "alive": true
+    },
+    {
+      "kind": "animal",
+      "species": "fox",
+      "name": "fox",
+      "x": -99,
+      "y": -42,
+      "health": 8,
+      "alive": true
+    },
+    {
+      "kind": "animal",
+      "species": "fox",
+      "name": "fox",
+      "x": 128,
+      "y": 5,
+      "health": 8,
+      "alive": true
+    },
+    {
+      "kind": "animal",
+      "species": "bird",
+      "name": "bird",
+      "x": -157,
+      "y": -91,
+      "health": 2,
+      "alive": true
+    },
+    {
+      "kind": "animal",
+      "species": "bird",
+      "name": "bird",
+      "x": 40,
+      "y": -131,
+      "health": 2,
+      "alive": true
+    },
+    {
+      "kind": "animal",
+      "species": "bird",
+      "name": "bird",
+      "x": -136,
+      "y": -108,
+      "health": 2,
+      "alive": true
+    },
+    {
+      "kind": "animal",
+      "species": "bird",
+      "name": "bird",
+      "x": 80,
+      "y": 65,
+      "health": 2,
+      "alive": true
+    },
+    {
+      "kind": "animal",
+      "species": "bird",
+      "name": "bird",
+      "x": -77,
+      "y": 109,
+      "health": 2,
+      "alive": true
+    },
+    {
+      "kind": "animal",
+      "species": "bird",
+      "name": "bird",
+      "x": -38,
+      "y": -54,
+      "health": 2,
+      "alive": true
+    },
+    {
+      "kind": "animal",
+      "species": "bird",
+      "name": "bird",
+      "x": 59,
+      "y": 71,
+      "health": 2,
+      "alive": true
+    },
+    {
+      "kind": "animal",
+      "species": "bird",
+      "name": "bird",
+      "x": 149,
+      "y": -2,
+      "health": 2,
+      "alive": true
+    },
+    {
+      "kind": "animal",
+      "species": "bird",
+      "name": "bird",
+      "x": -24,
+      "y": -146,
+      "health": 2,
+      "alive": true
+    },
+    {
+      "kind": "animal",
+      "species": "bird",
+      "name": "bird",
+      "x": -116,
+      "y": 180,
+      "health": 2,
+      "alive": true
+    },
+    {
+      "kind": "animal",
+      "species": "bird",
+      "name": "bird",
+      "x": -13,
+      "y": -35,
+      "health": 2,
+      "alive": true
+    },
+    {
+      "kind": "animal",
+      "species": "bird",
+      "name": "bird",
+      "x": -125,
+      "y": -132,
+      "health": 2,
+      "alive": true
+    },
+    {
+      "kind": "animal",
+      "species": "bird",
+      "name": "bird",
+      "x": -133,
+      "y": 22,
+      "health": 2,
+      "alive": true
+    },
+    {
+      "kind": "animal",
+      "species": "bird",
+      "name": "bird",
+      "x": -131,
+      "y": 163,
+      "health": 2,
+      "alive": true
+    },
+    {
+      "kind": "animal",
+      "species": "bird",
+      "name": "bird",
+      "x": 32,
+      "y": 172,
+      "health": 2,
+      "alive": true
+    },
+    {
+      "kind": "animal",
+      "species": "bird",
+      "name": "bird",
+      "x": -59,
+      "y": -129,
+      "health": 2,
+      "alive": true
+    },
+    {
+      "kind": "animal",
+      "species": "bird",
+      "name": "bird",
+      "x": 2,
+      "y": 117,
+      "health": 2,
+      "alive": true
+    },
+    {
+      "kind": "animal",
+      "species": "bird",
+      "name": "bird",
+      "x": -37,
+      "y": -110,
+      "health": 2,
+      "alive": true
+    },
+    {
+      "kind": "animal",
+      "species": "bird",
+      "name": "bird",
+      "x": -113,
+      "y": 195,
+      "health": 2,
+      "alive": true
+    },
+    {
+      "kind": "animal",
+      "species": "bird",
+      "name": "bird",
+      "x": -9,
+      "y": 133,
+      "health": 2,
+      "alive": true
+    },
+    {
+      "kind": "animal",
+      "species": "bird",
+      "name": "bird",
+      "x": -131,
+      "y": -39,
+      "health": 2,
+      "alive": true
+    },
+    {
+      "kind": "animal",
+      "species": "bird",
+      "name": "bird",
+      "x": -148,
+      "y": -105,
+      "health": 2,
+      "alive": true
+    },
+    {
+      "kind": "animal",
+      "species": "bird",
+      "name": "bird",
+      "x": -146,
+      "y": 89,
+      "health": 2,
+      "alive": true
+    },
+    {
+      "kind": "animal",
+      "species": "bird",
+      "name": "bird",
+      "x": -133,
+      "y": -25,
+      "health": 2,
+      "alive": true
+    },
+    {
+      "kind": "animal",
+      "species": "bird",
+      "name": "bird",
+      "x": -58,
+      "y": 16,
+      "health": 2,
+      "alive": true
+    }
+  ],
+  "moriarty": {
+    "x": 1,
+    "y": 27,
+    "hidden": false,
+    "is_resting": false,
+    "status": {
+      "hunger": 80,
+      "fatigue": 1,
+      "mood": "calm",
+      "_tick_n": 8
+    },
+    "inventory": [
+      {
+        "item_name": "apple",
+        "x": 2,
+        "y": 29
+      },
+      {
+        "item_name": "apple",
+        "x": 1,
+        "y": 28
+      },
+      {
+        "item_name": "stick",
+        "x": 1,
+        "y": 27
+      }
+    ],
+    "equipment": {
+      "weapon": null,
+      "offhand": null,
+      "light": null,
+      "head": null,
+      "body": null
+    },
+    "combat_state": {
+      "wounds": [],
+      "blood_loss": 0,
+      "shock": 0
+    },
+    "event_log": [
+      "[THOUGHT] The apples nearby look promising for my hunger, so I will move to the one closest to me.",
+      "Moved east. Underfoot: worn dirt path. You see here: apple.",
+      "[THOUGHT] The apple directly south-east is closer than the others, so I will move there to pick it up.",
+      "Moved se. Underfoot: open grassland. You see here: apple.",
+      "[THOUGHT] The apple is right here on the grassland, so I will pick it up to satisfy my hunger.",
+      "Picked up: apple. sweet and slightly tart.",
+      "[THOUGHT] I am full but curious, so I will move northwest to examine the stick and the apple nearby.",
+      "Moved nw. Underfoot: worn dirt path. You see here: apple.",
+      "[THOUGHT] I am standing on the worn dirt path with an apple at my feet and a stick just north of me.",
+      "Picked up: apple. sweet and slightly tart.",
+      "[THOUGHT] I hold two apples and a stick, and the campfire to the east glows; I will examine it to understand its properties before resting.",
+      "campfire: a crackling campfire [examine, warm, sit, extinguish]",
+      "[THOUGHT] The campfire to the east glows with an inviting warmth, and I will sit by it to recover any lingering fatigue.",
+      "You sit close to the fire. The heat soaks in and the world quiets down.",
+      "[THOUGHT] The firelight warms me, but I notice the rocky ground to the north looks different from the rest of the path.",
+      "You don't see any 'rocky ground north' nearby.",
+      "[THOUGHT] The rocky ground to the north seems distinct from the rest of the path, so I will move closer to examine it.",
+      "Moved north. Underfoot: loose rocky ground. You see here: stick.",
+      "[THOUGHT] The rocky ground feels solid and strange, but the stick at my feet offers a simple tool to test the earth.",
+      "Picked up: stick. a sturdy fallen branch."
+    ],
+    "max_log": 20
+  },
+  "conversation_log": []
+}

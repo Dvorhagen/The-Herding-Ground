@@ -34,7 +34,9 @@ from ..entities.items import (
     make_apple, make_stick, make_berries, make_mushroom_item, make_firewood,
     make_stone, make_bark_strip, make_bandage, make_healing_herb_item,
     make_reed, make_rope, make_flint, make_feather, make_egg, make_meat,
-    make_stone_knife, make_spear, make_club, make_torch, Item, ItemType,
+    make_stone_knife, make_spear, make_club, make_torch,
+    make_worn_tunic, make_rough_trousers, make_simple_boots, make_small_satchel,
+    Item, ItemType,
 )
 from ..entities.animals import make_rabbit, make_deer, make_fox, make_bird
 from ..entities.combat import (
@@ -61,8 +63,12 @@ _ITEM_FACTORIES = {
     "flint":        make_flint,
     "feather":      make_feather,
     "egg":          make_egg,
-    "raw meat":     make_meat,
-    "stone knife":  make_stone_knife,
+    "raw meat":        make_meat,
+    "worn tunic":      make_worn_tunic,
+    "rough trousers":  make_rough_trousers,
+    "simple boots":    make_simple_boots,
+    "small satchel":   make_small_satchel,
+    "stone knife":     make_stone_knife,
     "spear":        make_spear,
     "club":         make_club,
     "torch":        make_torch,

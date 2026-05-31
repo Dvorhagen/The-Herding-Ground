@@ -12,10 +12,11 @@ CONFIG_FILE = _SAVE_DIR / "config.json"
 SAVE_FILE   = _SAVE_DIR / "world.json"
 
 DEFAULTS = {
-    "model":          "qwen3.5:4b",
-    "seed":           42,
-    "tick_delay_idx": 3,
-    "renderer":       "auto",   # "auto" | "pygame" | "curses"
+    "model":           "qwen3.5:4b",
+    "seed":            42,
+    "tick_delay_idx":  3,
+    "default_stepped": False,
+    "renderer":        "auto",   # "auto" | "pygame" | "curses"
 }
 
 
