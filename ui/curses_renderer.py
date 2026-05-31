@@ -11,7 +11,67 @@ Layout:
 
 import curses
 import textwrap
+import unicodedata
 from ..world.tiles import TileType, TILE_PROPERTIES
+
+
+def _safe(text: str, max_len: int = 0) -> str:
+    """
+    Sanitise text for curses output.
+    - Strips control characters (including ANSI escapes).
+    - Replaces non-ASCII with ASCII look-alikes or '?'.
+    - Curses addstr can crash on multi-byte chars on narrow/mobile terminals.
+    """
+    replacements = {
+        "│": "|",   # │ box-drawing
+        "-": "-",   # -
+        "═": "=",   # ═
+        "█": "#",   # █ full block
+        "░": ".",   # ░ light shade
+        "▒": ":",   # ▒ medium shade
+        "▓": "+",   # ▓ dark shade
+        "╬": "+",   # ╬
+        "╔": "+",   # ╔
+        "╗": "+",   # ╗
+        "╚": "+",   # ╚
+        "╝": "+",   # ╝
+        "╠": "+",   # ╠
+        "╣": "+",   # ╣
+        "╦": "+",   # ╦
+        "╩": "+",   # ╩
+        "◀": "<",   # ◀
+        "—": "-",   # em dash
+        "–": "-",   # en dash
+        "‘": "'",   # left single quote
+        "’": "'",   # right single quote
+        "“": '"',   # left double quote
+        "”": '"',   # right double quote
+        "…": "...", # ellipsis
+        "°": "°",   # degree (usually safe, but replace to be sure)
+        "✓": "v",   # ✓ check mark
+        "✗": "x",   # ✗ ballot x
+        "●": "*",   # ● bullet
+    }
+    out = []
+    for ch in text:
+        if ch in replacements:
+            out.append(replacements[ch])
+        elif ord(ch) < 32 or ord(ch) == 127:
+            pass   # strip control chars
+        elif ord(ch) > 127:
+            # Try to transliterate; fall back to ?
+            try:
+                norm = unicodedata.normalize("NFKD", ch)
+                ascii_ch = norm.encode("ascii", errors="ignore").decode("ascii")
+                out.append(ascii_ch if ascii_ch else "?")
+            except Exception:
+                out.append("?")
+        else:
+            out.append(ch)
+    result = "".join(out)
+    if max_len:
+        result = result[:max_len]
+    return result
 
 
 # Tile symbol -> curses color pair mapping
@@ -70,7 +130,7 @@ class CursesRenderer:
 
         self._help_lines = [
             "  KEY REFERENCE",
-            "  " + "─" * 30,
+            "  " + "-" * 30,
             "  TAB        drop-in / return to Moriarty",
             "  [MORIARTY MODE]",
             "  [ / ]      tick speed",
@@ -88,7 +148,7 @@ class CursesRenderer:
             "  v          LOS overlay",
             "  ?          this help",
             "  q          quit",
-            "  " + "─" * 30,
+            "  " + "-" * 30,
             "  any key to close",
         ]
 
@@ -99,6 +159,12 @@ class CursesRenderer:
         curses.noecho()
         self.stdscr.nodelay(True)   # non-blocking input
         self.stdscr.keypad(True)
+        # Ask the OS to send KEY_RESIZE events so we detect terminal resize
+        # (e.g. iPad keyboard appearing, device rotation).
+        try:
+            curses.use_env(True)
+        except Exception:
+            pass
 
         # Initialize color pairs (green phosphor on black)
         curses.start_color()
@@ -127,6 +193,12 @@ class CursesRenderer:
         self.view_y = y - map_h // 2
 
     def draw(self, world_state):
+        # Detect terminal resize (KEY_RESIZE or SIGWINCH on iPad/SSH)
+        try:
+            curses.update_lines_cols()
+        except Exception:
+            pass
+
         self.stdscr.erase()
         h, w = self.stdscr.getmaxyx()
 
@@ -224,7 +296,7 @@ class CursesRenderer:
 
     def _draw_divider(self, map_w, map_h):
         for row in range(map_h):
-            self._put(row, map_w, "│", curses.color_pair(PAIR_DIM))
+            self._put(row, map_w, "|", curses.color_pair(PAIR_DIM))
 
     def _draw_panel(self, world_state, px, panel_w, map_h):
         moriarty = world_state.moriarty
@@ -234,7 +306,7 @@ class CursesRenderer:
         self._put(row, px, "// MORIARTY",
                   curses.color_pair(PAIR_HIGHLIGHT) | curses.A_BOLD)
         row += 1
-        self._put(row, px, "─" * (panel_w - 1), curses.color_pair(PAIR_DIM))
+        self._put(row, px, "-" * (panel_w - 1), curses.color_pair(PAIR_DIM))
         row += 1
 
         # Control mode indicator
@@ -266,10 +338,10 @@ class CursesRenderer:
         self._panel_text(row, px, panel_w, f"CARRY: {inv}")
         row += 1
 
-        # Speed bar: 7 segments, filled up to current index
+        # Speed bar: 7 segments, filled up to current index (ASCII-safe)
         n = 7
         filled = self.tick_delay_idx + 1
-        bar = "█" * filled + "░" * (n - filled)
+        bar = "#" * filled + "." * (n - filled)
         if self.stepped:
             spd_str = f"SPD : [{bar}] STEP"
             attr = curses.color_pair(PAIR_WARNING) | curses.A_BOLD
@@ -279,7 +351,7 @@ class CursesRenderer:
         self._panel_text(row, px, panel_w, spd_str, attr)
         row += 1
 
-        self._put(row, px, "─" * (panel_w - 1), curses.color_pair(PAIR_DIM))
+        self._put(row, px, "-" * (panel_w - 1), curses.color_pair(PAIR_DIM))
         row += 1
 
         # Thought / live reasoning stream
@@ -308,7 +380,7 @@ class CursesRenderer:
             else:
                 row += 1
 
-        self._put(row, px, "─" * (panel_w - 1), curses.color_pair(PAIR_DIM))
+        self._put(row, px, "-" * (panel_w - 1), curses.color_pair(PAIR_DIM))
         row += 1
 
         # Message log
@@ -328,10 +400,11 @@ class CursesRenderer:
                 break
 
     def _draw_bottom_bar(self, row, w):
+        safe_w = max(1, w - 1)   # never write to the very last cell (curses error)
         if self.text_input_active:
             prompt = f" {self.text_input_prompt}: "
-            text = "".join(self.text_input_buffer)
-            bar = (prompt + text + "_")[:w - 1].ljust(w - 1)
+            text = _safe("".join(self.text_input_buffer))
+            bar = _safe((prompt + text + "_")[:safe_w].ljust(safe_w))
             try:
                 self.stdscr.addstr(row, 0, bar,
                                    curses.color_pair(PAIR_PLAYER) | curses.A_BOLD)
@@ -341,16 +414,16 @@ class CursesRenderer:
 
         label = self.control_mode_label
         if label == "MORIARTY":
-            bar = " TAB:drop-in  [:lag-  ]:lag+  SPC:step  .:advance  v:LOS  `:style  ?:help  q:quit "
+            bar = " TAB:drop-in  [:lag-  ]:lag+  SPC:step  .:advance  v:LOS  ?:help  q:quit "
         elif label == "DROP-IN?":
             bar = " G:god observer  P:player character  ESC:cancel "
         elif label == "GOD":
             bar = " TAB:return  arrows:pan  m:jump to Mo  t:inject  v:LOS  q:quit "
         elif label == "PLAYER":
-            bar = " TAB:return  arrows:move  t:talk  p:pickup  .:wait  v:LOS  q:quit "
+            bar = " TAB:return  arrows:move  t:talk  p:pickup  e:examine  .:wait  q:quit "
         else:
             bar = " TAB:mode  q:quit "
-        bar = bar[:w - 1].ljust(w - 1)
+        bar = bar[:safe_w].ljust(safe_w)
         try:
             self.stdscr.addstr(row, 0, bar,
                                curses.color_pair(PAIR_DIM) | curses.A_REVERSE)
@@ -494,17 +567,17 @@ class CursesRenderer:
         return "" if cancelled else "".join(chars)
 
     def _put(self, row, col, char, attr=0):
-        """Safe character put -- silently ignores out-of-bounds."""
+        """Safe character put — sanitises to ASCII and ignores out-of-bounds."""
         try:
-            self.stdscr.addstr(row, col, char, attr)
+            self.stdscr.addstr(row, col, _safe(char), attr)
         except curses.error:
             pass
 
     def _panel_text(self, row, px, panel_w, text, attr=None):
-        """Write text in the panel, truncated to panel width."""
+        """Write sanitised text in the panel, truncated to panel width."""
         if attr is None:
             attr = curses.color_pair(PAIR_NORMAL)
-        text = text[:panel_w - 1]
+        text = _safe(text, max_len=panel_w - 1)
         try:
             self.stdscr.addstr(row, px, text, attr)
         except curses.error:

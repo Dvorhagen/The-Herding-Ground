@@ -664,7 +664,15 @@ def run_curses(stdscr, world_state, spawn_x, spawn_y, cfg=None):
 
     running = True
     while running:
+      try:
         key = renderer.get_input()
+
+        # Handle KEY_RESIZE — terminal was resized (e.g. iPad keyboard appeared)
+        if key == curses.KEY_RESIZE:
+            renderer.stdscr.clear()
+            renderer.center_on(moriarty.x, moriarty.y)
+            renderer.draw(world_state)
+            continue
 
         # ── Text input mode — intercepts all keys, no blocking calls ─────────
         # This runs FIRST so it can't be missed by the elif chain below.
@@ -839,6 +847,16 @@ def run_curses(stdscr, world_state, spawn_x, spawn_y, cfg=None):
 
         renderer.draw(world_state)
         time.sleep(0.033)   # 30 fps frame rate — always runs, never blocked by Mo
+
+      except curses.error:
+          # Terminal size mismatch or draw error — clear and continue
+          try:
+              renderer.stdscr.clear()
+          except Exception:
+              pass
+      except Exception as e:
+          # Unexpected error — log and continue rather than crash
+          log.error(f"curses loop error: {e}", exc_info=True)
 
     save_world(world_state, _config.SAVE_FILE)
 
