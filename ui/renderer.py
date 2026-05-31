@@ -116,9 +116,9 @@ class Renderer:
             self.messages = self.messages[-self.max_messages:]
 
     def center_on(self, x: int, y: int):
-        """Center the viewport on a world position."""
-        self.view_x = max(0, x - VIEWPORT_W // 2)
-        self.view_y = max(0, y - VIEWPORT_H // 2)
+        """Center the viewport on a world position. No floor clamp — world is infinite."""
+        self.view_x = x - VIEWPORT_W // 2
+        self.view_y = y - VIEWPORT_H // 2
 
     def world_to_screen(self, wx: int, wy: int) -> tuple[int, int]:
         return ((wx - self.view_x) * TILE_SIZE, (wy - self.view_y) * TILE_SIZE)

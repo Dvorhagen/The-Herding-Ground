@@ -553,8 +553,9 @@ def run_pygame(world_state, spawn_x, spawn_y, cfg=None):
                 # ── God mode: camera pan ──────────────────────────────────────
                 elif control_mode == "god" and event.key in GOD_PAN:
                     ddx, ddy = GOD_PAN[event.key]
-                    renderer.view_x = max(0, min(world_state.world.width  - 1, renderer.view_x + ddx))
-                    renderer.view_y = max(0, min(world_state.world.height - 1, renderer.view_y + ddy))
+                    _extent = 500_000
+                    renderer.view_x = max(-_extent, min(_extent, renderer.view_x + ddx))
+                    renderer.view_y = max(-_extent, min(_extent, renderer.view_y + ddy))
 
                 # ── Player mode: movement and actions ─────────────────────────
                 elif control_mode == "player" and player_entity:
@@ -767,16 +768,15 @@ def run_curses(stdscr, world_state, spawn_x, spawn_y, cfg=None):
 
         # ── God mode: camera panning ──────────────────────────────────────────
         elif control_mode == "god":
-            wh = world_state.world.height
-            ww = world_state.world.width
+            _ext = 500_000
             if key in (curses.KEY_UP, ord("w"), ord("k")):
-                renderer.view_y = max(0, renderer.view_y - 3)
+                renderer.view_y = max(-_ext, renderer.view_y - 3)
             elif key in (curses.KEY_DOWN, ord("s"), ord("j")):
-                renderer.view_y = min(wh - 1, renderer.view_y + 3)
+                renderer.view_y = min(_ext, renderer.view_y + 3)
             elif key in (curses.KEY_LEFT, ord("a"), ord("h")):
-                renderer.view_x = max(0, renderer.view_x - 3)
+                renderer.view_x = max(-_ext, renderer.view_x - 3)
             elif key in (curses.KEY_RIGHT, ord("d"), ord("l")):
-                renderer.view_x = min(ww - 1, renderer.view_x + 3)
+                renderer.view_x = min(_ext, renderer.view_x + 3)
             elif key == ord("m"):
                 renderer.center_on(moriarty.x, moriarty.y)
                 renderer.add_message("Jumped to Moriarty.")

@@ -123,8 +123,8 @@ class CursesRenderer:
         panel_w = min(40, w // 3)
         map_w = w - panel_w
         map_h = h - 1  # leave bottom bar
-        self.view_x = max(0, x - map_w // 2)
-        self.view_y = max(0, y - map_h // 2)
+        self.view_x = x - map_w // 2
+        self.view_y = y - map_h // 2
 
     def draw(self, world_state):
         self.stdscr.erase()
