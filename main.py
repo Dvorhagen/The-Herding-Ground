@@ -49,14 +49,17 @@ log = logging.getLogger("moriarty")
 # ── Pygame key map (only used when pygame is active) ─────────────────────────
 def _make_pygame_keymap():
     return {
+        # Arrow keys
         pygame.K_UP:     ("move", {"direction": "north"}),
         pygame.K_DOWN:   ("move", {"direction": "south"}),
         pygame.K_LEFT:   ("move", {"direction": "west"}),
         pygame.K_RIGHT:  ("move", {"direction": "east"}),
+        # WASD
         pygame.K_w:      ("move", {"direction": "north"}),
         pygame.K_s:      ("move", {"direction": "south"}),
         pygame.K_a:      ("move", {"direction": "west"}),
         pygame.K_d:      ("move", {"direction": "east"}),
+        # hjkl + diagonal vi-keys
         pygame.K_k:      ("move", {"direction": "north"}),
         pygame.K_j:      ("move", {"direction": "south"}),
         pygame.K_h:      ("move", {"direction": "west"}),
@@ -65,6 +68,17 @@ def _make_pygame_keymap():
         pygame.K_u:      ("move", {"direction": "ne"}),
         pygame.K_b:      ("move", {"direction": "sw"}),
         pygame.K_n:      ("move", {"direction": "se"}),
+        # Numpad (all 8 directions + 5=wait)
+        pygame.K_KP8:    ("move", {"direction": "north"}),
+        pygame.K_KP2:    ("move", {"direction": "south"}),
+        pygame.K_KP4:    ("move", {"direction": "west"}),
+        pygame.K_KP6:    ("move", {"direction": "east"}),
+        pygame.K_KP7:    ("move", {"direction": "nw"}),
+        pygame.K_KP9:    ("move", {"direction": "ne"}),
+        pygame.K_KP1:    ("move", {"direction": "sw"}),
+        pygame.K_KP3:    ("move", {"direction": "se"}),
+        pygame.K_KP5:    ("wait", {}),
+        # Actions
         pygame.K_p:      ("pickup", {}),
         pygame.K_e:      ("examine", {"target": "surroundings"}),
         pygame.K_PERIOD: ("wait", {}),
@@ -87,7 +101,8 @@ def apply_action(action_name, args, actor, world_state, renderer):
     """Execute one action and push the result message to the renderer."""
     result = resolve_action(action_name, args, actor, world_state)
     renderer.add_message(result.message)
-    actor.log_event(result.message)
+    if not (result.data and result.data.get("no_log")):
+        actor.log_event(result.message)
     log.info(f"GAME action={action_name} args={args} ok={result.success} | {result.message[:80]}")
     if result.data and result.data.get("trigger_reflection"):
         _handle_reflection(actor, world_state, renderer)
@@ -524,6 +539,15 @@ def run_curses(stdscr, world_state, spawn_x, spawn_y):
         ord("d"): "east",  ord("l"): "east",
         ord("y"): "nw",    ord("u"): "ne",
         ord("b"): "sw",    ord("n"): "se",
+        # Numpad with numlock ON (sends digit chars)
+        ord("8"): "north", ord("2"): "south",
+        ord("4"): "west",  ord("6"): "east",
+        ord("7"): "nw",    ord("9"): "ne",
+        ord("1"): "sw",    ord("3"): "se",
+        # Numpad with numlock OFF (curses KEY_* constants)
+        curses.KEY_A1: "nw",    curses.KEY_A3: "ne",
+        curses.KEY_C1: "sw",    curses.KEY_C3: "se",
+        curses.KEY_B2: "wait",  # centre key = wait
     }
 
     renderer = CursesRenderer(stdscr)

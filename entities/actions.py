@@ -472,7 +472,7 @@ def action_talk(actor, args: dict, world_state) -> ActionResult:
             "tick":      world_state.tick,
         })
         return ActionResult(True, f'You say to the {target.name}: "{message}"',
-                            world_changed=False, data={"speech": message})
+                            world_changed=False, data={"speech": message, "no_log": True})
     else:
         world_state.pending_messages.append({
             "from_name": actor.name,
@@ -481,7 +481,7 @@ def action_talk(actor, args: dict, world_state) -> ActionResult:
             "tick":      world_state.tick,
         })
         return ActionResult(True, f'You say: "{message}"',
-                            world_changed=False, data={"speech": message})
+                            world_changed=False, data={"speech": message, "no_log": True})
 
 
 def action_yell(actor, args: dict, world_state) -> ActionResult:
@@ -502,7 +502,7 @@ def action_yell(actor, args: dict, world_state) -> ActionResult:
         "tick":      world_state.tick,
     })
     return ActionResult(True, f'You yell: "{message}"',
-                        world_changed=False, data={"speech": message})
+                        world_changed=False, data={"speech": message, "no_log": True})
 
 
 def action_reflect(actor, args: dict, world_state) -> ActionResult:

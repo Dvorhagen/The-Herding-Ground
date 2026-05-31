@@ -187,10 +187,10 @@ class WorldState:
         # --- Immediate: current position ---
         current = self._describe_tile_at(cx, cy)
 
-        # --- Close (1-3m): group by terrain type, list directions per type ---
-        # Grouped format ("forest to the east, north-east") reveals less about
-        # the exact grid boundary than per-direction listing does.
-        close_types = {}   # type_name -> (description, [direction, ...])
+        # --- Close (1-3m): per-direction with nearest distance ---
+        # Include explicit distance so Mo can't misrepresent nearby terrain.
+        # Format: "dense forest (1m) to the south, south-east (2m)"
+        close_dir = {}  # direction -> (min_dist, description)
         for dy in range(-VISION_CLOSE, VISION_CLOSE + 1):
             for dx in range(-VISION_CLOSE, VISION_CLOSE + 1):
                 if dx == 0 and dy == 0:
@@ -203,17 +203,22 @@ class WorldState:
                 tile = self.world.get(cx + dx, cy + dy)
                 if tile is None:
                     continue
-                tname = tile.props.name
                 direction = _direction_name(dx, dy)
-                if tname not in close_types:
-                    close_types[tname] = (tile.props.description, [])
-                if direction not in close_types[tname][1]:
-                    close_types[tname][1].append(direction)
+                if direction not in close_dir or d < close_dir[direction][0]:
+                    close_dir[direction] = (d, tile.props.description, tile.props.name)
+
+        # Group same-terrain directions, preserving closest distance per direction
+        close_types = {}  # desc -> [(direction, dist)]
+        for direction, (d, desc, name) in close_dir.items():
+            close_types.setdefault(desc, []).append((direction, int(round(d))))
 
         close_lines = []
-        for tname, (tdesc, dirs) in sorted(close_types.items()):
-            dir_str = ", ".join(sorted(dirs))
-            close_lines.append(f"  {tdesc} to the {dir_str}")
+        for desc, dir_dists in sorted(close_types.items()):
+            dir_dists.sort(key=lambda x: x[1])
+            parts = ", ".join(
+                f"{dr} ({dt}m)" for dr, dt in dir_dists
+            )
+            close_lines.append(f"  {desc}: {parts}")
 
         # --- Nearby (4-8m): group by terrain type ---
         nearby_types = {}
@@ -264,8 +269,8 @@ class WorldState:
         # Assemble
         lines = [f"Underfoot: {current}"]
         if close_lines:
-            lines.append("Close by:")
-            lines.extend(close_lines[:12])  # cap for token budget
+            lines.append("Immediate surroundings (1-3m):")
+            lines.extend(close_lines[:12])
         if nearby_lines:
             lines.append("Visible nearby:")
             lines.extend(nearby_lines[:8])
