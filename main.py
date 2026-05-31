@@ -34,7 +34,8 @@ if not USE_CURSES:
 # ── Path setup ────────────────────────────────────────────────────────────────
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-from moriarty.world.mapgen import generate_world, find_spawn, populate_natural_objects, populate_animals
+from moriarty.world.tiles import WorldMap
+from moriarty.world.mapgen import find_spawn, populate_natural_objects, populate_animals
 from moriarty.world.state import WorldState
 from moriarty.world.save import save_world, load_world, save_info
 from moriarty.entities.base import MoriartyEntity, PlayerEntity, EntityType, DIRECTIONS
@@ -250,45 +251,38 @@ def _player_move(player_entity, direction: str, world_state, renderer) -> bool:
 def _init_world(seed: int = 42):
     """Build the world, spawn Moriarty, scatter starting items."""
     print("[MORIARTY] Generating world...")
-    world = generate_world(width=512, height=512, seed=seed)
+    world = WorldMap(seed=seed)
     spawn_x, spawn_y = find_spawn(world)
 
     moriarty = MoriartyEntity(name="Moriarty", entity_type=EntityType.MORIARTY,
                       x=spawn_x, y=spawn_y)
     world_state = WorldState(world=world, moriarty=moriarty)
 
-    def safe_item(make_fn, dx, dy):
-        x = max(0, min(world.width  - 1, spawn_x + dx))
-        y = max(0, min(world.height - 1, spawn_y + dy))
-        for ox, oy in [(0,0),(1,0),(-1,0),(0,1),(0,-1)]:
-            tx, ty = x + ox, y + oy
-            if world.is_passable(tx, ty):
-                return make_fn(tx, ty)
-        return make_fn(x, y)
+    def near_spawn(dx, dy):
+        """Find a passable tile near spawn + offset."""
+        bx, by = spawn_x + dx, spawn_y + dy
+        for ox, oy in ((0,0),(1,0),(-1,0),(0,1),(0,-1)):
+            if world.is_passable(bx + ox, by + oy):
+                return bx + ox, by + oy
+        return bx, by
 
-    world_state.add_entity(safe_item(make_apple,  1,  0))
-    world_state.add_entity(safe_item(make_apple,  2,  1))
-    world_state.add_entity(safe_item(make_apple, -1,  2))
-    world_state.add_entity(safe_item(make_stick,  1, -1))
+    ax, ay = near_spawn( 1,  0); world_state.add_entity(make_apple(ax, ay))
+    ax, ay = near_spawn( 2,  1); world_state.add_entity(make_apple(ax, ay))
+    ax, ay = near_spawn(-1,  2); world_state.add_entity(make_apple(ax, ay))
+    sx, sy = near_spawn( 1, -1); world_state.add_entity(make_stick(sx, sy))
     moriarty.status.hunger = 80
 
     # Starter objects near spawn
-    campfire_x = max(0, min(world.width  - 1, spawn_x + 3))
-    campfire_y = max(0, min(world.height - 1, spawn_y))
-    if world.is_passable(campfire_x, campfire_y):
-        world_state.add_object(make_campfire(campfire_x, campfire_y))
+    cx, cy = near_spawn(3,  0)
+    world_state.add_object(make_campfire(cx, cy))
+    cx, cy = near_spawn(-2, 1)
+    world_state.add_object(make_chest(cx, cy, contents=[make_apple(cx, cy)]))
 
-    chest_x = max(0, min(world.width  - 1, spawn_x - 2))
-    chest_y = max(0, min(world.height - 1, spawn_y + 1))
-    if world.is_passable(chest_x, chest_y):
-        chest = make_chest(chest_x, chest_y, contents=[make_apple(chest_x, chest_y)])
-        world_state.add_object(chest)
-
-    # Populate the natural world
+    # Populate the natural world around spawn
     print("[MORIARTY] Populating natural objects...")
-    populate_natural_objects(world_state, seed=42)
+    populate_natural_objects(world_state, seed=seed, cx=spawn_x, cy=spawn_y)
     print("[MORIARTY] Populating animals...")
-    populate_animals(world_state, seed=42)
+    populate_animals(world_state, seed=seed, cx=spawn_x, cy=spawn_y)
 
     wiki._ensure_dirs()
     wiki.get_self_model()

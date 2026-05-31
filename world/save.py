@@ -27,7 +27,7 @@ import gzip
 from datetime import datetime
 from pathlib import Path
 
-from .tiles import WorldMap, TileType
+from .tiles import WorldMap, TileType, Tile, CHUNK_SIZE
 from .state import WorldState
 from ..entities.base import MoriartyEntity, EntityType
 from ..entities.items import (
@@ -76,39 +76,60 @@ _ANIMAL_FACTORIES = {
 }
 
 
-# ── Tile RLE ──────────────────────────────────────────────────────────────────
+# ── Chunk serialization ───────────────────────────────────────────────────────
 
-def _encode_tiles(world: WorldMap) -> list:
-    """Run-length encode the tile grid (row-major order)."""
-    runs = []
-    current = None
-    count = 0
-    for y in range(world.height):
-        for x in range(world.width):
-            tile = world.get(x, y)
-            name = tile.tile_type.name if tile else "GRASS"
+def _encode_chunk(grid: list) -> list:
+    """RLE encode a 32×32 chunk (row-major)."""
+    runs, current, count = [], None, 0
+    for row in grid:
+        for tile in row:
+            name = tile.tile_type.name
             if name == current:
                 count += 1
             else:
                 if current is not None:
                     runs.append([current, count])
-                current = name
-                count = 1
-    if current is not None:
+                current, count = name, 1
+    if current:
         runs.append([current, count])
     return runs
 
 
-def _decode_tiles(world: WorldMap, runs: list):
-    """Decode RLE runs back into the world grid."""
-    idx = 0
+def _decode_chunk(runs: list) -> list:
+    """Decode RLE back into a 32×32 list[list[Tile]]."""
+    tiles = []
     for tname, count in runs:
-        tile_enum = TileType[tname]
-        for _ in range(count):
-            x = idx % world.width
-            y = idx // world.width
-            world.set(x, y, tile_enum)
-            idx += 1
+        tt = TileType[tname]
+        tiles.extend([Tile(tt)] * count)
+    grid = []
+    for row_i in range(CHUNK_SIZE):
+        grid.append(tiles[row_i * CHUNK_SIZE: (row_i + 1) * CHUNK_SIZE])
+    return grid
+
+
+def _save_chunks(world: WorldMap, chunk_dir: Path):
+    """Write every modified chunk to chunk_dir/{cx}_{cy}.json."""
+    chunk_dir.mkdir(parents=True, exist_ok=True)
+    for (cx, cy) in world._modified_chunks:
+        grid = world._chunks.get((cx, cy))
+        if grid is None:
+            continue
+        data = {"cx": cx, "cy": cy, "tiles": _encode_chunk(grid)}
+        (chunk_dir / f"{cx}_{cy}.json").write_text(json.dumps(data))
+    world._modified_chunks.clear()
+
+
+def _load_chunks(world: WorldMap, chunk_dir: Path):
+    """Load all saved chunk files into the world cache."""
+    if not chunk_dir.exists():
+        return
+    for f in chunk_dir.glob("*.json"):
+        try:
+            data = json.loads(f.read_text())
+            cx, cy = data["cx"], data["cy"]
+            world._chunks[(cx, cy)] = _decode_chunk(data["tiles"])
+        except Exception as e:
+            print(f"[WARN] Could not load chunk {f.name}: {e}")
 
 
 # ── Item serialization ────────────────────────────────────────────────────────
@@ -332,9 +353,17 @@ def _de_moriarty(d: dict) -> MoriartyEntity:
 # ── Public API ────────────────────────────────────────────────────────────────
 
 def save_world(world_state: WorldState, path: Path | str):
-    """Serialise WorldState to JSON at path. Creates parent dirs as needed."""
+    """
+    Save WorldState.
+    - Modified chunks → save/chunks/{cx}_{cy}.json (only diffs from generated world)
+    - Everything else → world.json (seed, Mo state, world objects, entities)
+    """
     path = Path(path)
     path.parent.mkdir(parents=True, exist_ok=True)
+    chunk_dir = path.parent / "chunks"
+
+    # Write modified chunks
+    _save_chunks(world_state.world, chunk_dir)
 
     from ..entities.animals import Animal
     from ..entities.items import Item
@@ -352,11 +381,7 @@ def save_world(world_state: WorldState, path: Path | str):
         "version":    SAVE_VERSION,
         "saved_at":   datetime.now().isoformat(timespec="seconds"),
         "tick":       world_state.tick,
-        "world": {
-            "width":  world_state.world.width,
-            "height": world_state.world.height,
-            "tiles":  _encode_tiles(world_state.world),
-        },
+        "seed":       world_state.world.seed,
         "world_objects":    [_ser_world_object(o) for o in world_state.world_objects],
         "entities":         entities_data,
         "moriarty":         _ser_moriarty(world_state.moriarty),
@@ -364,11 +389,13 @@ def save_world(world_state: WorldState, path: Path | str):
     }
 
     path.write_text(json.dumps(payload, indent=2))
-    print(f"[SAVE] World saved to {path}  (tick {world_state.tick})")
+    n_chunks = len(list(chunk_dir.glob("*.json"))) if chunk_dir.exists() else 0
+    print(f"[SAVE] Saved to {path.parent}  "
+          f"(tick {world_state.tick}, {n_chunks} modified chunks)")
 
 
 def load_world(path: Path | str) -> WorldState:
-    """Deserialise a saved WorldState from path. Raises FileNotFoundError if missing."""
+    """Load WorldState. Creates WorldMap from seed, overlays modified chunks."""
     path = Path(path)
     if not path.exists():
         raise FileNotFoundError(f"No save file at {path}")
@@ -376,28 +403,24 @@ def load_world(path: Path | str) -> WorldState:
     payload = json.loads(path.read_text())
     v = payload.get("version", 1)
     if v > SAVE_VERSION:
-        print(f"[WARN] Save version {v} is newer than supported {SAVE_VERSION}; loading anyway")
+        print(f"[WARN] Save version {v} newer than {SAVE_VERSION}; loading anyway")
 
-    # World map
-    wd = payload["world"]
-    world = WorldMap(wd["width"], wd["height"])
-    _decode_tiles(world, wd["tiles"])
+    # Reconstruct world from seed, then apply modifications
+    seed = payload.get("seed", 42)
+    world = WorldMap(seed=seed)
+    chunk_dir = path.parent / "chunks"
+    _load_chunks(world, chunk_dir)
 
-    # Moriarty
     moriarty = _de_moriarty(payload["moriarty"])
-
-    # WorldState
     ws = WorldState(world=world, moriarty=moriarty)
     ws.tick = payload.get("tick", 0)
 
-    # World objects
     for od in payload.get("world_objects", []):
         try:
             ws.world_objects.append(_de_world_object(od))
         except Exception as e:
-            print(f"[WARN] Could not load world object {od.get('type')}: {e}")
+            print(f"[WARN] World object {od.get('type')}: {e}")
 
-    # Entities
     from ..entities.animals import Animal
     for ed in payload.get("entities", []):
         kind = ed.get("kind")
@@ -411,12 +434,10 @@ def load_world(path: Path | str) -> WorldState:
                 if item:
                     ws.entities.append(item)
         except Exception as e:
-            print(f"[WARN] Could not load entity {ed}: {e}")
+            print(f"[WARN] Entity {ed}: {e}")
 
-    # Conversation log
     ws.conversation_log = payload.get("conversation_log", [])
-
-    print(f"[LOAD] World loaded from {path}  (tick {ws.tick})")
+    print(f"[LOAD] Loaded from {path.parent}  (tick {ws.tick}, seed {seed})")
     return ws
 
 

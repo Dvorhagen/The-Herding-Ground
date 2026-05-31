@@ -1,0 +1,6 @@
+{
+  "model": "qwen3.5:4b",
+  "seed": 42,
+  "tick_delay_idx": 3,
+  "renderer": "auto"
+}
