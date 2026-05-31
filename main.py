@@ -36,6 +36,7 @@ sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from moriarty.world.mapgen import generate_world, find_spawn, populate_natural_objects, populate_animals
 from moriarty.world.state import WorldState
+from moriarty.world.save import save_world, load_world, save_info
 from moriarty.entities.base import MoriartyEntity, PlayerEntity, EntityType, DIRECTIONS
 from moriarty.entities.items import make_apple, make_stick
 from moriarty.world.objects import make_campfire, make_chest
@@ -43,6 +44,8 @@ from moriarty.entities.actions import resolve_action, ActionResult
 from moriarty.brain import moriarty_brain
 from moriarty.brain.moriarty_brain import PROMPT_STYLES, PROMPT_LABELS
 from moriarty.memory import wiki
+from moriarty import config as _config
+from moriarty.ui.startup_menu import show as _show_menu
 
 log = logging.getLogger("moriarty")
 
@@ -244,10 +247,10 @@ def _player_move(player_entity, direction: str, world_state, renderer) -> bool:
     return False
 
 
-def _init_world():
+def _init_world(seed: int = 42):
     """Build the world, spawn Moriarty, scatter starting items."""
     print("[MORIARTY] Generating world...")
-    world = generate_world(width=512, height=512, seed=42)
+    world = generate_world(width=512, height=512, seed=seed)
     spawn_x, spawn_y = find_spawn(world)
 
     moriarty = MoriartyEntity(name="Moriarty", entity_type=EntityType.MORIARTY,
@@ -519,6 +522,7 @@ def run_pygame(world_state, spawn_x, spawn_y):
 
         renderer.draw(world_state)
 
+    save_world(world_state, _config.SAVE_FILE)
     pygame.quit()
 
 # ── Curses game loop ──────────────────────────────────────────────────────────
@@ -753,10 +757,36 @@ def run_curses(stdscr, world_state, spawn_x, spawn_y):
         renderer.draw(world_state)
         time.sleep(0.033)   # 30 fps frame rate — always runs, never blocked by Mo
 
+    save_world(world_state, _config.SAVE_FILE)
+
 # ── Entry point ───────────────────────────────────────────────────────────────
 
 def run():
-    world_state, sx, sy = _init_world()
+    # ── Load config and show startup menu ────────────────────────────────────
+    cfg      = _config.load()
+    si       = save_info(_config.SAVE_FILE)
+    decision = _show_menu(cfg, si)
+    cfg      = decision["config"]
+
+    # Apply model from config before any Ollama calls
+    moriarty_brain.MODEL = cfg["model"]
+
+    if decision["action"] == "quit":
+        print("[MORIARTY] Bye.")
+        return
+
+    # ── Build or restore world ───────────────────────────────────────────────
+    if decision["action"] == "resume" and si:
+        print("[MORIARTY] Loading saved world...")
+        world_state = load_world(_config.SAVE_FILE)
+        sx, sy = world_state.moriarty.x, world_state.moriarty.y
+    else:
+        world_state, sx, sy = _init_world(seed=cfg["seed"])
+
+    # Persist any config changes (model, seed)
+    _config.save(cfg)
+
+    # ── Launch game ──────────────────────────────────────────────────────────
     if USE_CURSES:
         import curses
         print("[MORIARTY] Terminal mode (curses). Press Q to quit.")
@@ -764,6 +794,7 @@ def run():
     else:
         print("[MORIARTY] Graphical mode (pygame).")
         run_pygame(world_state, sx, sy)
+
     print("[MORIARTY] Goodbye.")
 
 
