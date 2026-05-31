@@ -59,17 +59,17 @@ changes to the action registry. PI control not yet implemented.
 
 ## 📋 Feature Backlog
 
-### PI Console (next milestone)
-- [ ] Split UI: world view left, research console right
-- [ ] Observe mode (default — watch Moriarty run)
-- [ ] Pause / single-step tick control
-- [ ] Inject — slip text into Moriarty's next perception block without attribution
-- [ ] Intervene — drop items into world, modify terrain from console
-- [ ] Possess — take direct movement control
-- [ ] Query — send Moriarty a direct out-of-band question, log response
-- [ ] Wiki browser — read/edit Moriarty's memory pages from the console
-- [ ] Status panel — hunger, fatigue, mood, tick count, position
-- [ ] Thought history — scrollable log of Moriarty's recent THOUGHTs
+### PI Console
+- [x] Observe mode — watch Moriarty run autonomously (default)
+- [x] Pause / single-step tick control (Space + .)
+- [x] Inject — `[ENVIRONMENT]` text slipped into Mo's next perception (god mode T key)
+- [x] Possess — TAB → P drops Aaron into direct movement control as player avatar
+- [x] Status panel — hunger, fatigue, mood, tick count, position shown in renderer
+- [x] Thought history — THOUGHT displayed in panel; last N in Recent Events
+- [ ] Split UI: world view left, dedicated research console right (currently single panel)
+- [ ] Intervene — place/remove items or modify terrain from god mode (map editor)
+- [ ] Query — send Mo a direct out-of-band question, log response separately
+- [ ] Wiki browser — read/edit Mo's memory pages from the in-game console
 
 ### Identity & World Grounding
 - [ ] Rewrite IDENTITY.md: bio-synthetic hybrid framing (see notes below)
@@ -156,39 +156,33 @@ changes to the action registry. PI control not yet implemented.
 - [ ] Survival drive (hunger/fatigue create genuine behavioral pressure)
 - [ ] Reality questioning (emergent — not prompted, just watch for it in logs)
 
-### Avatar System (next milestone)
-Foundation already in place: `PlayerEntity` class, `talk`/`yell` actions, message queue in WorldState.
+### Avatar System
+**Basics implemented.** TAB cycles modes; `T` opens non-blocking text input.
 
 **Drop-in modes:**
-- [ ] **Player character** — Aaron appears as "a figure" in Mo's world; same stats as Mo (no god powers); Mo can see, approach, and talk to them
-- [ ] **God observer** — invisible to Mo; can inject `[ENVIRONMENT]` messages, place/remove items, modify terrain; no body
+- [x] **Player character** (P) — Aaron spawns as "a figure" near Mo; Mo sees them in perception; movement with arrow keys; pickup, wait; `T` sends talk message
+- [x] **God observer** (G) — camera pans freely; `T` injects `[ENVIRONMENT]`; `M` jumps view back to Mo; invisible to Mo
+- [x] Async turns — Mo thinks at his tick rate, Aaron acts between ticks; messages queue and surface in Mo's next `[MESSAGES]` block
+- [x] `_find_player_spawn()` — places avatar near Mo on a free passable tile
+- [x] "A figure appears nearby." broadcast message on drop-in
 
-**Turn structure:**
-- [ ] Async turns — Mo thinks at his tick rate, Aaron acts between ticks with immediate effect; messages queue and appear in Mo's next perception
-- [ ] No "wait for player" — two independent agents in the same world at different cadences
-- [ ] Real-time tick mode required once multiple players are active
+**Conversation:**
+- [x] `T` key opens text input bar (non-blocking) — god injects env, player sends talk message directly to Mo
+- [x] Mo's `talk`/`yell` actions surface in renderer log for Aaron to read
+- [ ] Mo's messages displayed as speech bubbles / distinct channel in panel
 
-**Conversation UI:**
-- [ ] Aaron mode: `T` opens text input → sends talk message → appears in Mo's next `[MESSAGES]` block
-- [ ] Mo's `talk`/`yell` messages appear in Aaron's renderer log as they are spoken
-- [ ] Mo may initiate conversation (yell, speak aloud) without being addressed
-
-**Avatar controls:**
-- [ ] Full inventory, equipment, combat — Aaron fights with the same system as Mo
-- [ ] Aaron can be wounded, grappled, killed — consequences are real
-- [ ] Avatar persistence: leaving the world drops the avatar (items stay)
+**Avatar controls — still to do:**
+- [ ] Player combat (attack, grapple, dodge via keypress in player mode)
+- [ ] Player examine, use, drop actions
+- [ ] Player wound display in panel (body status for Aaron's character)
+- [ ] Avatar persistence: leaving the world leaves the figure standing (items stay)
 
 **Avatar customization (at drop-in time):**
-- [ ] Name — what Mo hears when you speak; what `examine` reports
-- [ ] Description — free-text appearance/demeanor shown on `examine`
-- [ ] Starting stats — strength, speed, toughness (default: average, same as Mo)
-- [ ] Starting inventory / equipment — choose what you bring in
-- [ ] Presented as a pre-spawn form before the avatar appears in the world
+- [ ] Name, description, starting inventory choice at drop-in prompt
 
 **Multi-user:**
 - [ ] Mike (and others) can SSH in and inhabit their own `PlayerEntity`
-- [ ] Mo perceives all players as "figures" — no distinction between human-controlled entities
-- [ ] Each player sees their own renderer; Mo's perception is unchanged
+- [ ] Each player sees their own renderer; Mo's perception unchanged
 
 ### Social / Multi-agent
 - [ ] NPC entities with their own AI brain loops
