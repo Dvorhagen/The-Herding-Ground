@@ -313,6 +313,25 @@ def call_ollama(messages: list[dict], thinking: bool = False,
         return None
 
 
+def _parse_args(args_str: str) -> dict:
+    """
+    Parse ARGS string containing one or more key=value pairs.
+    Pairs may be separated by commas or spaces; values may contain spaces.
+    'target=figure message=Hello there' → {'target': 'figure', 'message': 'Hello there'}
+    """
+    import re
+    args = {}
+    matches = list(re.finditer(r'(\w+)\s*=\s*', args_str))
+    for i, m in enumerate(matches):
+        key = m.group(1)
+        val_start = m.end()
+        val_end = matches[i + 1].start() if i + 1 < len(matches) else len(args_str)
+        value = args_str[val_start:val_end].strip().rstrip(',').strip()
+        if value:
+            args[key] = value
+    return args
+
+
 def parse_response(response_text: str) -> dict:
     """Parse THOUGHT/ACTION/ARGS/MEMORY format (styles C and B)."""
     result = {
@@ -323,27 +342,31 @@ def parse_response(response_text: str) -> dict:
         "raw": response_text,
     }
     log.debug(f"RAW RESPONSE:\n{response_text}")
+    mem_lines = []
+    collecting_mem = False
     for line in response_text.strip().split("\n"):
         line = line.strip()
         if line.startswith("THOUGHT:"):
             result["thought"] = line[len("THOUGHT:"):].strip()
+            collecting_mem = False
         elif line.startswith("ACTION:"):
             result["action"] = line[len("ACTION:"):].strip().lower()
+            collecting_mem = False
         elif line.startswith("ARGS:"):
-            args_str = line[len("ARGS:"):].strip()
-            args = {}
-            for part in args_str.split(","):
-                part = part.strip()
-                if "=" in part:
-                    k, v = part.split("=", 1)
-                    args[k.strip()] = v.strip()
-            result["args"] = args
+            result["args"] = _parse_args(line[len("ARGS:"):].strip())
+            collecting_mem = False
         elif line.startswith("MEMORY:"):
-            mem_str = line[len("MEMORY:"):].strip()
-            try:
-                result["memory_tool"] = json.loads(mem_str)
-            except json.JSONDecodeError:
-                pass
+            mem_lines = [line[len("MEMORY:"):].strip()]
+            collecting_mem = True
+        elif collecting_mem and line:
+            mem_lines.append(line)
+
+    if mem_lines:
+        try:
+            result["memory_tool"] = json.loads(" ".join(mem_lines))
+        except json.JSONDecodeError:
+            pass
+
     log.info(f"PARSED: action={result['action']} args={result['args']} thought={result['thought'][:80]}")
     return result
 
@@ -396,7 +419,8 @@ def parse_natural_response(response_text: str) -> dict:
     if len(lines) < 2:
         return result
 
-    parts = lines[1].lower().split()
+    action_line_orig = lines[1]                        # preserve case for speech
+    parts = action_line_orig.lower().split()
     if not parts:
         return result
 
@@ -428,8 +452,24 @@ def parse_natural_response(response_text: str) -> dict:
         result["action"] = "wait"
     elif verb == "reflect":
         result["action"] = "reflect"
+    elif verb in ("say", "talk", "speak", "tell", "greet", "call", "address"):
+        result["action"] = "talk"
+        # Preserve original case; strip verb, then strip optional "to the <name>" prefix
+        import re as _re
+        speech = action_line_orig[len(verb):].strip()
+        m = _re.match(r'^to\s+(?:the\s+)?(\w+)\s*(.*)', speech, _re.IGNORECASE)
+        if m:
+            result["args"]["target"] = m.group(1).lower()
+            speech = m.group(2).strip()
+        if speech:
+            result["args"]["message"] = speech
+    elif verb in ("yell", "shout", "scream", "holler"):
+        result["action"] = "yell"
+        speech = action_line_orig[len(verb):].strip()
+        if speech:
+            result["args"]["message"] = speech
     else:
-        # Dynamic verb — warm, open, take, etc.
+        # Dynamic verb — warm, open, etc.
         result["action"] = verb
         target = " ".join(w for w in rest if w not in ("myself", "itself"))
         if target:

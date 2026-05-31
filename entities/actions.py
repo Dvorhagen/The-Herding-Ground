@@ -28,9 +28,16 @@ class ActionResult:
     data: Any = None    # Optional extra payload for special actions
 
 
+_DIR_ALIASES = {
+    "northwest": "nw", "northeast": "ne", "southwest": "sw", "southeast": "se",
+    "northward": "north", "southward": "south", "eastward": "east", "westward": "west",
+    "northwards": "north", "southwards": "south", "eastwards": "east", "westwards": "west",
+}
+
 def action_move(actor, args: dict, world_state) -> ActionResult:
     """Move in a direction. args: {direction: str}"""
-    direction = args.get("direction", "").lower()
+    direction = args.get("direction", "").lower().strip().replace("-", "").replace(" ", "")
+    direction = _DIR_ALIASES.get(direction, direction)
     if direction not in DIRECTIONS:
         return ActionResult(False, f"Unknown direction: '{direction}'. Valid: {list(DIRECTIONS.keys())}")
     dx, dy = DIRECTIONS[direction]
@@ -427,10 +434,21 @@ def action_flee_combat(actor, args: dict, world_state) -> ActionResult:
 
 def action_talk(actor, args: dict, world_state) -> ActionResult:
     """Speak to a nearby entity. args: {target: str, message: str}"""
-    message = args.get("message", args.get("msg", "")).strip()
-    target_name = (args.get("target") or "").lower().strip()
+    # Accept any plausible key name for the spoken text
+    message = ""
+    for _k in ("message", "msg", "text", "speech", "say", "words", "content"):
+        message = (args.get(_k) or "").strip()
+        if message:
+            break
+    # Last resort: first non-target string value in args
     if not message:
-        return ActionResult(False, "Say what? Include message=<text> in args.", world_changed=False)
+        for _k, _v in args.items():
+            if _k.lower() not in ("target", "to", "name", "entity") and isinstance(_v, str) and _v.strip():
+                message = _v.strip()
+                break
+    target_name = (args.get("target") or args.get("to") or args.get("name") or "").lower().strip()
+    if not message:
+        return ActionResult(False, "Say what? Use ARGS: message=<your words>", world_changed=False)
 
     # Find target entity
     nearby = world_state.get_entities_near(actor.x, actor.y, radius=8)
@@ -439,6 +457,13 @@ def action_talk(actor, args: dict, world_state) -> ActionResult:
         target = next((e for e in nearby if target_name in e.name.lower()
                        and e.id != actor.id), None)
 
+    # Log to persistent conversation history
+    _conv = getattr(world_state, 'conversation_log', None)
+    if _conv is not None:
+        _conv.append({"speaker": actor.name, "text": message, "tick": world_state.tick})
+        if len(_conv) > 12:
+            world_state.conversation_log = _conv[-12:]
+
     if target:
         world_state.pending_messages.append({
             "from_name": actor.name,
@@ -446,16 +471,17 @@ def action_talk(actor, args: dict, world_state) -> ActionResult:
             "message":   message,
             "tick":      world_state.tick,
         })
-        return ActionResult(True, f'You say to the {target.name}: "{message}"', world_changed=False)
+        return ActionResult(True, f'You say to the {target.name}: "{message}"',
+                            world_changed=False, data={"speech": message})
     else:
-        # Speak aloud — nearby entities may hear (broadcast within 5 tiles)
         world_state.pending_messages.append({
             "from_name": actor.name,
             "to_id":     "broadcast",
             "message":   message,
             "tick":      world_state.tick,
         })
-        return ActionResult(True, f'You say: "{message}"', world_changed=False)
+        return ActionResult(True, f'You say: "{message}"',
+                            world_changed=False, data={"speech": message})
 
 
 def action_yell(actor, args: dict, world_state) -> ActionResult:
@@ -463,13 +489,20 @@ def action_yell(actor, args: dict, world_state) -> ActionResult:
     message = args.get("message", args.get("msg", "")).strip()
     if not message:
         return ActionResult(False, "Yell what?", world_changed=False)
+    _conv = getattr(world_state, 'conversation_log', None)
+    if _conv is not None:
+        _conv.append({"speaker": actor.name, "text": f"[yell] {message}", "tick": world_state.tick})
+        if len(_conv) > 12:
+            world_state.conversation_log = _conv[-12:]
+
     world_state.pending_messages.append({
         "from_name": actor.name,
         "to_id":     "broadcast",
         "message":   f"[SHOUT] {message}",
         "tick":      world_state.tick,
     })
-    return ActionResult(True, f'You yell: "{message}"', world_changed=False)
+    return ActionResult(True, f'You yell: "{message}"',
+                        world_changed=False, data={"speech": message})
 
 
 def action_reflect(actor, args: dict, world_state) -> ActionResult:

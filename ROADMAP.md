@@ -178,6 +178,13 @@ Foundation already in place: `PlayerEntity` class, `talk`/`yell` actions, messag
 - [ ] Aaron can be wounded, grappled, killed — consequences are real
 - [ ] Avatar persistence: leaving the world drops the avatar (items stay)
 
+**Avatar customization (at drop-in time):**
+- [ ] Name — what Mo hears when you speak; what `examine` reports
+- [ ] Description — free-text appearance/demeanor shown on `examine`
+- [ ] Starting stats — strength, speed, toughness (default: average, same as Mo)
+- [ ] Starting inventory / equipment — choose what you bring in
+- [ ] Presented as a pre-spawn form before the avatar appears in the world
+
 **Multi-user:**
 - [ ] Mike (and others) can SSH in and inhabit their own `PlayerEntity`
 - [ ] Mo perceives all players as "figures" — no distinction between human-controlled entities

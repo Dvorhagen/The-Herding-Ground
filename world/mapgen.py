@@ -54,6 +54,9 @@ def _place_forests(world, rng):
         rx = rng.randint(45, 110)
         ry = rng.randint(45, 110)
         _fill_ellipse(world, fx, fy, rx, ry, TileType.FOREST, density=0.88, rng=rng)
+        # Scattered fringe beyond the hard edge — gradual transition into grassland
+        _fill_ellipse(world, fx, fy, int(rx * 1.18), int(ry * 1.18),
+                      TileType.FOREST, density=0.22, rng=rng)
         forest_centers.append((fx, fy, rx, ry))
 
         # Clearings: irregular meadows carved out of forest

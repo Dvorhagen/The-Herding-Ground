@@ -105,7 +105,8 @@ class WorldState:
     tick: int = 0
     injected_environment: str = ""   # PI inject — consumed next tick
     pending_memory_result: str = ""  # wiki retrieval result — consumed next tick
-    pending_messages: list = field(default_factory=list)  # [{from_name, to_id, message, tick}]
+    pending_messages: list = field(default_factory=list)   # [{from_name, to_id, message, tick}]
+    conversation_log: list = field(default_factory=list)   # [{speaker, text, tick}] — persistent, shown every tick
     visible_tiles: set = field(default_factory=set)
 
     def add_entity(self, entity: Entity):
@@ -186,8 +187,10 @@ class WorldState:
         # --- Immediate: current position ---
         current = self._describe_tile_at(cx, cy)
 
-        # --- Close (1-3m): group by direction, show dominant terrain ---
-        close_by = {}
+        # --- Close (1-3m): group by terrain type, list directions per type ---
+        # Grouped format ("forest to the east, north-east") reveals less about
+        # the exact grid boundary than per-direction listing does.
+        close_types = {}   # type_name -> (description, [direction, ...])
         for dy in range(-VISION_CLOSE, VISION_CLOSE + 1):
             for dx in range(-VISION_CLOSE, VISION_CLOSE + 1):
                 if dx == 0 and dy == 0:
@@ -200,14 +203,17 @@ class WorldState:
                 tile = self.world.get(cx + dx, cy + dy)
                 if tile is None:
                     continue
+                tname = tile.props.name
                 direction = _direction_name(dx, dy)
-                if direction not in close_by:
-                    close_by[direction] = (d, tile.props.description)
-                elif d < close_by[direction][0]:
-                    close_by[direction] = (d, tile.props.description)
+                if tname not in close_types:
+                    close_types[tname] = (tile.props.description, [])
+                if direction not in close_types[tname][1]:
+                    close_types[tname][1].append(direction)
 
-        close_lines = [f"  {dir}: {desc}"
-                       for dir, (_, desc) in sorted(close_by.items())]
+        close_lines = []
+        for tname, (tdesc, dirs) in sorted(close_types.items()):
+            dir_str = ", ".join(sorted(dirs))
+            close_lines.append(f"  {tdesc} to the {dir_str}")
 
         # --- Nearby (4-8m): group by terrain type ---
         nearby_types = {}
@@ -291,7 +297,10 @@ class WorldState:
             dx, dy = e.x - moriarty.x, e.y - moriarty.y
             d = int(_dist(dx, dy))
             direction = _direction_name(dx, dy)
-            if isinstance(e, Animal):
+            from ..entities.base import PlayerEntity
+            if isinstance(e, PlayerEntity):
+                entity_lines.append(f"  {e.describe_for_observer(d, direction)}")
+            elif isinstance(e, Animal):
                 hp_str = f" [{e.health}/{e.max_health}hp]" if e.health < e.max_health else ""
                 entity_lines.append(f"  {e.name} ({d}m {direction}){hp_str} — attack, or approach cautiously")
             elif hasattr(e, 'item_type'):
@@ -328,16 +337,44 @@ class WorldState:
             for cat, n in sorted(mem_by_cat.items())
         ) if mem_by_cat else "  (empty)"
 
-        # Incoming messages addressed to Moriarty or broadcast
-        msg_lines = []
+        # Drain pending_messages — separate entity speech from world/system events.
+        system_msgs = []
         remaining = []
         for m in self.pending_messages:
             if m["to_id"] in (moriarty.id, "broadcast"):
-                msg_lines.append(f'  {m["from_name"]}: "{m["message"]}"')
+                speaker = m["from_name"]
+                if speaker.lower() == moriarty.name.lower():
+                    pass  # Mo's own speech — never echo back to him
+                elif speaker in ("world", "environment", "system"):
+                    system_msgs.append(m["message"])
+                    moriarty.log_event(f"[world] {m['message']}")
+                else:
+                    # Entity speech — add to persistent conversation log
+                    self.conversation_log.append({
+                        "speaker": speaker,
+                        "text":    m["message"],
+                        "tick":    self.tick,
+                    })
             else:
                 remaining.append(m)
         self.pending_messages = remaining
-        message_block = f"\n[MESSAGES]\n" + "\n".join(msg_lines) + "\n" if msg_lines else ""
+
+        # Keep conversation log bounded
+        if len(self.conversation_log) > 12:
+            self.conversation_log = self.conversation_log[-12:]
+
+        # [CONVERSATION] block — always shown when there's been any exchange
+        if self.conversation_log:
+            conv_lines = [
+                f"  {e['speaker']}: \"{e['text']}\""
+                for e in self.conversation_log[-6:]
+            ]
+            conversation_block = "\n[CONVERSATION — recent]\n" + "\n".join(conv_lines) + "\n"
+        else:
+            conversation_block = ""
+
+        # [MESSAGES] is now only for world/system events
+        message_block = "\n[MESSAGES]\n  " + "\n  ".join(system_msgs) + "\n" if system_msgs else ""
 
         # PI inject
         inject_block = ""
@@ -377,6 +414,6 @@ World objects (interact by using the verb as your action):
 
 Memory index:
 {mem_index}
-{message_block}{inject_block}{memory_block}
+{conversation_block}{message_block}{inject_block}{memory_block}
 Recent events:
   {recent}"""

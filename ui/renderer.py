@@ -33,7 +33,7 @@ class Renderer:
     def __init__(self):
         pygame.init()
         self.screen = pygame.display.set_mode((SCREEN_W, SCREEN_H))
-        pygame.display.set_caption("NEMO // World Engine v0.1")
+        pygame.display.set_caption("MORIARTY // World Engine")
 
         # Fonts -- monospace for that terminal feel
         self.font_sm = pygame.font.SysFont("monospace", 13)
@@ -57,6 +57,16 @@ class Renderer:
         self.stepped = False
         self.show_los = False
         self.show_help = False
+        self.control_mode_label = "MORIARTY"
+
+        # Non-blocking text input (same pattern as curses renderer)
+        self.text_input_active = False
+        self.text_input_prompt = ""
+        self.text_input_buffer = []
+        self.text_input_mode = ""   # "god_inject" | "player_talk"
+
+        # Speech bubbles: actor_name.lower() -> {text, expires}
+        self.speech_bubbles = {}
 
         self._fog = pygame.Surface((TILE_SIZE, TILE_SIZE), pygame.SRCALPHA)
         self._fog.fill((0, 0, 0, 180))
@@ -64,15 +74,21 @@ class Renderer:
         self._help_lines = [
             "  KEY REFERENCE",
             "  ─────────────────────────",
-            "  TAB        Aaron / Moriarty mode",
-            "  arrows     move (Aaron mode)",
-            "  [ / ]      tick speed",
-            "  SPACE      step mode on/off",
-            "  .          advance one step",
-            "  v          LOS overlay",
+            "  TAB        drop in / return to Mo",
+            "  [MORIARTY MODE]",
+            "  [ / ]      Mo lag between decisions",
+            "  SPACE      step mode  .  advance",
             "  `          cycle prompt style",
-            "  ?          this help",
-            "  q          quit",
+            "  [GOD MODE]",
+            "  arrows     pan camera   m: jump to Mo",
+            "  t          inject [ENVIRONMENT]",
+            "  [PLAYER MODE]",
+            "  arrows     move avatar",
+            "  t          talk to Moriarty",
+            "  p          pick up item",
+            "  [ALWAYS]",
+            "  v          LOS overlay",
+            "  ?          this help   q  quit",
             "  ─────────────────────────",
             "  any key to close",
         ]
@@ -106,14 +122,26 @@ class Renderer:
     def world_to_screen(self, wx: int, wy: int) -> tuple[int, int]:
         return ((wx - self.view_x) * TILE_SIZE, (wy - self.view_y) * TILE_SIZE)
 
+    def add_speech_bubble(self, actor_name: str, text: str, duration: float = 7.0):
+        import time
+        if len(text) > 200:
+            text = text[:197] + "..."
+        self.speech_bubbles[actor_name.lower()] = {
+            "text": text,
+            "expires": time.monotonic() + duration,
+        }
+
     def draw(self, world_state):
         self.screen.fill(COLOR_BG)
         self._draw_map(world_state)
         self._draw_entities(world_state)
+        self._draw_speech_bubbles(world_state)
         self._draw_panel(world_state)
         self.screen.blit(self._scanlines, (0, 0))
         if self.show_help:
             self._draw_help()
+        if self.text_input_active:
+            self._draw_text_input_bar()
         pygame.display.flip()
 
     def _draw_help(self):
@@ -172,16 +200,91 @@ class Renderer:
             sym = self.font_md.render("@", True, COLOR_MORIARTY)
             self.screen.blit(sym, (sx + 2, sy + 1))
 
+    def _draw_speech_bubbles(self, world_state):
+        import time
+        now = time.monotonic()
+        expired = [n for n, b in self.speech_bubbles.items() if b["expires"] <= now]
+        for n in expired:
+            del self.speech_bubbles[n]
+
+        MAX_LINE_PX = 260   # max bubble width in pixels
+        CHARS_PER_LINE = MAX_LINE_PX // 8   # approximate; font_sm ~8px wide
+
+        for name, bubble in self.speech_bubbles.items():
+            mo = world_state.moriarty
+            if name in (mo.name.lower(), "moriarty"):
+                ex, ey = mo.x, mo.y
+            else:
+                found = next(
+                    (e for e in world_state.entities if e.name.lower() == name), None
+                )
+                if not found:
+                    continue
+                ex, ey = found.x, found.y
+
+            sx, sy = self.world_to_screen(ex, ey)
+            if not (0 <= sx < VIEWPORT_W * TILE_SIZE):
+                continue
+
+            # Word-wrap the text
+            raw = f'"{bubble["text"]}"'
+            words = raw.split()
+            lines = []
+            current = ""
+            for word in words:
+                if len(current) + len(word) + 1 <= CHARS_PER_LINE:
+                    current = current + (" " if current else "") + word
+                else:
+                    if current:
+                        lines.append(current)
+                    current = word
+            if current:
+                lines.append(current)
+            if not lines:
+                continue
+
+            line_h = self.font_sm.get_height() + 2
+            bw = min(MAX_LINE_PX, max(self.font_sm.size(l)[0] for l in lines)) + 12
+            bh = len(lines) * line_h + 8
+
+            bx = sx - bw // 2 + TILE_SIZE // 2
+            bx = max(0, min(VIEWPORT_W * TILE_SIZE - bw, bx))
+            bubble_y = sy - bh - 4
+            if bubble_y < 0:
+                bubble_y = sy + TILE_SIZE + 2
+
+            bubble_surf = pygame.Surface((bw, bh), pygame.SRCALPHA)
+            bubble_surf.fill((10, 25, 10, 230))
+            pygame.draw.rect(bubble_surf, (200, 255, 200), (0, 0, bw, bh), 1)
+            for i, line in enumerate(lines):
+                line_surf = self.font_sm.render(line, True, (255, 255, 255))
+                bubble_surf.blit(line_surf, (6, 4 + i * line_h))
+            self.screen.blit(bubble_surf, (bx, bubble_y))
+
+    def _draw_text_input_bar(self):
+        prompt = f" {self.text_input_prompt}: "
+        text = "".join(self.text_input_buffer)
+        display = prompt + text + "_"
+        bar_h = 30
+        bar_y = SCREEN_H - bar_h
+        pygame.draw.rect(self.screen, (60, 50, 0), (0, bar_y, SCREEN_W, bar_h))
+        pygame.draw.rect(self.screen, COLOR_PLAYER, (0, bar_y, SCREEN_W, 2))
+        surf = self.font_md.render(display, True, COLOR_PLAYER)
+        self.screen.blit(surf, (8, bar_y + 7))
+
     def _draw_panel(self, world_state):
         px = VIEWPORT_W * TILE_SIZE
-        # Panel background
         pygame.draw.rect(self.screen, COLOR_PANEL_BG, (px, 0, PANEL_W, SCREEN_H))
         pygame.draw.line(self.screen, COLOR_BORDER, (px, 0), (px, SCREEN_H), 2)
 
         y = 8
-        # Title
+        # Title + control mode
         title = self.font_lg.render("// MORIARTY", True, COLOR_HIGHLIGHT)
         self.screen.blit(title, (px + 10, y))
+        mode_color = (COLOR_PLAYER if self.control_mode_label in ("PLAYER", "GOD", "DROP-IN?")
+                      else COLOR_TEXT_DIM)
+        mode_surf = self.font_sm.render(self.control_mode_label, True, mode_color)
+        self.screen.blit(mode_surf, (px + PANEL_W - mode_surf.get_width() - 10, y + 4))
         y += 28
 
         # Divider

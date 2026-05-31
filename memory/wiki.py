@@ -146,9 +146,9 @@ def update_self_model(new_content: str):
 # These functions are called when Moriarty's LLM output includes a MEMORY_TOOL block
 
 MEMORY_TOOLS = {
-    "read":   lambda cat, name, **_: read_page(cat, name) or f"No page found: {cat}/{name}",
-    "write":  lambda cat, name, content, **kw: (write_page(cat, name, content, kw.get("append", False)), "Page written.")[1],
-    "list":   lambda cat=None, **_: "\n".join(list_pages(cat)),
+    "read":   lambda category, name, **_: read_page(category, name) or f"No page found: {category}/{name}",
+    "write":  lambda category, name, content, **kw: (write_page(category, name, content, kw.get("append", False)), "Page written.")[1],
+    "list":   lambda category=None, **_: "\n".join(list_pages(category)),
     "search": lambda query, **_: "\n".join(f"{p}: ...{s}..." for p, s in search_pages(query)) or "No results.",
 }
 

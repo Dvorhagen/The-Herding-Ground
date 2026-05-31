@@ -207,5 +207,21 @@ class PlayerEntity(Entity):
             self.combat_state = CombatState()
 
     def describe(self) -> str:
-        verbs = "talk, approach"
-        return f"a figure ({self.name}) at ({self.x}, {self.y}) — {verbs}"
+        """Detailed description returned by the examine action."""
+        parts = ["A humanoid figure — bipedal, still, watching you."]
+        worn = {s: i for s, i in self.equipment.items() if i}
+        if worn:
+            parts.append("They carry " + ", ".join(i.name for i in worn.values()) + ".")
+        elif self.inventory:
+            parts.append("They appear to be carrying something.")
+        else:
+            parts.append("Their hands are empty.")
+        parts.append("They haven't attacked. You could talk to them.")
+        return " ".join(parts)
+
+    def describe_for_observer(self, dist_m: int, direction: str) -> str:
+        """Terse line for the perception block — seen at a distance."""
+        worn = {s: i for s, i in self.equipment.items() if i}
+        weapon = worn.get("weapon")
+        detail = f", armed with {weapon.name}" if weapon else ""
+        return f"a figure ({dist_m}m {direction}){detail} — talk, approach"

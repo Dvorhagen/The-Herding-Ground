@@ -15,14 +15,14 @@ from ..world.tiles import TileType, TILE_PROPERTIES
 
 
 # Tile symbol -> curses color pair mapping
-# We use 4 color pairs: dim, normal, bright, highlight
 PAIR_DIM       = 1
 PAIR_NORMAL    = 2
 PAIR_BRIGHT    = 3
 PAIR_HIGHLIGHT = 4
-PAIR_MORIARTY      = 5
+PAIR_MORIARTY  = 5
 PAIR_ITEM      = 6
 PAIR_WARNING   = 7
+PAIR_PLAYER    = 8   # amber — Aaron's avatar
 
 # Map tile types to color pairs
 TILE_COLORS = {
@@ -60,20 +60,35 @@ class CursesRenderer:
         self.stepped = False
         self.show_los = False
         self.show_help = False
+        self.control_mode_label = "MORIARTY"   # updated by main.py
+        self.speech_bubbles = {}   # actor_name.lower() -> {text, expires}
+        # Non-blocking text input state (integrated into main loop, not modal)
+        self.text_input_active = False
+        self.text_input_prompt = ""
+        self.text_input_buffer = []
+        self.text_input_mode = ""   # "god_inject" | "player_talk"
 
         self._help_lines = [
             "  KEY REFERENCE",
-            "  " + "─" * 27,
-            "  TAB        Aaron / Moriarty mode",
-            "  arrows     move (Aaron mode)",
+            "  " + "─" * 30,
+            "  TAB        drop-in / return to Moriarty",
+            "  [MORIARTY MODE]",
             "  [ / ]      tick speed",
             "  SPACE      step mode on/off",
             "  .          advance one step",
-            "  v          LOS overlay",
             "  `          cycle prompt style",
+            "  [GOD MODE]",
+            "  arrows     pan camera",
+            "  m          jump to Moriarty",
+            "  t          inject [ENVIRONMENT]",
+            "  [PLAYER MODE]",
+            "  arrows     move your avatar",
+            "  t          talk to Moriarty",
+            "  [ALWAYS]",
+            "  v          LOS overlay",
             "  ?          this help",
             "  q          quit",
-            "  " + "─" * 27,
+            "  " + "─" * 30,
             "  any key to close",
         ]
 
@@ -93,9 +108,10 @@ class CursesRenderer:
         curses.init_pair(PAIR_NORMAL,    curses.COLOR_GREEN,  -1)
         curses.init_pair(PAIR_BRIGHT,    curses.COLOR_GREEN,  -1)
         curses.init_pair(PAIR_HIGHLIGHT, curses.COLOR_WHITE,  -1)
-        curses.init_pair(PAIR_MORIARTY,      curses.COLOR_WHITE,  -1)
+        curses.init_pair(PAIR_MORIARTY,  curses.COLOR_WHITE,  -1)
         curses.init_pair(PAIR_ITEM,      curses.COLOR_YELLOW, -1)
         curses.init_pair(PAIR_WARNING,   curses.COLOR_RED,    -1)
+        curses.init_pair(PAIR_PLAYER,    curses.COLOR_YELLOW, -1)
 
     def add_message(self, msg: str):
         self.messages.append(msg)
@@ -135,32 +151,59 @@ class CursesRenderer:
         world = world_state.world
         moriarty = world_state.moriarty
 
+        # Pre-index entities by tile position so we don't scan all entities per tile
+        player_at = {}    # (x,y) -> PlayerEntity
+        creature_at = {}  # (x,y) -> first non-item, non-player entity (animals etc.)
+        for e in world_state.entities:
+            et_name = getattr(getattr(e, 'entity_type', None), 'name', '')
+            pos = (e.x, e.y)
+            if et_name == 'PLAYER':
+                player_at[pos] = e
+            elif not hasattr(e, 'item_type') and pos not in creature_at:
+                creature_at[pos] = e
+
         for row in range(map_h):
             for col in range(map_w):
                 wx = col + self.view_x
                 wy = row + self.view_y
+                pos = (wx, wy)
 
+                # 1. Moriarty — always on top
                 if wx == moriarty.x and wy == moriarty.y:
                     self._put(row, col, "@",
                               curses.color_pair(PAIR_MORIARTY) | curses.A_BOLD)
                     continue
 
-                occluded = self.show_los and (wx, wy) not in world_state.visible_tiles
+                # 2. Player avatar (amber @)
+                if pos in player_at:
+                    e = player_at[pos]
+                    self._put(row, col, e.symbol,
+                              curses.color_pair(PAIR_PLAYER) | curses.A_BOLD)
+                    continue
 
-                # World objects take display priority over items
+                occluded = self.show_los and pos not in world_state.visible_tiles
+
+                # 3. World objects (campfire, trees, boulders, etc.)
                 objects_here = world_state.get_objects_at(wx, wy)
                 if objects_here and not occluded:
                     self._put(row, col, objects_here[0].symbol,
                               curses.color_pair(PAIR_ITEM) | curses.A_BOLD)
                     continue
 
-                # Check for items at this position
+                # 4. Items on the ground
                 items_here = world_state.get_items_at(wx, wy)
                 if items_here and not occluded:
                     self._put(row, col, items_here[0].symbol,
                               curses.color_pair(PAIR_ITEM))
                     continue
 
+                # 5. Creatures / animals / NPCs
+                if pos in creature_at and not occluded:
+                    self._put(row, col, creature_at[pos].symbol,
+                              curses.color_pair(PAIR_NORMAL))
+                    continue
+
+                # 6. Tile
                 tile = world.get(wx, wy)
                 if tile is None:
                     self._put(row, col, " ", curses.color_pair(PAIR_DIM))
@@ -176,6 +219,9 @@ class CursesRenderer:
                         attr |= curses.A_DIM
                     self._put(row, col, tile.props.symbol, attr)
 
+        # Speech bubbles — drawn on top of everything, following entity live position
+        self._draw_speech_bubbles(world_state, map_w, map_h)
+
     def _draw_divider(self, map_w, map_h):
         for row in range(map_h):
             self._put(row, map_w, "│", curses.color_pair(PAIR_DIM))
@@ -184,11 +230,24 @@ class CursesRenderer:
         moriarty = world_state.moriarty
         row = 0
 
-        # Title
+        # Title + control mode
         self._put(row, px, "// MORIARTY",
                   curses.color_pair(PAIR_HIGHLIGHT) | curses.A_BOLD)
         row += 1
         self._put(row, px, "─" * (panel_w - 1), curses.color_pair(PAIR_DIM))
+        row += 1
+
+        # Control mode indicator
+        label = self.control_mode_label
+        if label == "MORIARTY":
+            mode_attr = curses.color_pair(PAIR_HIGHLIGHT)
+        elif label == "GOD":
+            mode_attr = curses.color_pair(PAIR_WARNING) | curses.A_BOLD
+        elif label == "PLAYER":
+            mode_attr = curses.color_pair(PAIR_PLAYER) | curses.A_BOLD
+        else:
+            mode_attr = curses.color_pair(PAIR_WARNING) | curses.A_BOLD
+        self._panel_text(row, px, panel_w, f"MODE : {label}", mode_attr)
         row += 1
 
         # Status
@@ -269,7 +328,28 @@ class CursesRenderer:
                 break
 
     def _draw_bottom_bar(self, row, w):
-        bar = " TAB:mode  arrows/wasd:move  p:pickup  e:examine  [:faster  ]:slower  SPC:step  v:LOS  q:quit "
+        if self.text_input_active:
+            prompt = f" {self.text_input_prompt}: "
+            text = "".join(self.text_input_buffer)
+            bar = (prompt + text + "_")[:w - 1].ljust(w - 1)
+            try:
+                self.stdscr.addstr(row, 0, bar,
+                                   curses.color_pair(PAIR_PLAYER) | curses.A_BOLD)
+            except curses.error:
+                pass
+            return
+
+        label = self.control_mode_label
+        if label == "MORIARTY":
+            bar = " TAB:drop-in  [:lag-  ]:lag+  SPC:step  .:advance  v:LOS  `:style  ?:help  q:quit "
+        elif label == "DROP-IN?":
+            bar = " G:god observer  P:player character  ESC:cancel "
+        elif label == "GOD":
+            bar = " TAB:return  arrows:pan  m:jump to Mo  t:inject  v:LOS  q:quit "
+        elif label == "PLAYER":
+            bar = " TAB:return  arrows:move  t:talk  p:pickup  .:wait  v:LOS  q:quit "
+        else:
+            bar = " TAB:mode  q:quit "
         bar = bar[:w - 1].ljust(w - 1)
         try:
             self.stdscr.addstr(row, 0, bar,
@@ -294,6 +374,124 @@ class CursesRenderer:
             return self.stdscr.getch()
         except curses.error:
             return -1
+
+    def add_speech_bubble(self, actor_name: str, text: str, duration: float = 7.0):
+        """Register a speech bubble. Follows the named actor's live position."""
+        import time
+        if len(text) > 200:
+            text = text[:197] + "..."
+        self.speech_bubbles[actor_name.lower()] = {
+            "text": text,
+            "expires": time.monotonic() + duration,
+        }
+
+    def _draw_speech_bubbles(self, world_state, map_w: int, map_h: int):
+        """Draw floating speech text above each speaking entity."""
+        import time
+        now = time.monotonic()
+        expired = [n for n, b in self.speech_bubbles.items() if b["expires"] <= now]
+        for n in expired:
+            del self.speech_bubbles[n]
+
+        for name, bubble in self.speech_bubbles.items():
+            # Resolve current world position of the speaker
+            mo = world_state.moriarty
+            if name in (mo.name.lower(), "moriarty"):
+                ex, ey = mo.x, mo.y
+            else:
+                found = next(
+                    (e for e in world_state.entities if e.name.lower() == name),
+                    None,
+                )
+                if not found:
+                    continue
+                ex, ey = found.x, found.y
+
+            # Convert to viewport coordinates
+            sc = ex - self.view_x   # screen column (speaker's @)
+            sr = ey - self.view_y   # screen row
+
+            # Draw one row above; if that's off-screen, draw one below
+            bubble_row = sr - 1 if sr > 0 else sr + 1
+            if bubble_row < 0 or bubble_row >= map_h:
+                continue
+
+            full_text = f'"{bubble["text"]}"'
+            # Word-wrap to at most map_w - 2 chars
+            wrap_w = min(60, map_w - 2)
+            words = full_text.split()
+            wrapped_lines = []
+            cur = ""
+            for word in words:
+                if len(cur) + len(word) + 1 <= wrap_w:
+                    cur = cur + (" " if cur else "") + word
+                else:
+                    if cur:
+                        wrapped_lines.append(cur)
+                    cur = word
+            if cur:
+                wrapped_lines.append(cur)
+
+            for li, text in enumerate(wrapped_lines):
+                row_y = bubble_row - li  # stack upward from the bubble_row
+                if row_y < 0 or row_y >= map_h:
+                    continue
+                start_col = sc - len(text) // 2
+                if start_col < 0:
+                    start_col = 0
+                if start_col + len(text) > map_w:
+                    text = text[:map_w - start_col]
+                self._put(row_y, start_col, text,
+                          curses.color_pair(PAIR_HIGHLIGHT) | curses.A_BOLD)
+
+    def get_text_input(self, prompt: str) -> str:
+        """
+        Blocking modal text input rendered in the bottom bar.
+        Uses a manual getch loop — more reliable than getstr across terminals.
+        Returns the entered string, or "" if cancelled with ESC.
+        Mo's AI thread continues in background; result is processed on next loop.
+        """
+        import time as _t
+        h, w = self.stdscr.getmaxyx()
+        bar_row = h - 1
+        prompt_str = f" {prompt}: "
+        max_input = max(10, w - len(prompt_str) - 3)
+
+        curses.curs_set(1)
+        self.stdscr.nodelay(False)   # switch to blocking input
+
+        chars = []
+        cancelled = False
+        while True:
+            # Redraw the input bar every keystroke
+            display = prompt_str + "".join(chars) + "_"
+            display = display[:w - 1].ljust(w - 1)
+            try:
+                self.stdscr.addstr(bar_row, 0, display,
+                                   curses.color_pair(PAIR_HIGHLIGHT) | curses.A_REVERSE)
+                cursor_col = min(len(prompt_str) + len(chars), w - 2)
+                self.stdscr.move(bar_row, cursor_col)
+            except curses.error:
+                pass
+            self.stdscr.refresh()
+
+            ch = self.stdscr.getch()
+
+            if ch in (10, 13, curses.KEY_ENTER):   # Enter — submit
+                break
+            elif ch == 27:                           # ESC — cancel
+                cancelled = True
+                break
+            elif ch in (8, 127, curses.KEY_BACKSPACE):
+                if chars:
+                    chars.pop()
+            elif 32 <= ch < 127 and len(chars) < max_input:
+                chars.append(chr(ch))
+
+        curses.curs_set(0)
+        self.stdscr.nodelay(True)   # restore non-blocking
+
+        return "" if cancelled else "".join(chars)
 
     def _put(self, row, col, char, attr=0):
         """Safe character put -- silently ignores out-of-bounds."""
