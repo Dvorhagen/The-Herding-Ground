@@ -95,9 +95,12 @@ TICK_DELAY_DEFAULT = 3  # index into TICK_DELAYS — starts at 1.0s
 
 # ── Shared helpers ────────────────────────────────────────────────────────────
 
-def moriarty_think_async(world_state, result_holder, style="structured"):
-    """Run Moriarty's brain in a background thread so the UI stays responsive."""
-    perception = world_state.build_perception_block()
+def moriarty_think_async(perception: str, result_holder, style="structured"):
+    """
+    Run Moriarty's brain in a background thread.
+    Receives a pre-built perception snapshot so the brain thread never touches
+    world state — eliminates threading races with the main loop.
+    """
     action_dict = moriarty_brain.think(perception, style=style)
     result_holder.append(action_dict)
 
@@ -577,8 +580,9 @@ def run_pygame(world_state, spawn_x, spawn_y, cfg=None):
                 step_requested = False
                 moriarty_result_holder.clear()
                 moriarty_thinking = True
+                _perception = world_state.build_perception_block()
                 _th = threading.Thread(target=moriarty_think_async,
-                                       args=(world_state, moriarty_result_holder,
+                                       args=(_perception, moriarty_result_holder,
                                              PROMPT_STYLES[prompt_style_idx]), daemon=True)
                 _th.start()
 
@@ -811,8 +815,9 @@ def run_curses(stdscr, world_state, spawn_x, spawn_y, cfg=None):
                 step_requested = False
                 moriarty_result_holder.clear()
                 moriarty_thinking = True
+                _perception = world_state.build_perception_block()
                 _t = threading.Thread(target=moriarty_think_async,
-                                      args=(world_state, moriarty_result_holder,
+                                      args=(_perception, moriarty_result_holder,
                                             PROMPT_STYLES[prompt_style_idx]), daemon=True)
                 _t.start()
 
