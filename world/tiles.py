@@ -16,6 +16,7 @@ Terrain layers (all continuous, no chunk seams):
 
 import random
 import math
+import threading
 from enum import Enum, auto
 from dataclasses import dataclass, field
 from typing import Optional
@@ -260,6 +261,7 @@ class WorldMap:
         self.height = WORLD_EXTENT * 2    # compatibility shim
         self._chunks:          dict[tuple, list] = {}
         self._modified_chunks: set[tuple]        = set()
+        self._chunk_lock = threading.Lock()
         # Precompute river tile map once — O(1) per-tile lookup during generation
         self._river_map: dict[tuple[int,int], TileType] = \
             _precompute_river_map(_generate_river(seed))
@@ -278,8 +280,12 @@ class WorldMap:
     # ── Chunk generation and caching ─────────────────────────────────────────
 
     def _ensure_chunk(self, cx: int, cy: int):
-        if (cx, cy) not in self._chunks:
-            self._chunks[(cx, cy)] = self._generate_chunk(cx, cy)
+        if (cx, cy) in self._chunks:
+            return
+        with self._chunk_lock:
+            # Double-checked locking: another thread may have generated it
+            if (cx, cy) not in self._chunks:
+                self._chunks[(cx, cy)] = self._generate_chunk(cx, cy)
 
     def _generate_chunk(self, cx: int, cy: int) -> list:
         """Generate a fresh 32×32 tile array for chunk (cx, cy)."""

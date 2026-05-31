@@ -394,6 +394,10 @@ def save_world(world_state: WorldState, path: Path | str):
           f"(tick {world_state.tick}, {n_chunks} modified chunks)")
 
 
+class IncompatibleSaveError(Exception):
+    """Raised when the save file is from an older incompatible version."""
+
+
 def load_world(path: Path | str) -> WorldState:
     """Load WorldState. Creates WorldMap from seed, overlays modified chunks."""
     path = Path(path)
@@ -401,6 +405,14 @@ def load_world(path: Path | str) -> WorldState:
         raise FileNotFoundError(f"No save file at {path}")
 
     payload = json.loads(path.read_text())
+
+    # Detect pre-infinite-world saves (they have "world"/"tiles" RLE, no "seed")
+    if "world" in payload and "tiles" in payload.get("world", {}):
+        raise IncompatibleSaveError(
+            "This save was created before the infinite-world update and cannot be "
+            "loaded with the new terrain engine. Please start a new world."
+        )
+
     v = payload.get("version", 1)
     if v > SAVE_VERSION:
         print(f"[WARN] Save version {v} newer than {SAVE_VERSION}; loading anyway")

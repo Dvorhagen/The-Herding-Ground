@@ -37,7 +37,7 @@ sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from moriarty.world.tiles import WorldMap
 from moriarty.world.mapgen import find_spawn, populate_natural_objects, populate_animals
 from moriarty.world.state import WorldState
-from moriarty.world.save import save_world, load_world, save_info
+from moriarty.world.save import save_world, load_world, save_info, IncompatibleSaveError
 from moriarty.entities.base import MoriartyEntity, PlayerEntity, EntityType, DIRECTIONS
 from moriarty.entities.items import make_apple, make_stick
 from moriarty.world.objects import make_campfire, make_chest
@@ -772,8 +772,13 @@ def run():
     # ── Build or restore world ───────────────────────────────────────────────
     if decision["action"] == "resume" and si:
         print("[MORIARTY] Loading saved world...")
-        world_state = load_world(_config.SAVE_FILE)
-        sx, sy = world_state.moriarty.x, world_state.moriarty.y
+        try:
+            world_state = load_world(_config.SAVE_FILE)
+            sx, sy = world_state.moriarty.x, world_state.moriarty.y
+        except IncompatibleSaveError as e:
+            print(f"\n[!] {e}")
+            print("[MORIARTY] Starting a new world instead.\n")
+            world_state, sx, sy = _init_world(seed=cfg["seed"])
     else:
         world_state, sx, sy = _init_world(seed=cfg["seed"])
 
