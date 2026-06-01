@@ -167,10 +167,14 @@ def _precompute_river_map(river: list) -> dict:
         for dy in range(-7, 8):
             for dx in range(-7, 8):
                 dsq = (rx - (irx + dx)) ** 2 + (ry - (iry + dy)) ** 2
-                if dsq < _WATER_DSQ:    tt = TileType.WATER
-                elif dsq < _SAND_DSQ:   tt = TileType.SAND
-                elif dsq < _WETLAND_DSQ:tt = TileType.WETLAND
-                else:                   continue
+                if dsq < _WATER_DSQ:
+                    tt = TileType.WATER
+                elif dsq < _SAND_DSQ:
+                    tt = TileType.SAND
+                elif dsq < _WETLAND_DSQ:
+                    tt = TileType.WETLAND
+                else:
+                    continue
                 key = (irx + dx, iry + dy)
                 existing = river_map.get(key)
                 if existing is None or _priority[tt] < _priority[existing]:
