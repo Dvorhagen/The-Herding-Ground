@@ -389,7 +389,13 @@ class CursesRenderer:
             if not put("THOUGHT:", curses.color_pair(PAIR_DIM)):
                 return
             if self.last_thought:
-                for line in textwrap.wrap(_safe(self.last_thought), wrap_w)[:3]:
+                thought_text = _safe(self.last_thought.strip())
+                wrapped = textwrap.wrap(
+                    thought_text, wrap_w,
+                    break_long_words=True,
+                    break_on_hyphens=True,
+                )
+                for line in wrapped[:3]:
                     if not put(line, curses.color_pair(PAIR_HIGHLIGHT)):
                         return
 

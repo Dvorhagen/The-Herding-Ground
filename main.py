@@ -16,6 +16,15 @@ import os
 import threading
 import logging
 import time as _time
+import faulthandler
+
+# Write C-level crash tracebacks (segfaults) to a log file so we can see
+# exactly which ncurses function is at fault.
+_crash_log = open(os.path.join(os.path.dirname(__file__), "moriarty_crash.log"), "w")
+faulthandler.enable(_crash_log)
+
+# Detect SSH session — used to throttle draw rate and tune signal handling
+_IS_SSH = bool(os.environ.get("SSH_CLIENT") or os.environ.get("SSH_TTY"))
 
 # ── Display auto-detection ────────────────────────────────────────────────────
 def _has_display() -> bool:
@@ -615,18 +624,32 @@ def run_curses(stdscr, world_state, spawn_x, spawn_y, cfg=None):
     import signal
     from moriarty.ui.curses_renderer import CursesRenderer
 
-    # ── SIGWINCH (terminal resize) safety ─────────────────────────────────────
-    # Intercept the resize signal in Python and set a flag instead of letting
-    # it reach ncurses's internal C handler mid-draw (which causes segfaults
-    # on Termius/iOS when the keyboard appears or the device is rotated).
-    # The flag is checked at the TOP of each frame, between draw calls.
+    # ── Draw rate: slower over SSH to reduce ncurses call frequency ───────────
+    # 30fps (33ms) is aggressive over a network connection and can cause
+    # ncurses state corruption on rapid consecutive refreshes.
+    _frame_sleep = 0.1 if _IS_SSH else 0.033   # 10fps SSH, 30fps local
+
+    # ── Signal safety ─────────────────────────────────────────────────────────
+    # SIGWINCH: intercept in Python, set a flag, handle between frames only.
+    # SIGHUP: SSH disconnect — exit cleanly rather than leaving terminal broken.
     _resize_pending = [False]
+    _hup_received   = [False]
+
     def _on_sigwinch(signum, frame):
         _resize_pending[0] = True
+
+    def _on_sighup(signum, frame):
+        _hup_received[0] = True
+
     try:
         _old_sigwinch = signal.signal(signal.SIGWINCH, _on_sigwinch)
     except (AttributeError, OSError):
-        _old_sigwinch = None   # SIGWINCH not available on this platform
+        _old_sigwinch = None
+
+    try:
+        _old_sighup = signal.signal(signal.SIGHUP, _on_sighup)
+    except (AttributeError, OSError):
+        _old_sighup = None
 
     MOVE_KEYS = {
         curses.KEY_UP:    "north",
@@ -679,6 +702,11 @@ def run_curses(stdscr, world_state, spawn_x, spawn_y, cfg=None):
     running = True
     while running:
       try:
+        # ── SSH disconnect — save and exit cleanly ────────────────────────────
+        if _hup_received[0]:
+            running = False
+            continue
+
         # ── Handle terminal resize between frames (never mid-draw) ────────────
         if _resize_pending[0]:
             _resize_pending[0] = False
@@ -873,7 +901,7 @@ def run_curses(stdscr, world_state, spawn_x, spawn_y, cfg=None):
                 mo_idle_until = time.monotonic() + TICK_DELAYS[tick_delay_idx]
 
         renderer.draw(world_state)
-        time.sleep(0.033)   # 30 fps frame rate — always runs, never blocked by Mo
+        time.sleep(_frame_sleep)   # 10fps over SSH, 30fps locally
 
       except (curses.error, SystemError):
           # Terminal size mismatch, bad draw position, or ncurses internal error
@@ -884,12 +912,14 @@ def run_curses(stdscr, world_state, spawn_x, spawn_y, cfg=None):
       except Exception as e:
           log.error(f"curses loop error: {e}", exc_info=True)
 
-    # Restore previous SIGWINCH handler before handing terminal back
-    try:
-        if _old_sigwinch is not None:
-            signal.signal(signal.SIGWINCH, _old_sigwinch)
-    except Exception:
-        pass
+    # Restore signal handlers before handing terminal back
+    for sig, old in ((signal.SIGWINCH, _old_sigwinch),
+                     (signal.SIGHUP,   _old_sighup)):
+        try:
+            if old is not None:
+                signal.signal(sig, old)
+        except Exception:
+            pass
 
     save_world(world_state, _config.SAVE_FILE)
 
