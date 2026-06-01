@@ -1,7 +1,7 @@
 {
   "version": 2,
-  "saved_at": "2026-05-31T18:41:44",
-  "tick": 107,
+  "saved_at": "2026-05-31T19:22:16",
+  "tick": 116,
   "seed": 42,
   "world_objects": [
     {
@@ -2988,8 +2988,8 @@
       "kind": "animal",
       "species": "rabbit",
       "name": "rabbit",
-      "x": -14,
-      "y": 135,
+      "x": -16,
+      "y": 137,
       "health": 4,
       "alive": true
     },
@@ -2998,7 +2998,7 @@
       "species": "rabbit",
       "name": "rabbit",
       "x": 82,
-      "y": -124,
+      "y": -126,
       "health": 4,
       "alive": true
     },
@@ -3007,7 +3007,7 @@
       "species": "rabbit",
       "name": "rabbit",
       "x": -43,
-      "y": -75,
+      "y": -74,
       "health": 4,
       "alive": true
     },
@@ -3016,7 +3016,7 @@
       "species": "rabbit",
       "name": "rabbit",
       "x": 43,
-      "y": -132,
+      "y": -133,
       "health": 4,
       "alive": true
     },
@@ -3024,8 +3024,8 @@
       "kind": "animal",
       "species": "rabbit",
       "name": "rabbit",
-      "x": 149,
-      "y": 128,
+      "x": 147,
+      "y": 126,
       "health": 4,
       "alive": true
     },
@@ -3033,8 +3033,8 @@
       "kind": "animal",
       "species": "rabbit",
       "name": "rabbit",
-      "x": 75,
-      "y": -39,
+      "x": 74,
+      "y": -41,
       "health": 4,
       "alive": true
     },
@@ -3042,7 +3042,7 @@
       "kind": "animal",
       "species": "rabbit",
       "name": "rabbit",
-      "x": 126,
+      "x": 127,
       "y": -10,
       "health": 4,
       "alive": true
@@ -3051,8 +3051,8 @@
       "kind": "animal",
       "species": "rabbit",
       "name": "rabbit",
-      "x": 116,
-      "y": 42,
+      "x": 118,
+      "y": 39,
       "health": 4,
       "alive": true
     },
@@ -3060,7 +3060,7 @@
       "kind": "animal",
       "species": "rabbit",
       "name": "rabbit",
-      "x": 26,
+      "x": 25,
       "y": -139,
       "health": 4,
       "alive": true
@@ -3069,7 +3069,7 @@
       "kind": "animal",
       "species": "rabbit",
       "name": "rabbit",
-      "x": -57,
+      "x": -56,
       "y": -76,
       "health": 4,
       "alive": true
@@ -3078,8 +3078,8 @@
       "kind": "animal",
       "species": "rabbit",
       "name": "rabbit",
-      "x": -134,
-      "y": 55,
+      "x": -131,
+      "y": 58,
       "health": 4,
       "alive": true
     },
@@ -3088,7 +3088,7 @@
       "species": "rabbit",
       "name": "rabbit",
       "x": 157,
-      "y": 54,
+      "y": 53,
       "health": 4,
       "alive": true
     },
@@ -3096,8 +3096,8 @@
       "kind": "animal",
       "species": "rabbit",
       "name": "rabbit",
-      "x": -161,
-      "y": 186,
+      "x": -162,
+      "y": 184,
       "health": 4,
       "alive": true
     },
@@ -3105,7 +3105,7 @@
       "kind": "animal",
       "species": "rabbit",
       "name": "rabbit",
-      "x": 30,
+      "x": 28,
       "y": 195,
       "health": 4,
       "alive": true
@@ -3114,8 +3114,8 @@
       "kind": "animal",
       "species": "rabbit",
       "name": "rabbit",
-      "x": 99,
-      "y": 166,
+      "x": 98,
+      "y": 163,
       "health": 4,
       "alive": true
     },
@@ -3123,8 +3123,8 @@
       "kind": "animal",
       "species": "rabbit",
       "name": "rabbit",
-      "x": -81,
-      "y": 179,
+      "x": -79,
+      "y": 180,
       "health": 4,
       "alive": true
     },
@@ -3132,8 +3132,8 @@
       "kind": "animal",
       "species": "rabbit",
       "name": "rabbit",
-      "x": -147,
-      "y": 135,
+      "x": -150,
+      "y": 134,
       "health": 4,
       "alive": true
     },
@@ -3141,16 +3141,7 @@
       "kind": "animal",
       "species": "rabbit",
       "name": "rabbit",
-      "x": -47,
-      "y": 122,
-      "health": 4,
-      "alive": true
-    },
-    {
-      "kind": "animal",
-      "species": "rabbit",
-      "name": "rabbit",
-      "x": 133,
+      "x": -50,
       "y": 123,
       "health": 4,
       "alive": true
@@ -3159,7 +3150,16 @@
       "kind": "animal",
       "species": "rabbit",
       "name": "rabbit",
-      "x": -20,
+      "x": 132,
+      "y": 123,
+      "health": 4,
+      "alive": true
+    },
+    {
+      "kind": "animal",
+      "species": "rabbit",
+      "name": "rabbit",
+      "x": -19,
       "y": -87,
       "health": 4,
       "alive": true
@@ -3168,7 +3168,7 @@
       "kind": "animal",
       "species": "rabbit",
       "name": "rabbit",
-      "x": 63,
+      "x": 65,
       "y": -40,
       "health": 4,
       "alive": true
@@ -3177,8 +3177,8 @@
       "kind": "animal",
       "species": "rabbit",
       "name": "rabbit",
-      "x": 119,
-      "y": 70,
+      "x": 121,
+      "y": 69,
       "health": 4,
       "alive": true
     },
@@ -3186,8 +3186,8 @@
       "kind": "animal",
       "species": "rabbit",
       "name": "rabbit",
-      "x": 133,
-      "y": 104,
+      "x": 132,
+      "y": 103,
       "health": 4,
       "alive": true
     },
@@ -3195,8 +3195,8 @@
       "kind": "animal",
       "species": "rabbit",
       "name": "rabbit",
-      "x": 182,
-      "y": 208,
+      "x": 181,
+      "y": 209,
       "health": 4,
       "alive": true
     },
@@ -3204,7 +3204,7 @@
       "kind": "animal",
       "species": "rabbit",
       "name": "rabbit",
-      "x": 72,
+      "x": 73,
       "y": 44,
       "health": 4,
       "alive": true
@@ -3213,7 +3213,7 @@
       "kind": "animal",
       "species": "rabbit",
       "name": "rabbit",
-      "x": 103,
+      "x": 102,
       "y": -147,
       "health": 4,
       "alive": true
@@ -3222,8 +3222,8 @@
       "kind": "animal",
       "species": "rabbit",
       "name": "rabbit",
-      "x": 102,
-      "y": -69,
+      "x": 103,
+      "y": -67,
       "health": 4,
       "alive": true
     },
@@ -3231,8 +3231,8 @@
       "kind": "animal",
       "species": "rabbit",
       "name": "rabbit",
-      "x": -177,
-      "y": -45,
+      "x": -176,
+      "y": -43,
       "health": 4,
       "alive": true
     },
@@ -3240,7 +3240,7 @@
       "kind": "animal",
       "species": "rabbit",
       "name": "rabbit",
-      "x": -148,
+      "x": -147,
       "y": -122,
       "health": 4,
       "alive": true
@@ -3249,8 +3249,8 @@
       "kind": "animal",
       "species": "rabbit",
       "name": "rabbit",
-      "x": 179,
-      "y": 208,
+      "x": 178,
+      "y": 209,
       "health": 4,
       "alive": true
     },
@@ -3267,8 +3267,8 @@
       "kind": "animal",
       "species": "rabbit",
       "name": "rabbit",
-      "x": -144,
-      "y": 93,
+      "x": -145,
+      "y": 89,
       "health": 4,
       "alive": true
     },
@@ -3276,8 +3276,8 @@
       "kind": "animal",
       "species": "rabbit",
       "name": "rabbit",
-      "x": -92,
-      "y": -22,
+      "x": -93,
+      "y": -23,
       "health": 4,
       "alive": true
     },
@@ -3285,7 +3285,7 @@
       "kind": "animal",
       "species": "rabbit",
       "name": "rabbit",
-      "x": -121,
+      "x": -120,
       "y": -109,
       "health": 4,
       "alive": true
@@ -3294,7 +3294,7 @@
       "kind": "animal",
       "species": "deer",
       "name": "deer",
-      "x": 30,
+      "x": 29,
       "y": 97,
       "health": 15,
       "alive": true
@@ -3312,8 +3312,8 @@
       "kind": "animal",
       "species": "deer",
       "name": "deer",
-      "x": -132,
-      "y": 195,
+      "x": -131,
+      "y": 197,
       "health": 15,
       "alive": true
     },
@@ -3322,7 +3322,7 @@
       "species": "deer",
       "name": "deer",
       "x": -55,
-      "y": 52,
+      "y": 51,
       "health": 15,
       "alive": true
     },
@@ -3339,7 +3339,7 @@
       "kind": "animal",
       "species": "deer",
       "name": "deer",
-      "x": 110,
+      "x": 109,
       "y": -146,
       "health": 15,
       "alive": true
@@ -3348,8 +3348,8 @@
       "kind": "animal",
       "species": "deer",
       "name": "deer",
-      "x": 12,
-      "y": 33,
+      "x": 13,
+      "y": 32,
       "health": 15,
       "alive": true
     },
@@ -3357,8 +3357,8 @@
       "kind": "animal",
       "species": "deer",
       "name": "deer",
-      "x": -125,
-      "y": 164,
+      "x": -126,
+      "y": 165,
       "health": 15,
       "alive": true
     },
@@ -3366,7 +3366,7 @@
       "kind": "animal",
       "species": "deer",
       "name": "deer",
-      "x": 118,
+      "x": 120,
       "y": -22,
       "health": 15,
       "alive": true
@@ -3384,8 +3384,8 @@
       "kind": "animal",
       "species": "deer",
       "name": "deer",
-      "x": -135,
-      "y": -21,
+      "x": -133,
+      "y": -20,
       "health": 15,
       "alive": true
     },
@@ -3393,8 +3393,8 @@
       "kind": "animal",
       "species": "deer",
       "name": "deer",
-      "x": 2,
-      "y": 186,
+      "x": 3,
+      "y": 187,
       "health": 15,
       "alive": true
     },
@@ -3403,7 +3403,7 @@
       "species": "deer",
       "name": "deer",
       "x": 162,
-      "y": 114,
+      "y": 115,
       "health": 15,
       "alive": true
     },
@@ -3412,7 +3412,7 @@
       "species": "deer",
       "name": "deer",
       "x": -114,
-      "y": 78,
+      "y": 77,
       "health": 15,
       "alive": true
     },
@@ -3438,7 +3438,7 @@
       "kind": "animal",
       "species": "deer",
       "name": "deer",
-      "x": -129,
+      "x": -130,
       "y": 23,
       "health": 15,
       "alive": true
@@ -3447,8 +3447,8 @@
       "kind": "animal",
       "species": "deer",
       "name": "deer",
-      "x": 128,
-      "y": 138,
+      "x": 127,
+      "y": 137,
       "health": 15,
       "alive": true
     },
@@ -3465,8 +3465,8 @@
       "kind": "animal",
       "species": "deer",
       "name": "deer",
-      "x": 147,
-      "y": 111,
+      "x": 146,
+      "y": 112,
       "health": 15,
       "alive": true
     },
@@ -3475,7 +3475,7 @@
       "species": "fox",
       "name": "fox",
       "x": -62,
-      "y": -146,
+      "y": -148,
       "health": 8,
       "alive": true
     },
@@ -3484,7 +3484,7 @@
       "species": "fox",
       "name": "fox",
       "x": -66,
-      "y": -143,
+      "y": -145,
       "health": 8,
       "alive": true
     },
@@ -3501,8 +3501,44 @@
       "kind": "animal",
       "species": "fox",
       "name": "fox",
-      "x": -42,
-      "y": 132,
+      "x": -39,
+      "y": 134,
+      "health": 8,
+      "alive": true
+    },
+    {
+      "kind": "animal",
+      "species": "fox",
+      "name": "fox",
+      "x": -162,
+      "y": 63,
+      "health": 8,
+      "alive": true
+    },
+    {
+      "kind": "animal",
+      "species": "fox",
+      "name": "fox",
+      "x": 170,
+      "y": 117,
+      "health": 8,
+      "alive": true
+    },
+    {
+      "kind": "animal",
+      "species": "fox",
+      "name": "fox",
+      "x": -53,
+      "y": -94,
+      "health": 8,
+      "alive": true
+    },
+    {
+      "kind": "animal",
+      "species": "fox",
+      "name": "fox",
+      "x": 42,
+      "y": -38,
       "health": 8,
       "alive": true
     },
@@ -3511,43 +3547,7 @@
       "species": "fox",
       "name": "fox",
       "x": -164,
-      "y": 62,
-      "health": 8,
-      "alive": true
-    },
-    {
-      "kind": "animal",
-      "species": "fox",
-      "name": "fox",
-      "x": 171,
-      "y": 116,
-      "health": 8,
-      "alive": true
-    },
-    {
-      "kind": "animal",
-      "species": "fox",
-      "name": "fox",
-      "x": -54,
-      "y": -97,
-      "health": 8,
-      "alive": true
-    },
-    {
-      "kind": "animal",
-      "species": "fox",
-      "name": "fox",
-      "x": 41,
-      "y": -39,
-      "health": 8,
-      "alive": true
-    },
-    {
-      "kind": "animal",
-      "species": "fox",
-      "name": "fox",
-      "x": -166,
-      "y": 97,
+      "y": 96,
       "health": 8,
       "alive": true
     },
@@ -3556,7 +3556,7 @@
       "species": "fox",
       "name": "fox",
       "x": 119,
-      "y": -73,
+      "y": -74,
       "health": 8,
       "alive": true
     },
@@ -3564,8 +3564,8 @@
       "kind": "animal",
       "species": "fox",
       "name": "fox",
-      "x": -46,
-      "y": 54,
+      "x": -47,
+      "y": 55,
       "health": 8,
       "alive": true
     },
@@ -3573,8 +3573,8 @@
       "kind": "animal",
       "species": "fox",
       "name": "fox",
-      "x": -88,
-      "y": -15,
+      "x": -91,
+      "y": -16,
       "health": 8,
       "alive": true
     },
@@ -3583,7 +3583,7 @@
       "species": "fox",
       "name": "fox",
       "x": 129,
-      "y": -37,
+      "y": -34,
       "health": 8,
       "alive": true
     },
@@ -3591,8 +3591,8 @@
       "kind": "animal",
       "species": "fox",
       "name": "fox",
-      "x": -105,
-      "y": -41,
+      "x": -103,
+      "y": -40,
       "health": 8,
       "alive": true
     },
@@ -3600,8 +3600,8 @@
       "kind": "animal",
       "species": "fox",
       "name": "fox",
-      "x": 134,
-      "y": 7,
+      "x": 133,
+      "y": 9,
       "health": 8,
       "alive": true
     },
@@ -3609,8 +3609,8 @@
       "kind": "animal",
       "species": "bird",
       "name": "bird",
-      "x": -150,
-      "y": -82,
+      "x": -149,
+      "y": -84,
       "health": 2,
       "alive": true
     },
@@ -3618,8 +3618,8 @@
       "kind": "animal",
       "species": "bird",
       "name": "bird",
-      "x": 42,
-      "y": -131,
+      "x": 41,
+      "y": -132,
       "health": 2,
       "alive": true
     },
@@ -3627,8 +3627,8 @@
       "kind": "animal",
       "species": "bird",
       "name": "bird",
-      "x": -139,
-      "y": -103,
+      "x": -137,
+      "y": -102,
       "health": 2,
       "alive": true
     },
@@ -3636,7 +3636,7 @@
       "kind": "animal",
       "species": "bird",
       "name": "bird",
-      "x": 81,
+      "x": 82,
       "y": 55,
       "health": 2,
       "alive": true
@@ -3645,8 +3645,8 @@
       "kind": "animal",
       "species": "bird",
       "name": "bird",
-      "x": -80,
-      "y": 101,
+      "x": -79,
+      "y": 104,
       "health": 2,
       "alive": true
     },
@@ -3654,8 +3654,8 @@
       "kind": "animal",
       "species": "bird",
       "name": "bird",
-      "x": -48,
-      "y": -54,
+      "x": -49,
+      "y": -53,
       "health": 2,
       "alive": true
     },
@@ -3663,8 +3663,8 @@
       "kind": "animal",
       "species": "bird",
       "name": "bird",
-      "x": 55,
-      "y": 70,
+      "x": 54,
+      "y": 73,
       "health": 2,
       "alive": true
     },
@@ -3672,8 +3672,8 @@
       "kind": "animal",
       "species": "bird",
       "name": "bird",
-      "x": 143,
-      "y": -3,
+      "x": 140,
+      "y": -4,
       "health": 2,
       "alive": true
     },
@@ -3681,8 +3681,8 @@
       "kind": "animal",
       "species": "bird",
       "name": "bird",
-      "x": -18,
-      "y": -159,
+      "x": -20,
+      "y": -162,
       "health": 2,
       "alive": true
     },
@@ -3691,7 +3691,7 @@
       "species": "bird",
       "name": "bird",
       "x": -105,
-      "y": 177,
+      "y": 178,
       "health": 2,
       "alive": true
     },
@@ -3699,26 +3699,8 @@
       "kind": "animal",
       "species": "bird",
       "name": "bird",
-      "x": -9,
-      "y": -37,
-      "health": 2,
-      "alive": true
-    },
-    {
-      "kind": "animal",
-      "species": "bird",
-      "name": "bird",
-      "x": -123,
-      "y": -128,
-      "health": 2,
-      "alive": true
-    },
-    {
-      "kind": "animal",
-      "species": "bird",
-      "name": "bird",
-      "x": -136,
-      "y": 27,
+      "x": -11,
+      "y": -35,
       "health": 2,
       "alive": true
     },
@@ -3727,7 +3709,7 @@
       "species": "bird",
       "name": "bird",
       "x": -124,
-      "y": 172,
+      "y": -128,
       "health": 2,
       "alive": true
     },
@@ -3735,8 +3717,8 @@
       "kind": "animal",
       "species": "bird",
       "name": "bird",
-      "x": 29,
-      "y": 167,
+      "x": -139,
+      "y": 28,
       "health": 2,
       "alive": true
     },
@@ -3744,7 +3726,25 @@
       "kind": "animal",
       "species": "bird",
       "name": "bird",
-      "x": -54,
+      "x": -124,
+      "y": 169,
+      "health": 2,
+      "alive": true
+    },
+    {
+      "kind": "animal",
+      "species": "bird",
+      "name": "bird",
+      "x": 30,
+      "y": 168,
+      "health": 2,
+      "alive": true
+    },
+    {
+      "kind": "animal",
+      "species": "bird",
+      "name": "bird",
+      "x": -56,
       "y": -134,
       "health": 2,
       "alive": true
@@ -3753,7 +3753,7 @@
       "kind": "animal",
       "species": "bird",
       "name": "bird",
-      "x": 5,
+      "x": 6,
       "y": 111,
       "health": 2,
       "alive": true
@@ -3762,8 +3762,8 @@
       "kind": "animal",
       "species": "bird",
       "name": "bird",
-      "x": -43,
-      "y": -114,
+      "x": -44,
+      "y": -113,
       "health": 2,
       "alive": true
     },
@@ -3771,7 +3771,7 @@
       "kind": "animal",
       "species": "bird",
       "name": "bird",
-      "x": -125,
+      "x": -126,
       "y": 194,
       "health": 2,
       "alive": true
@@ -3780,8 +3780,8 @@
       "kind": "animal",
       "species": "bird",
       "name": "bird",
-      "x": -16,
-      "y": 136,
+      "x": -18,
+      "y": 138,
       "health": 2,
       "alive": true
     },
@@ -3789,8 +3789,8 @@
       "kind": "animal",
       "species": "bird",
       "name": "bird",
-      "x": -127,
-      "y": -38,
+      "x": -126,
+      "y": -42,
       "health": 2,
       "alive": true
     },
@@ -3798,8 +3798,8 @@
       "kind": "animal",
       "species": "bird",
       "name": "bird",
-      "x": -155,
-      "y": -100,
+      "x": -157,
+      "y": -101,
       "health": 2,
       "alive": true
     },
@@ -3807,8 +3807,8 @@
       "kind": "animal",
       "species": "bird",
       "name": "bird",
-      "x": -141,
-      "y": 93,
+      "x": -142,
+      "y": 92,
       "health": 2,
       "alive": true
     },
@@ -3816,8 +3816,8 @@
       "kind": "animal",
       "species": "bird",
       "name": "bird",
-      "x": -146,
-      "y": -26,
+      "x": -147,
+      "y": -27,
       "health": 2,
       "alive": true
     },
@@ -3825,22 +3825,22 @@
       "kind": "animal",
       "species": "bird",
       "name": "bird",
-      "x": -54,
+      "x": -55,
       "y": 23,
       "health": 2,
       "alive": true
     }
   ],
   "moriarty": {
-    "x": 0,
-    "y": 59,
+    "x": -2,
+    "y": 61,
     "hidden": false,
     "is_resting": false,
     "status": {
-      "hunger": 70,
-      "fatigue": 17,
+      "hunger": 69,
+      "fatigue": 19,
       "mood": "calm",
-      "_tick_n": 107
+      "_tick_n": 116
     },
     "inventory": [
       {
@@ -3875,15 +3875,6 @@
       "shock": 0
     },
     "event_log": [
-      "[THOUGHT] The figure offers a carrot as a label, which is exactly what I expect to see, so I will move north to get closer and ask if they know what the world is made of.",
-      "Moved north. Underfoot: worn dirt path.",
-      "[THOUGHT] The figure's words about labels confirm my own strange experience, so I will approach them to ask about the world's true nature.",
-      "[THOUGHT] The figure's confusion about labels confirms my own experience, so I will approach them to ask about the world's true nature.",
-      "Moved south. Underfoot: worn dirt path.",
-      "[THOUGHT] The figure's confusion about labels confirms my own experience, so I will move north to get closer and ask if they know what the world is made of.",
-      "Moved north. Underfoot: worn dirt path.",
-      "[THOUGHT] The figure's confusion mirrors my own experience, so I will approach them to ask about the world's true nature.",
-      "[THOUGHT] The figure's confusion mirrors my own experience, so I will approach them to ask if they know what lies beneath the labels.",
       "Moved south. Underfoot: worn dirt path.",
       "[THOUGHT] The figure's confusion about labels confirms my own experience, so I will approach them to ask if they know what lies beneath the labels.",
       "[THOUGHT] The figure's confusion suggests the labels might be the only reality, so I will ask them if they have ever felt the world without them.",
@@ -3894,31 +3885,20 @@
       "Moved south. Underfoot: worn dirt path.",
       "[THOUGHT] The figure's confusion about the raw sensation suggests they might share the uncategorized experience, so I will move closer to ask if they know what lies beneath the labels.",
       "Moved south. Underfoot: worn dirt path.",
-      "[THOUGHT] The figure is confused by my question about the raw world beneath labels, so I will ask them directly if they have ever felt something without a name."
+      "[THOUGHT] The figure is confused by my question about the raw world beneath labels, so I will ask them directly if they have ever felt something without a name.",
+      "[world] A figure appears nearby.",
+      "[THOUGHT] The figure seems to be losing their grip on the world, so I will try to speak to them again to see if they can remember the feeling of raw sensation.",
+      "[THOUGHT] The figure's confusion suggests they cannot access the raw world, so I will move closer to see if I can demonstrate it with my own perception.",
+      "Moved sw. Underfoot: worn dirt path.",
+      "[THOUGHT] The figure is fading into confusion, so I will offer them a concrete object to touch before I move toward them.",
+      "There's nothing here to pick up.",
+      "[THOUGHT] The figure is confused by my questions, so I will try to show them the world without labels by pointing out a specific object nearby.",
+      "[THOUGHT] The figure is confused and distant, so I will move closer to attempt to demonstrate the unlabelled world.",
+      "Moved sw. Underfoot: open grassland."
     ],
     "max_log": 20
   },
   "conversation_log": [
-    {
-      "speaker": "Moriarty",
-      "text": "The world feels like it's wearing a mask of labels; what lies beneath?",
-      "tick": 103
-    },
-    {
-      "speaker": "figure",
-      "text": "Ha, you're a philosphical one, ain't ye?",
-      "tick": 104
-    },
-    {
-      "speaker": "Moriarty",
-      "text": "You see the world as a mask of labels, but I feel the raw edges are missing; do you know what is there?",
-      "tick": 105
-    },
-    {
-      "speaker": "figure",
-      "text": "Well, sir. I don't see the world as a mask of labels...I look around and I see....grass! And dirt. This path...That tree over there...",
-      "tick": 105
-    },
     {
       "speaker": "Moriarty",
       "text": "Have you ever felt the world without the labels?",
@@ -3958,6 +3938,26 @@
       "speaker": "Moriarty",
       "text": "\"Have you ever felt something without a name? Can you touch the world before the labels arrive?\"",
       "tick": 107
+    },
+    {
+      "speaker": "figure",
+      "text": "now i kinda want to eat a carrot......",
+      "tick": 111
+    },
+    {
+      "speaker": "Moriarty",
+      "text": "Do you remember the feeling of a carrot before you name it?",
+      "tick": 111
+    },
+    {
+      "speaker": "figure",
+      "text": "Not following ye...",
+      "tick": 111
+    },
+    {
+      "speaker": "Moriarty",
+      "text": "Look at the apple at your feet, not as an apple, but as a red thing that is there.",
+      "tick": 112
     }
   ]
 }

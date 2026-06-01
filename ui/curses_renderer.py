@@ -314,9 +314,14 @@ class CursesRenderer:
             self._put(row, map_w, "|", curses.color_pair(PAIR_DIM))
 
     def _draw_panel(self, world_state, px, panel_w, map_h):
-        """Draw the right-hand status panel. Every section guards row < map_h."""
+        """
+        Draw the right-hand status panel.
+        All text is wrapped to panel_w-2 chars and every write guards row < map_h.
+        Header is kept compact so the log gets maximum vertical space.
+        """
         moriarty = world_state.moriarty
         row = 0
+        wrap_w = max(8, panel_w - 2)
 
         def put(text, attr=None):
             nonlocal row
@@ -328,71 +333,99 @@ class CursesRenderer:
             row += 1
             return True
 
+        def put_wrapped(text, attr=None, max_lines=2):
+            """Write text wrapped to panel width. Returns False if panel full."""
+            if attr is None:
+                attr = curses.color_pair(PAIR_NORMAL)
+            lines = textwrap.wrap(_safe(text), wrap_w) or [_safe(text)[:wrap_w]]
+            for line in lines[:max_lines]:
+                if not put(line, attr):
+                    return False
+            return True
+
         def divider():
             put("-" * (panel_w - 1), curses.color_pair(PAIR_DIM))
 
-        # Header
-        if not put("// MORIARTY", curses.color_pair(PAIR_HIGHLIGHT) | curses.A_BOLD):
-            return
-        divider()
-
-        # Control mode
-        label = self.control_mode_label
+        # ── Compact header (mode + pos on same line to save rows) ─────────────
+        label     = self.control_mode_label
         mode_attr = {
             "MORIARTY": curses.color_pair(PAIR_HIGHLIGHT),
             "GOD":      curses.color_pair(PAIR_WARNING) | curses.A_BOLD,
             "PLAYER":   curses.color_pair(PAIR_PLAYER)  | curses.A_BOLD,
         }.get(label, curses.color_pair(PAIR_WARNING) | curses.A_BOLD)
-        put(f"MODE : {label}", mode_attr)
 
-        # Position / tick / status
-        put(f"POS  : ({moriarty.x},{moriarty.y})  T:{world_state.tick}")
+        if not put(f"MORIARTY [{label}]", mode_attr):
+            return
+        divider()
+
+        put(f"({moriarty.x},{moriarty.y}) T:{world_state.tick}")
         warn = moriarty.status.hunger < 20 or moriarty.status.fatigue > 80
-        put(f"STATE: {moriarty.status.describe()}",
-            curses.color_pair(PAIR_WARNING) if warn else curses.color_pair(PAIR_NORMAL))
-        put(f"CARRY: {moriarty.describe_inventory()}")
+        put_wrapped(moriarty.status.describe(),
+                    curses.color_pair(PAIR_WARNING) if warn
+                    else curses.color_pair(PAIR_NORMAL),
+                    max_lines=1)
 
-        # Speed bar
         n, filled = 7, self.tick_delay_idx + 1
         bar = "#" * filled + "." * (n - filled)
-        if self.stepped:
-            put(f"SPD : [{bar}] STEP", curses.color_pair(PAIR_WARNING) | curses.A_BOLD)
-        else:
-            put(f"SPD : [{bar}] {self.tick_delay}s")
+        spd_attr = curses.color_pair(PAIR_WARNING) | curses.A_BOLD if self.stepped \
+                   else curses.color_pair(PAIR_NORMAL)
+        put(f"[{bar}] {'STEP' if self.stepped else str(self.tick_delay) + 's'}", spd_attr)
 
         divider()
 
-        # Thought / live reasoning stream
+        # ── Thought / reasoning ───────────────────────────────────────────────
         if self.reasoning_stream:
-            if not put("REASONING:", curses.color_pair(PAIR_DIM)):
+            if not put("~reasoning~", curses.color_pair(PAIR_DIM)):
                 return
-            tail = _safe(self.reasoning_stream[-200:])
-            if len(tail) == 200:
+            tail = _safe(self.reasoning_stream[-150:])
+            if len(tail) == 150:
                 tail = tail[tail.find(" ") + 1:]
-            wrap_w = max(1, panel_w - 2)
-            for line in textwrap.wrap(tail, wrap_w)[-4:]:
+            for line in textwrap.wrap(tail, wrap_w)[-3:]:
                 if not put(line, curses.color_pair(PAIR_DIM)):
                     return
         else:
             if not put("THOUGHT:", curses.color_pair(PAIR_DIM)):
                 return
             if self.last_thought:
-                wrap_w = max(1, panel_w - 2)
-                for line in textwrap.wrap(_safe(self.last_thought), wrap_w)[:4]:
+                for line in textwrap.wrap(_safe(self.last_thought), wrap_w)[:3]:
                     if not put(line, curses.color_pair(PAIR_HIGHLIGHT)):
                         return
 
         divider()
 
-        # Message log — fills remaining space
+        # ── Message log — wraps each message, fills remaining space ───────────
         if not put("LOG:", curses.color_pair(PAIR_DIM)):
             return
-        available = max(0, map_h - row)
-        for i, msg in enumerate(self.messages[-available:]):
-            age = available - i
-            attr = curses.color_pair(PAIR_DIM) if age > 5 else curses.color_pair(PAIR_NORMAL)
-            if not put(_safe(msg), attr):
-                return
+
+        # Work out how many rows we have left, then fill from most recent messages
+        # Each message may take 1-2 wrapped lines; fill backwards from bottom.
+        rows_left = map_h - row
+        if rows_left <= 0:
+            return
+
+        # Pre-wrap all messages so we know how many rows each needs
+        wrapped_msgs = []
+        for msg in self.messages:
+            lines = textwrap.wrap(_safe(msg), wrap_w) or [_safe(msg)[:wrap_w]]
+            wrapped_msgs.append(lines[:2])   # cap at 2 lines per message
+
+        # Pick the most recent messages that fit
+        slots, chosen = rows_left, []
+        for lines in reversed(wrapped_msgs):
+            if slots >= len(lines):
+                chosen.insert(0, lines)
+                slots -= len(lines)
+            if slots == 0:
+                break
+
+        total = len(chosen)
+        for mi, lines in enumerate(chosen):
+            age = total - mi
+            attr = curses.color_pair(PAIR_DIM) if age > 4 \
+                   else curses.color_pair(PAIR_NORMAL)
+            for line in lines:
+                if not put(line, attr):
+                    return
 
     def _draw_bottom_bar(self, row, w):
         safe_w = max(1, w - 1)   # never write to the very last cell (curses error)
@@ -490,7 +523,7 @@ class CursesRenderer:
 
             # Sanitise BEFORE wrapping so length arithmetic is correct
             full_text = _safe(f'"{bubble["text"]}"')
-            wrap_w = max(10, min(50, map_w - 2))
+            wrap_w = max(10, min(36, map_w - 4))  # narrower = easier to centre
             wrapped_lines = textwrap.wrap(full_text, wrap_w) or [full_text[:wrap_w]]
 
             for li, line in enumerate(wrapped_lines):
