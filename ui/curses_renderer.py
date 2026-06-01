@@ -193,6 +193,8 @@ class CursesRenderer:
         self.view_y = y - map_h // 2
 
     def draw(self, world_state):
+        # update_lines_cols() is our last-resort resize catch inside the renderer;
+        # the main loop's SIGWINCH flag is the primary defence.
         try:
             curses.update_lines_cols()
         except Exception:

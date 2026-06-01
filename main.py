@@ -612,7 +612,21 @@ def run_pygame(world_state, spawn_x, spawn_y, cfg=None):
 def run_curses(stdscr, world_state, spawn_x, spawn_y, cfg=None):
     import curses
     import time
+    import signal
     from moriarty.ui.curses_renderer import CursesRenderer
+
+    # ── SIGWINCH (terminal resize) safety ─────────────────────────────────────
+    # Intercept the resize signal in Python and set a flag instead of letting
+    # it reach ncurses's internal C handler mid-draw (which causes segfaults
+    # on Termius/iOS when the keyboard appears or the device is rotated).
+    # The flag is checked at the TOP of each frame, between draw calls.
+    _resize_pending = [False]
+    def _on_sigwinch(signum, frame):
+        _resize_pending[0] = True
+    try:
+        _old_sigwinch = signal.signal(signal.SIGWINCH, _on_sigwinch)
+    except (AttributeError, OSError):
+        _old_sigwinch = None   # SIGWINCH not available on this platform
 
     MOVE_KEYS = {
         curses.KEY_UP:    "north",
@@ -665,13 +679,26 @@ def run_curses(stdscr, world_state, spawn_x, spawn_y, cfg=None):
     running = True
     while running:
       try:
+        # ── Handle terminal resize between frames (never mid-draw) ────────────
+        if _resize_pending[0]:
+            _resize_pending[0] = False
+            try:
+                curses.update_lines_cols()
+                stdscr.clear()
+                renderer.center_on(moriarty.x, moriarty.y)
+            except curses.error:
+                pass
+
         key = renderer.get_input()
 
-        # Handle KEY_RESIZE — terminal was resized (e.g. iPad keyboard appeared)
+        # Also handle KEY_RESIZE events sent by the terminal itself
         if key == curses.KEY_RESIZE:
-            renderer.stdscr.clear()
-            renderer.center_on(moriarty.x, moriarty.y)
-            renderer.draw(world_state)
+            try:
+                curses.update_lines_cols()
+                stdscr.clear()
+                renderer.center_on(moriarty.x, moriarty.y)
+            except curses.error:
+                pass
             continue
 
         # ── Text input mode — intercepts all keys, no blocking calls ─────────
@@ -848,15 +875,21 @@ def run_curses(stdscr, world_state, spawn_x, spawn_y, cfg=None):
         renderer.draw(world_state)
         time.sleep(0.033)   # 30 fps frame rate — always runs, never blocked by Mo
 
-      except curses.error:
-          # Terminal size mismatch or draw error — clear and continue
+      except (curses.error, SystemError):
+          # Terminal size mismatch, bad draw position, or ncurses internal error
           try:
-              renderer.stdscr.clear()
+              stdscr.clear()
           except Exception:
               pass
       except Exception as e:
-          # Unexpected error — log and continue rather than crash
           log.error(f"curses loop error: {e}", exc_info=True)
+
+    # Restore previous SIGWINCH handler before handing terminal back
+    try:
+        if _old_sigwinch is not None:
+            signal.signal(signal.SIGWINCH, _old_sigwinch)
+    except Exception:
+        pass
 
     save_world(world_state, _config.SAVE_FILE)
 
