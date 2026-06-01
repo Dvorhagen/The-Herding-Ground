@@ -282,6 +282,10 @@ def call_ollama(messages: list[dict], thinking: bool = False,
             json=payload,
             stream=True,
             timeout=stream_timeout,
+            # Disable brotli/zstd compression — their C extensions (_brotli,
+            # zstandard.backend_c) run in the brain thread and can corrupt
+            # Python's heap, causing segfaults on the main thread.
+            headers={"Accept-Encoding": "gzip, deflate"},
         )
         resp.raise_for_status()
         content_parts = []

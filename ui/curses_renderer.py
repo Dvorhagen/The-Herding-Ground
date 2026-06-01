@@ -240,10 +240,14 @@ class CursesRenderer:
         world = world_state.world
         moriarty = world_state.moriarty
 
+        # Snapshot the entity list once — prevents any mid-draw mutation
+        # (including from the GC) from corrupting the iteration.
+        entities = list(world_state.entities)
+
         # Pre-index entities by tile position so we don't scan all entities per tile
         player_at = {}    # (x,y) -> PlayerEntity
         creature_at = {}  # (x,y) -> first non-item, non-player entity (animals etc.)
-        for e in world_state.entities:
+        for e in entities:
             et_name = getattr(getattr(e, 'entity_type', None), 'name', '')
             pos = (e.x, e.y)
             if et_name == 'PLAYER':

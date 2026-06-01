@@ -44164,3 +44164,168 @@ ARGS: direction=north
 20:49:19 [INFO] PARSED: action=move args={'direction': 'north'} thought=The figure is still confused by the unlabelled world, so I will move north to ge
 20:49:19 [INFO] LOOP tick=118 action=move args={'direction': 'north'}
 20:49:19 [INFO] GAME action=move args={'direction': 'north'} ok=True | Moved north. Underfoot: open grassland.
+20:56:52 [DEBUG] Starting new HTTP connection (1): localhost:11434
+20:56:53 [DEBUG] http://localhost:11434 "POST /api/chat HTTP/11" 200 None
+20:56:53 [DEBUG] RAW RESPONSE:
+THOUGHT: The figure is confused and distant, so I will move closer to attempt to demonstrate the unlabelled world.
+ACTION: move
+ARGS: direction=ne
+20:56:53 [INFO] PARSED: action=move args={'direction': 'ne'} thought=The figure is confused and distant, so I will move closer to attempt to demonstr
+20:56:53 [INFO] LOOP tick=117 action=move args={'direction': 'ne'}
+20:56:53 [INFO] GAME action=move args={'direction': 'ne'} ok=True | Moved ne. Underfoot: worn dirt path.
+20:56:56 [DEBUG] Starting new HTTP connection (1): localhost:11434
+20:56:56 [DEBUG] http://localhost:11434 "POST /api/chat HTTP/11" 200 None
+20:56:56 [DEBUG] RAW RESPONSE:
+THOUGHT: The figure seems stuck in a loop of names, so I will examine the ground directly beneath my feet to see if the dirt reveals its true texture.
+ACTION: examine
+ARGS: target=underfoot
+20:56:56 [INFO] PARSED: action=examine args={'target': 'underfoot'} thought=The figure seems stuck in a loop of names, so I will examine the ground directly
+20:56:56 [INFO] LOOP tick=118 action=examine args={'target': 'underfoot'}
+20:56:56 [INFO] GAME action=examine args={'target': 'underfoot'} ok=False | You don't see any 'underfoot' nearby.
+20:57:00 [DEBUG] Starting new HTTP connection (1): localhost:11434
+20:57:00 [DEBUG] http://localhost:11434 "POST /api/chat HTTP/11" 200 None
+20:57:00 [DEBUG] RAW RESPONSE:
+THOUGHT: The figure is stuck in a loop of names, so I will move closer to try and show them the world before the labels arrive.
+ACTION: move
+ARGS: direction=west
+20:57:00 [INFO] PARSED: action=move args={'direction': 'west'} thought=The figure is stuck in a loop of names, so I will move closer to try and show th
+20:57:00 [INFO] LOOP tick=118 action=move args={'direction': 'west'}
+20:57:00 [INFO] GAME action=move args={'direction': 'west'} ok=True | Moved west. Underfoot: open grassland.
+20:57:50 [DEBUG] Starting new HTTP connection (1): localhost:11434
+20:57:50 [DEBUG] http://localhost:11434 "POST /api/chat HTTP/11" 200 None
+20:57:51 [DEBUG] RAW RESPONSE:
+THOUGHT: The figure seems trapped in a loop of names, so I will move closer to show them the world before the labels arrive.
+ACTION: move
+ARGS: direction=west
+20:57:51 [INFO] PARSED: action=move args={'direction': 'west'} thought=The figure seems trapped in a loop of names, so I will move closer to show them 
+20:57:51 [INFO] LOOP tick=119 action=move args={'direction': 'west'}
+20:57:51 [INFO] GAME action=move args={'direction': 'west'} ok=True | Moved west. Underfoot: open grassland.
+20:57:54 [DEBUG] Starting new HTTP connection (1): localhost:11434
+20:57:54 [DEBUG] http://localhost:11434 "POST /api/chat HTTP/11" 200 None
+20:57:54 [DEBUG] RAW RESPONSE:
+THOUGHT: The figure is stuck in a loop of names, so I will move closer to try and show them the world before the labels arrive.
+ACTION: move
+ARGS: direction=west
+20:57:54 [INFO] PARSED: action=move args={'direction': 'west'} thought=The figure is stuck in a loop of names, so I will move closer to try and show th
+20:57:54 [INFO] LOOP tick=120 action=move args={'direction': 'west'}
+20:57:54 [INFO] GAME action=move args={'direction': 'west'} ok=True | Moved west. Underfoot: open grassland.
+20:57:58 [DEBUG] Starting new HTTP connection (1): localhost:11434
+20:57:58 [DEBUG] http://localhost:11434 "POST /api/chat HTTP/11" 200 None
+20:57:59 [DEBUG] RAW RESPONSE:
+THOUGHT: The figure is still trapped in words, so I will move closer to demonstrate the raw texture of the world.
+ACTION: move
+ARGS: direction=west
+20:57:59 [INFO] PARSED: action=move args={'direction': 'west'} thought=The figure is still trapped in words, so I will move closer to demonstrate the r
+20:57:59 [INFO] LOOP tick=121 action=move args={'direction': 'west'}
+20:57:59 [INFO] GAME action=move args={'direction': 'west'} ok=True | Moved west. Underfoot: open grassland.
+20:58:05 [DEBUG] Starting new HTTP connection (1): localhost:11434
+20:58:06 [DEBUG] http://localhost:11434 "POST /api/chat HTTP/11" 200 None
+20:58:06 [DEBUG] RAW RESPONSE:
+THOUGHT: The figure seems to be stuck in a loop of names, so I will move closer to try and show them the world before the labels arrive.
+ACTION: move
+ARGS: direction=west
+20:58:06 [INFO] PARSED: action=move args={'direction': 'west'} thought=The figure seems to be stuck in a loop of names, so I will move closer to try an
+20:58:06 [INFO] LOOP tick=124 action=move args={'direction': 'west'}
+20:58:06 [INFO] GAME action=move args={'direction': 'west'} ok=True | Moved west. Underfoot: open grassland.
+20:58:08 [DEBUG] Starting new HTTP connection (1): localhost:11434
+20:58:09 [DEBUG] http://localhost:11434 "POST /api/chat HTTP/11" 200 None
+20:58:09 [DEBUG] RAW RESPONSE:
+THOUGHT: The figure is stuck in a loop of names, so I will move closer to demonstrate the raw texture of the world.
+ACTION: move
+ARGS: direction=east
+20:58:09 [INFO] PARSED: action=move args={'direction': 'east'} thought=The figure is stuck in a loop of names, so I will move closer to demonstrate the
+20:58:09 [INFO] LOOP tick=125 action=move args={'direction': 'east'}
+20:58:09 [INFO] GAME action=move args={'direction': 'east'} ok=True | Moved east. Underfoot: open grassland.
+20:58:36 [DEBUG] Starting new HTTP connection (1): localhost:11434
+20:58:36 [DEBUG] http://localhost:11434 "POST /api/chat HTTP/11" 200 None
+20:58:36 [DEBUG] RAW RESPONSE:
+THOUGHT: The figure is repeating the same questions about loops and names, so I will step closer to show them the raw texture of the world without labels.
+ACTION: move
+ARGS: direction=east
+20:58:36 [INFO] PARSED: action=move args={'direction': 'east'} thought=The figure is repeating the same questions about loops and names, so I will step
+20:58:36 [INFO] LOOP tick=126 action=move args={'direction': 'east'}
+20:58:36 [INFO] GAME action=move args={'direction': 'east'} ok=True | Moved east. Underfoot: open grassland.
+20:58:44 [DEBUG] Starting new HTTP connection (1): localhost:11434
+20:58:45 [DEBUG] http://localhost:11434 "POST /api/chat HTTP/11" 200 None
+20:58:45 [DEBUG] RAW RESPONSE:
+THOUGHT: The figure's confusion about names suggests they are trapped in my same filtered view, so I will move closer to demonstrate the raw texture of the world.
+ACTION: move
+ARGS: direction=south
+20:58:45 [INFO] PARSED: action=move args={'direction': 'south'} thought=The figure's confusion about names suggests they are trapped in my same filtered
+20:58:45 [INFO] LOOP tick=128 action=move args={'direction': 'south'}
+20:58:45 [INFO] GAME action=move args={'direction': 'south'} ok=True | Moved south. Underfoot: open grassland.
+20:58:49 [DEBUG] Starting new HTTP connection (1): localhost:11434
+20:58:49 [DEBUG] http://localhost:11434 "POST /api/chat HTTP/11" 200 None
+20:58:50 [DEBUG] RAW RESPONSE:
+THOUGHT: The figure is trapped in labels, so I will move closer to let them feel the ground directly without names.
+ACTION: move
+ARGS: direction=north
+20:58:50 [INFO] PARSED: action=move args={'direction': 'north'} thought=The figure is trapped in labels, so I will move closer to let them feel the grou
+20:58:50 [INFO] LOOP tick=130 action=move args={'direction': 'north'}
+20:58:50 [INFO] GAME action=move args={'direction': 'north'} ok=True | Moved north. Underfoot: open grassland.
+20:58:52 [DEBUG] Starting new HTTP connection (1): localhost:11434
+20:58:52 [DEBUG] http://localhost:11434 "POST /api/chat HTTP/11" 200 None
+21:03:05 [DEBUG] Starting new HTTP connection (1): localhost:11434
+21:03:05 [DEBUG] http://localhost:11434 "POST /api/chat HTTP/11" 200 None
+21:03:06 [DEBUG] RAW RESPONSE:
+THOUGHT: The figure is confused and distant, so I will move closer to attempt to demonstrate the unlabelled world.
+ACTION: move
+ARGS: direction=sw
+21:03:06 [INFO] PARSED: action=move args={'direction': 'sw'} thought=The figure is confused and distant, so I will move closer to attempt to demonstr
+21:03:06 [INFO] LOOP tick=116 action=move args={'direction': 'sw'}
+21:03:06 [INFO] GAME action=move args={'direction': 'sw'} ok=True | Moved sw. Underfoot: open grassland.
+21:03:06 [ERROR] curses loop error: unsupported operand type(s) for *: 'code' and 'float'
+Traceback (most recent call last):
+  File "/home/dvorhagen/aaron/projects/herding_ground/moriarty/main.py", line 889, in run_curses
+    _process_moriarty_result(
+  File "/home/dvorhagen/aaron/projects/herding_ground/moriarty/main.py", line 188, in _process_moriarty_result
+    world_state.advance_tick()
+  File "/home/dvorhagen/aaron/projects/herding_ground/moriarty/world/state.py", line 166, in advance_tick
+    entity.tick(self)
+  File "/home/dvorhagen/aaron/projects/herding_ground/moriarty/entities/animals.py", line 51, in tick
+    self._wander(world_state.world)
+  File "/home/dvorhagen/aaron/projects/herding_ground/moriarty/entities/animals.py", line 70, in _wander
+    tile = world.get(nx, ny)
+           ^^^^^^^^^^^^^^^^^
+  File "/home/dvorhagen/aaron/projects/herding_ground/moriarty/world/tiles.py", line 316, in get
+    self._ensure_chunk(cx, cy)
+  File "/home/dvorhagen/aaron/projects/herding_ground/moriarty/world/tiles.py", line 292, in _ensure_chunk
+    self._chunks[(cx, cy)] = self._generate_chunk(cx, cy)
+                             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/dvorhagen/aaron/projects/herding_ground/moriarty/world/tiles.py", line 304, in _generate_chunk
+    tt = _tile_type_at(wx_base + lx, wy, seed, river_map)
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/dvorhagen/aaron/projects/herding_ground/moriarty/world/tiles.py", line 213, in _tile_type_at
+    nx = wx * _NOISE_SCALE
+         ~~~^~~~~~~~~~~~~~
+TypeError: unsupported operand type(s) for *: 'code' and 'float'
+21:03:09 [DEBUG] Starting new HTTP connection (1): localhost:11434
+21:03:09 [DEBUG] http://localhost:11434 "POST /api/chat HTTP/11" 200 None
+21:03:10 [DEBUG] RAW RESPONSE:
+THOUGHT: The figure is confused and distant, so I will move closer to attempt to demonstrate the unlabelled world.
+ACTION: move
+ARGS: direction=south-west
+21:03:10 [INFO] PARSED: action=move args={'direction': 'south-west'} thought=The figure is confused and distant, so I will move closer to attempt to demonstr
+21:03:10 [INFO] LOOP tick=117 action=move args={'direction': 'south-west'}
+21:03:10 [INFO] GAME action=move args={'direction': 'south-west'} ok=True | Moved sw. Underfoot: open grassland.
+21:03:10 [ERROR] curses loop error: _make_invoke_excepthook.<locals>.invoke_excepthook() takes 1 positional argument but 4 were given
+Traceback (most recent call last):
+  File "/home/dvorhagen/aaron/projects/herding_ground/moriarty/main.py", line 889, in run_curses
+    _process_moriarty_result(
+  File "/home/dvorhagen/aaron/projects/herding_ground/moriarty/main.py", line 188, in _process_moriarty_result
+    world_state.advance_tick()
+  File "/home/dvorhagen/aaron/projects/herding_ground/moriarty/world/state.py", line 166, in advance_tick
+  File "/home/dvorhagen/aaron/projects/herding_ground/moriarty/entities/animals.py", line 51, in tick
+    self._wander(world_state.world)
+  File "/home/dvorhagen/aaron/projects/herding_ground/moriarty/entities/animals.py", line 70, in _wander
+    tile = world.get(nx, ny)
+           ^^^^^^^^^^^^^^^^^
+  File "/home/dvorhagen/aaron/projects/herding_ground/moriarty/world/tiles.py", line 316, in get
+    self._ensure_chunk(cx, cy)
+  File "/home/dvorhagen/aaron/projects/herding_ground/moriarty/world/tiles.py", line 292, in _ensure_chunk
+    self._chunks[(cx, cy)] = self._generate_chunk(cx, cy)
+                             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/dvorhagen/aaron/projects/herding_ground/moriarty/world/tiles.py", line 304, in _generate_chunk
+    tt = _tile_type_at(wx_base + lx, wy, seed, river_map)
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+TypeError: _make_invoke_excepthook.<locals>.invoke_excepthook() takes 1 positional argument but 4 were given
